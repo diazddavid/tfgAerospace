@@ -3,14 +3,14 @@ from f412.models import *
 
 register = template.Library()
 
-@register.assignment_tag
+@register.simple_tag
 def getPareto(namePareto, month, year, typePar):
     try:
         return paretoTabla.objects.filter(year = year).filter(isLay = typePar).filter(mes = month).get(pareto = namePareto)
     except:
         return ""
-    
-@register.assignment_tag
+
+@register.simple_tag
 def getParteroDefc(paretoDefc):
     try:
         lastParetoTabla = paretoDefc.paretoTablaList.all()[0]
@@ -18,7 +18,7 @@ def getParteroDefc(paretoDefc):
         return paretoTablaPrev.topDefc.all().get(defecto = paretoDefc.defecto)
     except:
         return ""
-         
+
 @register.filter
 def orderQuery(querySet, param):
     return querySet.order_by(param)
@@ -29,10 +29,10 @@ def toSTR(toConvert, baseType):
         return str(toConvert)
     else:
         return ""
-        
+
 @register.filter
 def changeDot(string):
-    return string.replace(".",",")    
+    return string.replace(".",",")
 
 @register.filter
 def getType(string):
@@ -45,14 +45,14 @@ def getFirstModComm(f412):
     except:
         return "No hay comentarios"
 
-@register.assignment_tag
+@register.simple_tag
 def getMailSection(dictEmails, sectionName):
     try:
         return dictEmails.get(sectionName)
     except:
         return sectionName
 
-@register.assignment_tag
+@register.simple_tag
 def getPNEvList(f412):
     try:
         return PNEvol.objects.filter(designation = f412.Designacion).filter(shouldShow = True)
@@ -60,7 +60,7 @@ def getPNEvList(f412):
         designaName = f412.programa.name + f412.Componente.name
         return PNEvol.objects.filter(designation__name = designaName).filter(shouldShow = True)
 
-@register.assignment_tag
+@register.simple_tag
 def getNumberPlane(component, year, month, program, is380Tot):
     if program == "380":
         if is380Tot:
@@ -81,7 +81,7 @@ def getNumberPlane(component, year, month, program, is380Tot):
             except:
                 return 0.0
     else:
-        
+
         try:
 #        if True:
             auxList = planesCount.objects.filter(program__name = program)
@@ -89,7 +89,7 @@ def getNumberPlane(component, year, month, program, is380Tot):
         except:
             return 0.0
 
-@register.assignment_tag
+@register.simple_tag
 def getNumberHours(componentName, year, month, program, codCausName):
     if program == "380":
         try:
@@ -99,12 +99,12 @@ def getNumberHours(componentName, year, month, program, codCausName):
         except:
             return 0.0
     else:
-#        
+#
         try:
 #        if True:
             return round(oldHour.objects.filter(program__name = program).filter(year = year).filter(codCaus__name = codCausName).get(month = month).hours, 3)
         except:
-            return 0.0    
+            return 0.0
 
 #@register.filter
 #def pruebas(name):
@@ -112,4 +112,4 @@ def getNumberHours(componentName, year, month, program, codCausName):
 #        return Componente.objects.get(name = name).alias
 #    except:
 #        return name
-#    
+#

@@ -38,7 +38,7 @@ def getBasicContext(myContext, request):
 #Funcion para crear usuario a partir del formulario del admin
 @csrf_exempt
 def newUser(request):
-    myContext = Context({'NameError': False, 'UserCreated' : False})
+    myContext = {'NameError': False, 'UserCreated' : False}
     newMail = request.POST["email"]
     username = request.POST["username"]
     password = request.POST["passwd"]
@@ -69,7 +69,7 @@ def newUser(request):
     except myUser.DoesNotExist:
         newUser = myUser(name = username, email = newMail, passwd = password, nombreCompleto = fullName,
                         user = userAuth, typeUser = typeUser, admin = isAdmin, NA = NG)
-        newUser.save()    
+        newUser.save()
         for sgm in sgmList:
             dotNumber = sgm.find('.')
             dbSGM = SGM.objects.filter(seccion__name = sgm[:dotNumber]).get(number = sgm[dotNumber+1:])
@@ -97,7 +97,7 @@ def getRedirectPage(path, myUser):
 #Necesario para inicio de sesion
 @csrf_exempt
 def validateUser(request):
-    myContext = Context({'NameError': False, 'UserCreated' : False})
+    myContext = {'NameError': False, 'UserCreated' : False}
     if request.method == "POST":
         username = request.POST["username"].lower()
         password = request.POST["password"]
@@ -109,7 +109,7 @@ def validateUser(request):
             login(request, user)
         myContext['user'] = user
     try:
-        currentUser = myUser.objects.get(user = user)   
+        currentUser = myUser.objects.get(user = user)
         myContext['myUser'] = currentUser
     except:
         currentUser = None
@@ -167,17 +167,17 @@ def removeUser(request):
 #Vista para pagina de administracion
 @csrf_exempt
 def adminPage(request):
-    
+
     return serveAdminPage(request, "Reparaciones")
- 
+
 def adminPageRep(request):
-    
-    return serveAdminPage(request, "Accidentales")    
-    
+
+    return serveAdminPage(request, "Accidentales")
+
 @csrf_exempt
-def serveAdminPage(request, mode):    
+def serveAdminPage(request, mode):
     template = get_template("html/adminPage.html")
-    myContext = Context()
+    myContext = {}
     myContext = getBasicContext(myContext, request)
     myContext["sendMail"] = sendMail.objects.get(id = 1).shouldSend
     if request.method == "POST":
@@ -209,7 +209,7 @@ def serveAdminPage(request, mode):
 
 @csrf_exempt
 def changePassword(request):
-    myContext = Context()
+    myContext = {}
     myContext = getBasicContext(myContext, request)
     myContext['changePassword'] = True
     if request.method == "POST":
@@ -231,11 +231,10 @@ def changePassword(request):
 
 @csrf_exempt
 def changePasswordAdmin(request, userID):
-    myContext = Context()
+    myContext = {}
     myContext = getBasicContext(myContext, request)
-    
+
     myContext['isFromAdmin'] = True
     myContext['userToEdit'] = myUser.objects.get(id = userID)
     template = get_template("html/pass.html")
-    return HttpResponse(template.render(myContext))             
-    
+    return HttpResponse(template.render(myContext))

@@ -424,7 +424,7 @@ def serveModifyPN(request):
     template = get_template("html/modify/modelList.html")
     myContext["modelList"] = pnList
     myContext["model"] = "PN"
-    myContext["modelName"] = "Par Number"
+    myContext["modelName"] = "Part Number"
     
     return HttpResponse(template.render(myContext)) 
 
@@ -452,7 +452,7 @@ def servePNPage(request, pnID, typePN, newInfo):
     myContext["modeModify"] = "modify"
     myContext["hasLastPage"] = True
     myContext["model"] = "PN"
-    myContext["modelName"] = "Par Number"
+    myContext["modelName"] = "Part Number"
     myContext["infoNewPN"] = newInfo
     
     try:
@@ -466,7 +466,7 @@ def servePNPage(request, pnID, typePN, newInfo):
             newName = request.POST["pnName"]
             pnToModify.name = newName
             pnToModify.save()
-            myContext["statusModify"] = "Par Number modificada"
+            myContext["statusModify"] = "Part Number modificado"
             
         except:
             myContext["statusModify"] = "Designacion no encontrado"

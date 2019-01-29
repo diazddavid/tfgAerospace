@@ -6,11 +6,13 @@
 
 <h1 style="text-align: center">TOP {{typeMV_Show}} Semana: {{week}}</h1>
 
+{% if week != "0" %}
 <form style="display: inline-block;{% if week == currentWeek %}margin-right:100px{% endif %}" action="/topMV/{{typeMV}}" method="post">
   <input type="hidden" name="week" value="{{week}}">
   <input type="hidden" name="step" value="prev">                                            
   <input class="boton" type="submit" value="Semana Anterior">
 </form>            
+{% endif %}
 
 {% if week != currentWeek %}
 <form style="display: inline-block; margin-right:100px" action="/topMV/{{typeMV}}" method="post">

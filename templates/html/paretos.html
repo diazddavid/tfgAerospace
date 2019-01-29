@@ -16,6 +16,18 @@
 </select>
 </h1>
 
+<h1>Paretos Año   <select id="yearID" style="display:inline-block" onchange="monthFunction()">
+  {% for year in yearList %}
+    {% if year == YEAR %}
+      <option value={{year}} selected> {{year}}</option>
+    {% else %}
+      <option value={{year}}> {{year}}</option>
+    {% endif %}
+  {% endfor %}
+</select>
+</h1>
+
+
 <style>
 tr img {
     width: auto;
@@ -35,13 +47,13 @@ tr img {
   </tr>
  
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/s_19Top5{{typePar}}.png" ></h1></td>
-    <td><h1><img src = " /images/pareto/{{mes}}/htpTop5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/s_19Top5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/htpTop5{{typePar}}.png" ></h1></td>
   </tr>
   
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/s_19Ev{{typePar}}.png" ></h1></td>
-    <td><h1><img src = " /images/pareto/{{mes}}/htpEv{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/s_19Ev{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/htpEv{{typePar}}.png" ></h1></td>
   </tr>
  
     
@@ -52,13 +64,13 @@ tr img {
   </tr>
  
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/s_19.1Top5{{typePar}}.png" ></h1></td>
-    <td><h1><img src = " /images/pareto/{{mes}}/trampasTop5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/s_19.1Top5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/trampasTop5{{typePar}}.png" ></h1></td>
   </tr>
   
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/s_19.1Ev{{typePar}}.png" ></h1></td>
-    <td><h1><img src = " /images/pareto/{{mes}}/trampasEv{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/s_19.1Ev{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/trampasEv{{typePar}}.png" ></h1></td>
   </tr> 
 
 
@@ -69,13 +81,13 @@ tr img {
   </tr>
  
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/movablesTop5{{typePar}}.png" ></h1></td>
-    <td><h1><img src = " /images/pareto/{{mes}}/costillaTop5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/movablesTop5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/costillaTop5{{typePar}}.png" ></h1></td>
   </tr>
   
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/movablesEv{{typePar}}.png" ></h1></td>
-    <td><h1><img src = " /images/pareto/{{mes}}/costillaEv{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/movablesEv{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/costillaEv{{typePar}}.png" ></h1></td>
   </tr>
  
     
@@ -86,13 +98,13 @@ tr img {
   </tr>
  
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/largueroTop5{{typePar}}.png" ></h1></td>
-    <td><h1><img src = " /images/pareto/{{mes}}/a380Top5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/largueroTop5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/a380Top5{{typePar}}.png" ></h1></td>
   </tr>
   
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/largueroEv{{typePar}}.png" ></h1></td>
-    <td><h1><img src = " /images/pareto/{{mes}}/a380Ev{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/largueroEv{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/a380Ev{{typePar}}.png" ></h1></td>
   </tr>  
   
 </table>
@@ -106,13 +118,13 @@ tr img {
   </tr>
  
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/recanteadoTop5.png" ></h1></td>
-    <td><h1><img src = " /images/pareto/{{mes}}/ultrasonidosTop5.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/recanteadoTop5.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/ultrasonidosTop5.png" ></h1></td>
   </tr>
   
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/recanteadoEv.png" ></h1></td>
-    <td><h1><img src = " /images/pareto/{{mes}}/ultrasonidosEv.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/recanteadoEv.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/ultrasonidosEv.png" ></h1></td>
   </tr>
  
     
@@ -122,11 +134,11 @@ tr img {
   </tr>
  
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/reparacionesTop5.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/reparacionesTop5.png" ></h1></td>
   </tr>
   
   <tr>
-    <td><h1><img src = " /images/pareto/{{mes}}/reparacionesEv.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{YEAR}}/{{mes}}/reparacionesEv.png" ></h1></td>
   </tr> 
 </table>
 
@@ -134,7 +146,8 @@ tr img {
 
 <script>
 function monthFunction(){
-  month =  document.getElementById("monthID").value;
+  month = document.getElementById("monthID").value;
+  year = document.getElementById("yearID").value;                                 
   var method = "post";                           
   
   var form = document.createElement("form");
@@ -148,10 +161,18 @@ function monthFunction(){
   
   form.appendChild(hiddenMonth);
                   
+  var hiddenYear = document.createElement("input");
+  hiddenYear.setAttribute("type", "hidden");
+  hiddenYear.setAttribute("name", "yearChange");                       
+  hiddenYear.setAttribute("value", year);                                                     
+  
+  form.appendChild(hiddenYear);         
   document.body.appendChild(form);                   
   form.submit();           
          
 }
+
+
 </script>
 
 {% endblock pareto %}

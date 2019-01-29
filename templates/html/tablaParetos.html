@@ -238,7 +238,7 @@ function moveToDate(pareto){
 }
 
 function getForm(){
- var form = document.createElement("form");
+  var form = document.createElement("form");
   form.setAttribute("method", "POST");
                    
   var month = document.createElement("input");
@@ -437,7 +437,8 @@ function servePDF() {
   form = getForm()
   form.setAttribute("action", "/exportPDFPareto");
   document.body.appendChild(form);      
-  /*form.submit(); */                   
+  form.submit();             
+             
 }
  
 

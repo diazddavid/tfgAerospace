@@ -41,19 +41,19 @@ def initCodCaus():
     except codCaus.DoesNotExist:
         cod = codCaus(name = "ALB")
         cod.save()
-        
+
     try:
         codCaus.objects.get(name = "V10")
     except codCaus.DoesNotExist:
         cod = codCaus(name = "V10")
         cod.save()
-        
+
     try:
         codCaus.objects.get(name = "RL8")
     except codCaus.DoesNotExist:
         cod = codCaus(name = "RL8")
         cod.save()
-        
+
     try:
         codCaus.objects.get(name = "M60")
     except codCaus.DoesNotExist:
@@ -119,31 +119,31 @@ def initTypeUser():
 #Para meter en bd los estados
 @csrf_exempt
 def initEstadoDB():
-    
+
     try:
         ACTIVE_Status = Estado.objects.get(name = "Activo")
     except Estado.DoesNotExist:
         ACTIVE_Status = Estado(name = "Activo", color = "#ffff00")
         ACTIVE_Status.save()
-    
+
     try:
         VALIDATED_Status = Estado.objects.get(name = "Validado")
     except Estado.DoesNotExist:
         VALIDATED_Status = Estado(name = "Validado", color = "#fe5000")
         VALIDATED_Status.save()
-        
+
     try:
         REJECTED_Status = Estado.objects.get(name = "Rechazado")
     except Estado.DoesNotExist:
         REJECTED_Status = Estado(name = "Rechazado", color = "#e4002b")
         REJECTED_Status.save()
-        
+
     try:
         GRANTED_Status = Estado.objects.get(name = "Concedido")
     except Estado.DoesNotExist:
         GRANTED_Status = Estado(name = "Concedido", color = "#29e329")
         GRANTED_Status.save()
-        
+
     return
 
 #Funcion para recorrer un dataframe, que proviene de un excel y obtener todos los componentes
@@ -167,7 +167,7 @@ def updateComponent(df, program):
                 componente = Componente(name = name, alias = alias, programa = program)
                 componente.save()
         except IndexError:
-            break        
+            break
     return
 
 
@@ -195,7 +195,7 @@ def updateSGM(df, section):
                 number = "0" + str(number)
             try:
                 go = SGM.objects.get(number=number)
-                go.seccion.add(section) 
+                go.seccion.add(section)
             except SGM.DoesNotExist:
                 sgm = SGM(number = number, name = name)
                 sgm.save()
@@ -226,7 +226,7 @@ def updateDefect(df, section):
         except IndexError:
             print(i)
             break
-    
+
     for dfct in Defecto.objects.filter(seccion = section):
         if ( dfct.name in toList(df) )== False:
             if F412.objects.filter(Defecto = dfct).count() == 0 and f412Ant.objects.filter(Defecto = dfct).count() == 0:
@@ -343,16 +343,16 @@ def updateCompAPT5(df):
 #        compList = ["LAMINADO_NUT_PLATES_OPP_&_NACA","ENC/COR_ATL_NACA_&_OPP_RH","ENC/COR_ATL_NACA_&_OPP_LH","KIT_FV_GASKETS_NACA_&_OPP"]
 
         pieza = "V900V1000"
-        if pd.isnull(PNname) == False:  
+        if pd.isnull(PNname) == False:
             PNname = PNname.replace("\n","")
             try:
-                pn = PN.objects.get(name = PNname)    
-                
+                pn = PN.objects.get(name = PNname)
+
             except PN.DoesNotExist:
                 DesignaName = "V900" + CompName + "_" + PNname
                 designa = Designacion(name = DesignaName,  Componente = Componente.objects.get(name = CompName))
                 designa.save()
-            
+
                 pn = PN(name = PNname, programa = Programa.objects.get(name = "350"),
                         Designacion = designa)
                 pn.save()
@@ -360,9 +360,9 @@ def updateCompAPT5(df):
             compAPT5.save()
         else:
             pieza="V1000"
-            
-        if pd.isnull(PNname2) == False:   
-            PNname2 = PNname2.replace("\n","")     
+
+        if pd.isnull(PNname2) == False:
+            PNname2 = PNname2.replace("\n","")
             try:
                 pn2 = PN.objects.get(name = PNname2)
 
@@ -370,15 +370,15 @@ def updateCompAPT5(df):
                 DesignaName2 = "V1000" + CompName
                 designa2 = Designacion(name = DesignaName2,  Componente = Componente.objects.get(name = df.iat[i,0]))
                 designa2.save()
-                
+
                 pn2 = PN(name = PNname2, programa = Programa.objects.get(name = "350"),
                          Designacion = designa2)
                 pn2.save()
             compAPT5.parNumber.add(pn2)
-            compAPT5.save()        
+            compAPT5.save()
         else:
             pieza="V900"
-#        
+#
 #        if CompName in compList:
 #            print("Se guarda: " + CompName)
 #            print(compAPT5.parNumber.count())
@@ -446,10 +446,10 @@ def update350():
                                 pn2.save()
                     except PN.DoesNotExist:
                         pn2 = PN(name = PNname2, programa = PROGRAMA_350, Designacion = Designacion.objects.get(name = DesignaName2))
-                        pn2.save()  
+                        pn2.save()
         elif "Componentes_APT5" == sheet:
             updateComponent(df, PROGRAMA_350)
-            updateCompAPT5(df)                        
+            updateCompAPT5(df)
         elif "SGM" == sheet:
             updateSGM(df, "350")
         elif "DESVIACION" in sheet:
@@ -473,7 +473,7 @@ def update350():
 
 #Crea el objeto RT a partir de nombre, codigo, nivel y el rt del nivel superior
 @csrf_exempt
-def createRt(name, code, level, superior):   
+def createRt(name, code, level, superior):
     if level == 1:
         shortName = code
     else:
@@ -486,9 +486,9 @@ def createRt(name, code, level, superior):
         else:
             rt = reasonTreeField(nivel = level, nombre = name, codigo = code, superior = superior, shortName = shortName, currentlyInUse = True)
         rt.save()
-    return rt    
-   
-#para copiar los RT entre mismos lvl, dado que el lvl3 es comun para varios rt de lvl2    
+    return rt
+
+#para copiar los RT entre mismos lvl, dado que el lvl3 es comun para varios rt de lvl2
 @csrf_exempt
 def copyToEquals(rt1, rtRef):
     for rt in reasonTreeField.objects.filter(currentlyInUse = True).filter(superior = rt1):
@@ -497,28 +497,28 @@ def copyToEquals(rt1, rtRef):
                 reasonTreeField.objects.filter(currentlyInUse = True).filter(superior = rt).get(codigo = rt3.codigo)
             except reasonTreeField.DoesNotExist:
                 createRt(rt3.nombre, rt3.codigo, 3, rt)
-    
-    return 
+
+    return
 
 @csrf_exempt
 def changeUseRT():
-    
+
     for rt in reasonTreeField.objects.filter(currentlyInUse = True):
         rt.currentlyInUse = False
         rt.save()
-        
+
     for rt in reasonTree.objects.filter(program__name = "350").filter(currentlyInUse = True):
         rt.currentlyInUse = False
         rt.save()
-        
+
     return
 
-#Actualizar desde el archivo     
+#Actualizar desde el archivo
 @csrf_exempt
 def updateRsnTree():
-    
+
     changeUseRT()
-    
+
     file = "xls\\reasonTree.xlsx"
     xl = pd.ExcelFile(file)
     df = xl.parse("CVAT")
@@ -544,25 +544,25 @@ def updateRsnTree():
                 name3 = df.iat[i,4]
                 cod3 = df.iat[i,5]
                 for rtLvl2 in level2:
-                    createRt(name3, cod3, 3, rtLvl2) 
-        copyToEquals(rt1, first)                
+                    createRt(name3, cod3, 3, rtLvl2)
+        copyToEquals(rt1, first)
     except IndexError:
         indexError = True
-        
+
     df = xl.parse("380CVAT")
     try:
         for i in range(0,100):
             if pd.isnull(df.iat[i,0]) == False:
-               name1 = df.iat[i,0] 
+               name1 = df.iat[i,0]
                cod1 = df.iat[i,1]
                rt1 = createRt(name1, cod1, 1, None)
-               
+
                shortName = cod1
                rt = reasonTree(nivel1 = rt1, nivel2 = rt1, nivel3 = rt1, shortName = shortName, currentlyInUse = True, program = Programa.objects.get(name = "380"))
                rt.save()
     except IndexError:
-        indexError = True               
-                
+        indexError = True
+
     return "Not Error"
 
 #Para quitar comas de las lineas de los csv
@@ -604,7 +604,7 @@ def createMyUser(name, email,passwd, fullName, userAuth, typeUserObject, admin, 
             for program in parseCSV("programa", programList):
                 newUser.programa.add(program)
                 newUser.save()
-        if pd.isnull(sectionList) == False:        
+        if pd.isnull(sectionList) == False:
             for section in parseCSV("section", sectionList):
                 if section.programa in parseCSV("programa", programList):
                     newUser.seccion.add(section)
@@ -668,49 +668,49 @@ def sumHour(current, toAdd):
 #Ya no tiene sentido pero se deja por si acaso
 def changeDescpTBD380():
     TBDdefc = Defecto.objects.filter(seccion__name = "380").get(name = "TBD")
-    
+
     for f412 in F412_VALID.filter(programa__name = "380"):
         if f412.Defecto.name == "En_Descripcion":
             f412.Defecto = TBDdefc
             f412.save()
-            
+
     for f412 in f412Ant.objects.all():
         f412.Defecto = TBDdefc
         if f412.Defecto.name == "En_Descripcion":
             f412.Defecto = TBDdefc
             f412.save()
-            
+
     return ""
 
-#Añade las horasa cada avion desde el f412        
+#Añade las horasa cada avion desde el f412
 def sumPlaneRepF412(f412Rep, plane, isF412):
     if isF412:
         hour = f412Rep.horasRecurrentes
         hourLT = f412Rep.horas
         plane.f412List.add(f412Rep)
-        
+
     else:
         hour = f412Rep.horas
         hourLT = f412Rep.horasLeadTime
         plane.repList.add(f412Rep)
-        
-        
+
+
     if f412Rep.codigoCausa.name == "M60":
         plane.hRecM60 = hour
         plane.hLTM60 = hourLT
-        
+
     elif f412Rep.codigoCausa.name == "RL8":
         plane.hRecRL8 = hour
         plane.hLTRL8 = hourLT
-        
+
     elif f412Rep.codigoCausa.name == "ALB":
         plane.hRecALB = hour
         plane.hLTALB = hourLT
-        
-    elif f412Rep.codigoCausa.name == "V10":  
+
+    elif f412Rep.codigoCausa.name == "V10":
         plane.hRecV10 = hour
-        plane.hLTV10 = hourLT 
-        
+        plane.hLTV10 = hourLT
+
     plane.save()
     return ""
 
@@ -722,7 +722,7 @@ def updatePlane():
         aptName = "APT" + str(i)
         repList = repList | Reparacion.objects.filter(seccion__name = aptName)
         f412List = f412List | F412_VALID.filter(seccion__name = aptName)
-        
+
     for f412 in f412List:
         try:
             plane = avion.objects.get(numero = f412.nAV)
@@ -735,64 +735,64 @@ def updatePlane():
                 v1000 = False
             else:
                 v1000 = True
-                
-            plane = avion(numero = f412.nAV, v1000 = v1000)    
+
+            plane = avion(numero = f412.nAV, v1000 = v1000)
             plane.save()
             sumPlaneRepF412(f412, plane, True)
-            
-    for rep in repList:            
+
+    for rep in repList:
         try:
             plane = avion.objects.get(numero = rep.nAV)
             if rep in plane.repList.all():
                 continue
             else:
                 sumPlaneRepF412(rep, plane, False)
-                
+
         except:
             if "V9" in rep.Pieza.name :
                 v1000 = False
             else:
                 v1000 = True
-            plane = avion(numero = rep.nAV, v1000 = v1000)    
+            plane = avion(numero = rep.nAV, v1000 = v1000)
             plane.save()
             sumPlaneRepF412(rep, plane, False)
-            
+
     return ""
 
 #Exporta el 380
 @csrf_exempt
 def export380(request, status):
     response = HttpResponse(content_type='text/csv')
-    
-    f412List = F412_VALID.filter(programa__name = "380")      
+
+    f412List = F412_VALID.filter(programa__name = "380")
     WholeProgram = True
-            
+
     if status != "" :
         WholeProgram = False
         f412List = f412List.filter(Estado__name = status)
         status = "_" + status
     fileName = "F412_A380" + status + "(" + dateToString(date.today()) + ").csv"
-    response['Content-Disposition'] = 'attachment; filename=' + fileName 
-    
-    myContext = Context({'f412List': f412List})
+    response['Content-Disposition'] = 'attachment; filename=' + fileName
+
+    myContext = {'f412List': f412List}
     myContext["request"] = request
     myContext["WholeProgram"] = WholeProgram
     myContext["request"] = request
     myContext["repList"] = Reparacion.objects.filter(programa__name = "380")
-    
+
     template = get_template("csv/A380.txt")
     response.write(template.render(myContext))
-    
+
     return response
 
-#Exporta el 350 
+#Exporta el 350
 @csrf_exempt
 def export350(request, sectionName, status):
     response = HttpResponse(content_type='text/csv')
-    
-    f412List = F412.objects.filter(programa__name = "350").order_by("Fecha") 
+
+    f412List = F412.objects.filter(programa__name = "350").order_by("Fecha")
     WholeSection = True
-            
+
     if status != "":
         f412List = f412List.filter(Estado__name = status)
         status = "_" + status
@@ -805,20 +805,20 @@ def export350(request, sectionName, status):
         section = "_" + sectionName
         f412List = f412List.filter(seccion__name = sectionName)
     fileName = "F412_A350" + section + status + "(" + dateToString(date.today()) + ").csv"
-    response['Content-Disposition'] = 'attachment; filename=' + fileName 
+    response['Content-Disposition'] = 'attachment; filename=' + fileName
 
-    myContext = Context({'f412List': f412List})
+    myContext = {'f412List': f412List}
     myContext["request"] = request
     myContext["WholeProgram"] = WholeProgram
     myContext["WholeSection"] = WholeSection
     myContext["request"] = request
-    
+
     if sectionName == "APT2":
         template = get_template("csv/APT2.txt")
     else:
         template = get_template("csv/A350.txt")
     response.write(template.render(myContext))
-    
+
     return response
 
 #Vista de /exportarCSV
@@ -844,16 +844,16 @@ def exportPage(request):
 #    if request.method == "POST":
 #        multipleExport(request)
     template = get_template("html/CSVPage.html")
-    myContext = Context({'user': request.user})
+    myContext = {'user': request.user}
     myContext["request"] = request
     myContext['myPath'] = request.path
     myContext["request"] = request
-    myContext['mode'] = "Reparaciones"             
+    myContext['mode'] = "Reparaciones"
     try:
         myContext['myUser'] = myUser.objects.get(user = request.user)
     except:
         print("Usuario No Encontrado")
-        
+
     return HttpResponse(template.render(myContext))
 
 #Pasa string a float
@@ -864,7 +864,7 @@ def toFloat(toConvert):  #En este archivo tambien pues daba problemas al importa
         return 0.0
 
 #obtiene datos para el grafico
-def getData(avList, typeGraph): 
+def getData(avList, typeGraph):
     N = avList.count()
     data = []
     list0 = []
@@ -873,7 +873,7 @@ def getData(avList, typeGraph):
     list3 = []
     list4 = []
     plaList = []
-    
+
     for av in avList:
         name = "Rank " + str(av.numero)
         if av.v1000:
@@ -885,7 +885,7 @@ def getData(avList, typeGraph):
             list2.append(toFloat(av.hLTRL8))
             list3.append(toFloat(av.hLTM60))
             list4.append(toFloat(av.hLTALB) + toFloat(av.hLTV10) + toFloat(av.hLTM60))
-        else:    
+        else:
             list0.append(toFloat(av.hRecALB))
             list1.append(toFloat(av.hRecV10))
             list2.append(toFloat(av.hRecRL8))
@@ -904,52 +904,52 @@ def getAvList (av1, av2):
     if av1 != "":
         avList = avList.filter(numero__gte=av1)
     if av1 != "":
-        avList = avList.filter(numero__lte=av2)   
-        
+        avList = avList.filter(numero__lte=av2)
+
     return avList
 
 #Actualiza las graficas a estado basico
 def updateBothGraph(request):
     count = avion.objects.all().count() - 1
-    lastAv = avion.objects.all().order_by("numero")[count].numero     
+    lastAv = avion.objects.all().order_by("numero")[count].numero
     countFirst = avion.objects.all().count() - 10
-    firstAv = avion.objects.all().order_by("numero")[countFirst].numero     
+    firstAv = avion.objects.all().order_by("numero")[countFirst].numero
     updateGraph(request, firstAv, lastAv, "")
-    updateGraph(request, firstAv, lastAv, "TL")       
-    
+    updateGraph(request, firstAv, lastAv, "TL")
+
     return HttpResponseRedirect("/grafico")
 
 #actualiza el grafico
 def updateGraph(request, av1, av2, typeGraph):
     fig=Figure(figsize=(10, 7))
     ax=fig.add_subplot(111)
-    
+
     N = 5
-    
+
     avList = getAvList(av1, av2)
     data, N, plaList = getData(avList, typeGraph)
-    
+
     ind = np.arange(N)    # the x locations for the groups
     width = 0.35       # the width of the bars: can also be len(x) sequence
-    
-    p = []                                                               
+
+    p = []
     p.append(ax.bar(ind, data[0], width, color ='r'))
     p.append(ax.bar(ind, data[1], width, color = 'orange', bottom=data[0]))
     p.append(ax.bar(ind, data[2], width, color = 'g', bottom=np.array(data[0]) + np.array(data[1])))
     p.append(ax.bar(ind, data[3], width, bottom=np.array(data[0]) + np.array(data[1]) + np.array(data[2])))
-    
+
     if typeGraph == "TL":
         ax.set_title("Horas LT / Rank")
     else:
         ax.set_title("Horas Recurrentes / Rank")
-        
+
     ax.set_xlabel('Rank')
     ax.set_ylabel('Horas')
     ax.set_xticks(ind)
-    
+
     for tick in ax.get_xticklabels():
         tick.set_rotation(60)
-        
+
     ax.set_xticklabels(plaList)
     ax.legend((p[0],p[1],p[2], p[3]), ('ALB','M60','V10', 'RL8'), loc="upper left")
     for j in range(len(p)):
@@ -961,38 +961,38 @@ def updateGraph(request, av1, av2, typeGraph):
                 name = "%f" % (data[j][i])
                 dec = name.find(".") + 2
                 ax.text(x,y, name[0:dec])
-    
+
     xi = arange(0,len(data[4]))
     x = ([xi, ones(len(data[4]))])
     y = data[4]
-    
+
     slope, intercept, r_value, p_value, std_err = stats.linregress(xi,y)
     line = slope*xi + intercept
-    
+
     ax.plot(line)
-    
+
     fig.subplots_adjust(top = 0.95)
-    
+
     canvas=FigureCanvas(fig)
 #    response=HttpResponse(content_type='image/png')
-    graphic = io.BytesIO()    
+    graphic = io.BytesIO()
     fig.savefig(graphic, format="png")
     if typeGraph == "TL":
         fig.savefig("templates/images/chartTL.png", format="png")
-    else:    
+    else:
         fig.savefig("templates/images/chart.png", format="png")
     canvas.print_png(graphic)
-    
+
     return
 
 def updateHours(f412):
-    
-    f412.horas = f412.horas.replace(".",",") 
+
+    f412.horas = f412.horas.replace(".",",")
     f412.horasAntiguas = f412.horasAntiguas.replace(".",",")
     f412.horasRecurrentes = f412.horasRecurrentes.replace(".",",")
-    f412.horasAntRec = f412.horasAntRec.replace(".",",") 
+    f412.horasAntRec = f412.horasAntRec.replace(".",",")
     f412.save()
-    
+
     return
 
 def updateAllF412Hours():
@@ -1007,14 +1007,14 @@ def changeEmail(request):
     except:
         print("No existe, creo el modelo")
         shouldSend = sendMail(shouldSend = False)
-    
+
     if shouldSend.shouldSend == True:
         shouldSend.shouldSend = False
-    else:         
+    else:
         shouldSend.shouldSend = True
 
     shouldSend.save()
-   
+
     return HttpResponseRedirect("/administrador")
 
 def updatePNEv():
@@ -1024,17 +1024,17 @@ def updatePNEv():
         except:
             newPN = PNEvol(pn = pn, designation = pn.Designacion, name = pn.name, shouldShow = True, currentPN = True)
             newPN.save()
-            
+
 #    for f412 in F412.objects.all():
 #        if f412.PN.name != f412.pnEv.name:
 #            f412.pnEv = PNEvol.objects.filter(pn = f412.PN)[0]
 #            f412.save()
-#    
+#
 #    for rep in Reparacion.objects.all():
 #        if rep.PN.name != rep.pnEv.name:
-#            rep.pnEv = PNEvol.objects.filter(pn = rep.PN)[0]   
+#            rep.pnEv = PNEvol.objects.filter(pn = rep.PN)[0]
 #            rep.save()
-    
+
     return
 
 #Funcion principal que actualiza todos los campos actualizables en la aplicacion

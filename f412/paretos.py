@@ -39,10 +39,10 @@ movList = ["RUDDER", "TIMON"]
 tramList = ["T_WING", "T_BLGD"]
 MONTH = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
 
-YEAR = datetime.datetime.now().year
-LAST_YEAR = YEAR - 1    
-YEAR_DATE = parseDate(str(YEAR) + "/01/01")
-LAST_YEAR_DATE = parseDate(str(LAST_YEAR) + "/01/01")      
+#YEAR = datetime.datetime.now().year
+#LAST_YEAR = YEAR - 1    
+#YEAR_DATE = parseDate(str(YEAR) + "/01/01")
+#LAST_YEAR_DATE = parseDate(str(LAST_YEAR) + "/01/01")      
 
 F412_ALL = F412.objects.filter(codigoCausa__name = "ALB") | F412.objects.filter(codigoCausa__name = "RL8")
 F412_ALL = F412_ALL.filter(Estado__name = "Concedido")      
@@ -196,20 +196,20 @@ def sumDictHours(dic1, dic2):
     
     return toReturn    
 
-def getLastYear(names, month, pareto, typeGraph):
-    monthDate = getDate(LAST_YEAR, month)
+def getLastYear(names, month, pareto, typeGraph, year):
+    monthDate = getDate(year - 1, month)
     f412Dots = F412Empty
     f412Dots2 = f412AntEmpty   
     repDots = repEmpty
-    
+    lastYearDate = getYearDate(year - 1)
     if typeGraph == "ind": 
-        f412List = F412_ALL.filter(Area__name = pareto).filter(Fecha__gte = LAST_YEAR_DATE).filter(Fecha__lte = monthDate)
-        f412List2 = f412AntALL.filter(Area__name = pareto).filter(Fecha__gte = LAST_YEAR_DATE).filter(Fecha__lte = monthDate)
-        repList = repALL.filter(Area__name = pareto).filter(Fecha__gte = LAST_YEAR_DATE).filter(Fecha__lte = monthDate)
+        f412List = F412_ALL.filter(Area__name = pareto).filter(Fecha__gte = lastYearDate).filter(Fecha__lte = monthDate)
+        f412List2 = f412AntALL.filter(Area__name = pareto).filter(Fecha__gte = lastYearDate).filter(Fecha__lte = monthDate)
+        repList = repALL.filter(Area__name = pareto).filter(Fecha__gte = lastYearDate).filter(Fecha__lte = monthDate)
     else:    
-        f412List = getF412List(F412_ALL, f412Dots, pareto, LAST_YEAR_DATE, monthDate)  
-        f412List2 = getF412List(f412AntALL, f412Dots2, pareto, LAST_YEAR_DATE, monthDate)
-        repList = getF412List(repALL, repDots, pareto, LAST_YEAR_DATE, monthDate)
+        f412List = getF412List(F412_ALL, f412Dots, pareto, lastYearDate, monthDate)  
+        f412List2 = getF412List(f412AntALL, f412Dots2, pareto, lastYearDate, monthDate)
+        repList = getF412List(repALL, repDots, pareto, lastYearDate, monthDate)
     
     for name in names:
         f412Dots = f412Dots | f412List.filter(Defecto__name = name)
@@ -230,11 +230,11 @@ def getLastYear(names, month, pareto, typeGraph):
     
     dotsList = []
     for name in names:
-        dotsList.append(hoursDict[name] * costeHora.objects.get(year = LAST_YEAR).precio)
+        dotsList.append(hoursDict[name] * costeHora.objects.get(year = year - 1).precio)
     
     return dotsList
 
-def getDataEv(names, month, pareto, typeGraph):
+def getDataEv(names, month, pareto, typeGraph, year):
     data1 = []
     data2 = []
     data3 = []
@@ -242,20 +242,22 @@ def getDataEv(names, month, pareto, typeGraph):
     data5 = []
     data = [data1, data2, data3, data4, data5]
     
+    yearDate = getYearDate(year)
+    
     for dataMonth in range(1, month+1):
-        monthDate = getDate(YEAR, dataMonth)
+        monthDate = getDate(year, dataMonth)
         repListEmp = repEmpty 
         f412AntEmp = f412AntEmpty
         f412Emp = F412Empty
         
         if typeGraph == "ind":
-            f412List = F412_ALL.filter(Area__name = pareto).filter(Fecha__gte = YEAR_DATE).filter(Fecha__lte = monthDate)
-            f412AntList = f412AntALL.filter(Area__name = pareto).filter(Fecha__gte = YEAR_DATE).filter(Fecha__lte = monthDate)
-            repList = repALL.filter(Area__name = pareto).filter(Fecha__gte = YEAR_DATE).filter(Fecha__lte = monthDate)
+            f412List = F412_ALL.filter(Area__name = pareto).filter(Fecha__gte = yearDate).filter(Fecha__lte = monthDate)
+            f412AntList = f412AntALL.filter(Area__name = pareto).filter(Fecha__gte = yearDate).filter(Fecha__lte = monthDate)
+            repList = repALL.filter(Area__name = pareto).filter(Fecha__gte = yearDate).filter(Fecha__lte = monthDate)
         else:
-            f412List = getF412List(F412_ALL, f412Emp, pareto, YEAR_DATE, monthDate)
-            f412AntList = getF412List(f412AntALL, f412AntEmp, pareto, YEAR_DATE, monthDate)
-            repList = getF412List(repALL, repListEmp, pareto, YEAR_DATE, monthDate) 
+            f412List = getF412List(F412_ALL, f412Emp, pareto, yearDate, monthDate)
+            f412AntList = getF412List(f412AntALL, f412AntEmp, pareto, yearDate, monthDate)
+            repList = getF412List(repALL, repListEmp, pareto, yearDate, monthDate) 
         
         if typeGraph == "lay":
             f412List = getLayList(f412List, f412Emp)
@@ -271,7 +273,7 @@ def getDataEv(names, month, pareto, typeGraph):
             hoursDict = sumDictHours(hoursDict, hoursDict2)
             hoursDict = sumDictHours(hoursDict, hoursDict3)
             
-            oneByOneList, xticks = hoursToData(hoursDict, YEAR)
+            oneByOneList, xticks = hoursToData(hoursDict, year)
             oneByOne = oneByOneList[::-1][0]
             
             if len(data[topN]) != 0:
@@ -404,8 +406,15 @@ def getDefcXticks(xticksRef, lenMatRef, xticks380Def):
         
     return defcToReturn
 
-def updateParetos(request, month):
+def getYearDate(year):
+
+    return parseDate(str(year) + "/01/01")
+    
+def updateParetos(request, year, month):
+    year = int(year)
     ylabel = "Coste €"
+    yearDate = getYearDate(year)
+            
     if month == "todos":
         init = 1
         end = 13
@@ -420,14 +429,13 @@ def updateParetos(request, month):
         dict380Lay["total"] = {}
         
         ylabel = "Coste €"
-        monthDate = getDate(YEAR, month)
+        monthDate = getDate(year, month)
         pareto = "S_19"
         
         for pareto in pareto380List:
-            
-            f412List = getF412List(F412_ALL, F412Empty, pareto, YEAR_DATE, monthDate)
-            f412List2 = getF412List(f412AntALL, f412AntEmpty, pareto, YEAR_DATE, monthDate)
-            repList = getF412List(repALL, repEmpty, pareto, YEAR_DATE, monthDate)
+            f412List = getF412List(F412_ALL, F412Empty, pareto, yearDate, monthDate)
+            f412List2 = getF412List(f412AntALL, f412AntEmpty, pareto, yearDate, monthDate)
+            repList = getF412List(repALL, repEmpty, pareto, yearDate, monthDate)
             
 #           A380 sin lay up ni ind
             hoursDict = getHoursDict(f412List)      
@@ -437,7 +445,7 @@ def updateParetos(request, month):
             hoursDict = sumDictHours(hoursDict, hoursDict2)
             hoursDict = sumDictHours(hoursDict, hoursDict3)
 
-            data, xticksNames = hoursToData(hoursDict, YEAR)
+            data, xticksNames = hoursToData(hoursDict, year)
             
             dict380[pareto] = hoursDict 
             dict380["total"] = sumDictHours(hoursDict, dict380["total"])
@@ -445,15 +453,15 @@ def updateParetos(request, month):
             title = "PARETO costes de Desviaciones  generadas  sobre " + pareto + " \n"
             title += "(Coste € / (Horas de Reparación/F412) que ha generado la desviación)"
             xlabel = pareto
-            name = "templates/images/pareto/" + str(month) + "/" + pareto.lower() + "Top5.png"
+            name = "templates/images/pareto/" + str(year) + "/" + str(month) +  "/" + pareto.lower() + "Top5.png"
             data = data[::-1][:5]
             xticksNames = xticksNames[::-1][:5]
-            dots = getLastYear(xticksNames, month, pareto, "")
+            dots = getLastYear(xticksNames, month, pareto, "", year)
             
 #            Evolucion sin lay up ni ind           
             titleEv = title.replace("PARETO", "EVOLUCIÓN")
-            nameEv = "templates/images/pareto/" + str(month) + "/" + pareto.lower() + "Ev.png"
-            dataEv, xticksNamesEv, lenDefc = getDataEv(xticksNames, month, pareto, "")
+            nameEv = "templates/images/pareto/" + str(year) + "/" + str(month) + "/" + pareto.lower() + "Ev.png"
+            dataEv, xticksNamesEv, lenDefc = getDataEv(xticksNames, month, pareto, "", year)
             
 #           TOP5 LAY-UP            
             hoursDictLay = getHoursDict(getLayList(f412List, F412Empty))      
@@ -466,25 +474,25 @@ def updateParetos(request, month):
             dict380Lay[pareto] = hoursDictLay
             dict380Lay["total"] = sumDictHours(hoursDictLay, dict380Lay["total"])
             
-            dataLay, xticksNamesLay = hoursToData(hoursDictLay, YEAR)
+            dataLay, xticksNamesLay = hoursToData(hoursDictLay, year)
             dataLay = dataLay[::-1][:5]
             xticksNamesLay = xticksNamesLay[::-1][:5]
             titleLay = title.replace("\n", "por LAY-UP\n")
             nameLay = name.replace("Top5", "Top5lay")
-            dotsLay = getLastYear(xticksNamesLay, month, pareto, "lay")
+            dotsLay = getLastYear(xticksNamesLay, month, pareto, "lay", year)
 
 #           Evolucion LAY-UP           
             titleEvLay = titleLay.replace("PARETO", "EVOLUCIÓN")
-            nameEvLay = "templates/images/pareto/" + str(month) + "/" + pareto.lower() + "EvLay.png"
-            dataEvLay, xticksNamesEvLay, lenDefcLay = getDataEv(xticksNamesLay, month, pareto, "lay")
+            nameEvLay = "templates/images/pareto/" + str(year) + "/" + str(month) + "/" + pareto.lower() + "EvLay.png"
+            dataEvLay, xticksNamesEvLay, lenDefcLay = getDataEv(xticksNamesLay, month, pareto, "lay", year)
             
                     
-            saveTop5(xticksNames, data, pareto, month, False)
-            saveTop5(xticksNamesLay, dataLay, pareto, month, True)
+            saveTop5(xticksNames, data, pareto, month, False, year)
+            saveTop5(xticksNamesLay, dataLay, pareto, month, True, year)
         
             
-            saveGraphTop5(data, title, xlabel, ylabel, xticksNames, dots, name)
-            saveGraphTop5(dataLay, titleLay, xlabel, ylabel, xticksNamesLay, dotsLay, nameLay)
+            saveGraphTop5(data, title, xlabel, ylabel, xticksNames, dots, name, year)
+            saveGraphTop5(dataLay, titleLay, xlabel, ylabel, xticksNamesLay, dotsLay, nameLay, year)
             
             saveGraphEv(dataEv, titleEv, ylabel, xticksNames, xticksNamesEv, nameEv, lenDefc)
             saveGraphEv(dataEvLay, titleEvLay, ylabel, xticksNamesLay, xticksNamesEvLay, nameEvLay, lenDefcLay)
@@ -492,12 +500,12 @@ def updateParetos(request, month):
         for area in indList:
             title = "PARETO costes de Desviaciones  generadas  por " + area + " A380 sobre pieza\n"
             title += "(Coste € / (Horas de Reparación/F412) que ha generadola desviación)"
-            name = "templates/images/pareto/" + str(month) + "/" + area.lower() + "Top5.png"
+            name = "templates/images/pareto/" + str(year) + "/" + str(month) +  "/" + area.lower() + "Top5.png"
             xlabel = area
                                                    
-            f412List = F412_ALL.filter(Area__name = area).filter(Fecha__gte = YEAR_DATE).filter(Fecha__lte = monthDate)
-            f412List2 = f412AntALL.filter(Area__name = area).filter(Fecha__gte = YEAR_DATE).filter(Fecha__lte = monthDate)
-            repList = repALL.filter(Area__name = area).filter(Fecha__gte = YEAR_DATE).filter(Fecha__lte = monthDate)
+            f412List = F412_ALL.filter(Area__name = area).filter(Fecha__gte = yearDate).filter(Fecha__lte = monthDate)
+            f412List2 = f412AntALL.filter(Area__name = area).filter(Fecha__gte = yearDate).filter(Fecha__lte = monthDate)
+            repList = repALL.filter(Area__name = area).filter(Fecha__gte = yearDate).filter(Fecha__lte = monthDate)
             
 #           ind
             hoursDict = getHoursDict(f412List)      
@@ -506,53 +514,53 @@ def updateParetos(request, month):
            
             hoursDict = sumDictHours(hoursDict, hoursDict2)
             hoursDict = sumDictHours(hoursDict, hoursDict3)
-            data, xticksNames = hoursToData(hoursDict, YEAR)  
+            data, xticksNames = hoursToData(hoursDict, year)  
             data = data[::-1][:5]
             xticksNames = xticksNames[::-1][:5]
-            dots = getLastYear(xticksNames, month, area, "ind")
+            dots = getLastYear(xticksNames, month, area, "ind", year)
             
             titleEv = title.replace("PARETO", "EVOLUCIÓN")
-            nameEv = "templates/images/pareto/" + str(month) + "/" + area.lower() + "Ev.png"
-            dataEv, xticksNamesEv, lenDefc = getDataEv(xticksNames, month, area, "ind")
+            nameEv = "templates/images/pareto/" + str(year) + "/" + str(month) + "/" + area.lower() + "Ev.png"
+            dataEv, xticksNamesEv, lenDefc = getDataEv(xticksNames, month, area, "ind", year)
                                                 
-            saveGraphTop5(data, title, xlabel, ylabel, xticksNames, dots, name)
+            saveGraphTop5(data, title, xlabel, ylabel, xticksNames, dots, name, year)
             saveGraphEv(dataEv, titleEv, ylabel, xticksNames, xticksNamesEv, nameEv, lenDefc)
-            saveTop5(xticksNames, data, area, month, False)
+            saveTop5(xticksNames, data, area, month, False, year)
             
             
-        _ , xticks380 = hoursToData(dict380["total"], YEAR)
+        _ , xticks380 = hoursToData(dict380["total"], year)
         xticks380 = xticks380[::-1][:5]        
         data380 = parseData380(xticks380, dict380)
         data380Copy = data380.copy()
         for row in data380Copy:
             for k in range(0, len(row)):
-                row[k] = row[k] * costeHora.objects.get(year = YEAR).precio
+                row[k] = row[k] * costeHora.objects.get(year = year).precio
                    
         title = "PARETO costes de Desviaciones  generadas sobre A380 y Nº Concesiones del TOP 5 de Desviaciones\n"
         title += "(Coste € / (Horas de Reparación/F412) que ha generado la desviación)"
         xlabel = "A380"
         ylabel = "Coste"
-        fileName = "templates/images/pareto/" + str(month) + "/a380Top5.png"
+        fileName = "templates/images/pareto/" + str(year) + "/" + str(month) + "/a380Top5.png"
         
-        _ , xticks380Lay = hoursToData(dict380Lay["total"], YEAR)
+        _ , xticks380Lay = hoursToData(dict380Lay["total"], year)
         xticks380Lay = xticks380Lay[::-1][:5]        
         data380Lay = parseData380(xticks380Lay, dict380Lay)
         data380LayCopy = data380Lay.copy()
         for row in data380LayCopy:
             for k in range(0, len(row)):
-                row[k] = row[k] * costeHora.objects.get(year = YEAR).precio
+                row[k] = row[k] * costeHora.objects.get(year = year).precio
         titleLay = title.replace("\n", " por LAY-UP\n")
         fileNameLay = fileName.replace(".png", "Lay.png")         
                                   
         fileNameEv = fileName.replace("Top5", "Ev") 
         titleEv = title.replace("PARETO", "EVOLUCION")    
 #
-        dataMat, maxXticks, maxlenDefc = getDataEv380(xticks380, month)
+        dataMat, maxXticks, maxlenDefc = getDataEv380(xticks380, month, year)
 
         fileNameEvLay = fileNameLay.replace("Top5", "Ev") 
         titleEvLay = title.replace("PARETO", "EVOLUCION")      
 
-        dataMatLay, maxXticksLay, maxlenDefcLay = getDataEv380(xticks380Lay, month)
+        dataMatLay, maxXticksLay, maxlenDefcLay = getDataEv380(xticks380Lay, month, year)
         
         saveGraph380(data380Copy, title, xlabel, ylabel, xticks380, dots, fileName) 
         saveGraph380(data380LayCopy, titleLay, xlabel, ylabel, xticks380Lay, dots, fileNameLay)      
@@ -619,12 +627,12 @@ def getMaxXticks(month):
         
     return toReturn, toReturnLen; ""
 
-def getDataEv380(xticks380, currentMonth):
+def getDataEv380(xticks380, currentMonth, year):
     
     maxXticks, lenMonthDefc = getMaxXticks(currentMonth)
     
     dataMat = []
-    
+    yearDate = getYearDate(year)
     for pareto in pareto380List:
         dataMatRow = []
         defcCounter = 0
@@ -632,11 +640,11 @@ def getDataEv380(xticks380, currentMonth):
         for month in maxXticks:
             defect = xticks380[defcCounter]
             monthNumber = MONTH.index(month) + 1
-            monthDate = getDate(YEAR, monthNumber)
+            monthDate = getDate(year, monthNumber)
             if monthNumber == 1:
-                prevMonthDate = YEAR_DATE
+                prevMonthDate = yearDate
             else:
-                prevMonthDate = getDate(YEAR, monthNumber - 1)
+                prevMonthDate = getDate(year, monthNumber - 1)
             
             
             f412List = getF412List(F412_ALL, F412Empty, pareto, prevMonthDate, monthDate)
@@ -650,7 +658,7 @@ def getDataEv380(xticks380, currentMonth):
             hoursDict = sumDictHours(hoursDict, hoursDict2)
             hoursDict = sumDictHours(hoursDict, hoursDict3)
             
-            dataMatRow.append(hoursDict[defect] * costeHora.objects.get(year = YEAR).precio)
+            dataMatRow.append(hoursDict[defect] * costeHora.objects.get(year = year).precio)
             
             if monthCounter == lenMonthDefc[defcCounter]:
                 defcCounter = defcCounter + 1 
@@ -664,20 +672,21 @@ def getDataEv380(xticks380, currentMonth):
     
     return dataMat, maxXticks, maxlenDefc
 
-def createParDefc(i, defcObj, month):
-    paretoDef = paretoDefecto(number = i, defecto = defcObj, fechaApertura = YEAR_DATE, fechaCierre = YEAR_DATE)
+def createParDefc(i, defcObj, month, year):
+    yearDate = getYearDate(year)
+    paretoDef = paretoDefecto(number = i, defecto = defcObj, fechaApertura = yearDate, fechaCierre = yearDate)
     paretoDef.save()
     
     return paretoDef
 
-def saveTop5(top5List, data, pareto, month, isLay):
-    cost = costeHora.objects.get(year = YEAR).precio
+def saveTop5(top5List, data, pareto, month, isLay, year):
+    cost = costeHora.objects.get(year = year).precio
                                 
     exist = True
     try:
-        paretoTab = paretoTabla.objects.filter(isLay = isLay).filter(year = YEAR).filter(mes = month).get(pareto = pareto)
+        paretoTab = paretoTabla.objects.filter(isLay = isLay).filter(year = year).filter(mes = month).get(pareto = pareto)
     except:
-        paretoTab = paretoTabla(isLay = isLay, year = YEAR, mes = month, pareto = pareto)
+        paretoTab = paretoTabla(isLay = isLay, year = year, mes = month, pareto = pareto)
         paretoTab.save()
         exist = False
         
@@ -709,7 +718,7 @@ def saveTop5(top5List, data, pareto, month, isLay):
                     defcParObj.horas = data[top5List.index(defcPar)] / cost
                     defcParObj.save()
                 else:
-                    defcParObj = createParDefc(top5List.index(defcPar), Defecto.objects.get(name = defcPar), month)
+                    defcParObj = createParDefc(top5List.index(defcPar), Defecto.objects.get(name = defcPar), month, year)
                     defcParObj.horas = data[top5List.index(defcPar)] / cost
                     defcParObj.save()
                 paretoTab.topDefc.add(defcParObj)
@@ -721,7 +730,7 @@ def saveTop5(top5List, data, pareto, month, isLay):
             if data[i] != 0.0: 
                 print(defcPar)
                 print(pareto)
-                defcParObj = createParDefc(top5List.index(defcPar), Defecto.objects.get(name = defcPar), month)
+                defcParObj = createParDefc(top5List.index(defcPar), Defecto.objects.get(name = defcPar), month, year)
                 defcParObj.save()      
                 paretoTab.topDefc.add(defcParObj)
                 paretoTab.save()     
@@ -736,7 +745,7 @@ def add_line(ax, xpos, ypos):
     ax.add_line(line)
     return
 
-def saveGraphTop5(data, title, xlabel, ylabel, xticksNames, dots, fileName):
+def saveGraphTop5(data, title, xlabel, ylabel, xticksNames, dots, fileName, year):
     fig=Figure(figsize=(16,14))
     ax=fig.add_subplot(111)
     
@@ -765,8 +774,8 @@ def saveGraphTop5(data, title, xlabel, ylabel, xticksNames, dots, fileName):
         ax.text(i+0.05, j, name[:dec], va="bottom", fontsize = 15);
     
     textField = "Suma de Costes de "
-    lastYearField = textField + str(LAST_YEAR)
-    yearField = textField + str(YEAR)
+    lastYearField = textField + str(year - 1)
+    yearField = textField + str(year)
     lastYear = mpatches.Patch(color="#e4002b", label=lastYearField)
     currentYear = mpatches.Patch(color="#0085ad", label=yearField)
     ax.legend(handles=[lastYear, currentYear], loc = "upper right")
@@ -790,7 +799,8 @@ def saveGraphTop5(data, title, xlabel, ylabel, xticksNames, dots, fileName):
    
     return
     
-def saveGraphEv(data, title, ylabel, xticksNames, xticksNamesEv, fileName, lenDefc):    
+def saveGraphEv(data, title, ylabel, xticksNames, xticksNamesEv, fileName, lenDefc):  
+    print(data)
     ly = len(data)
     if ly == 0:
         return
@@ -957,7 +967,7 @@ def saveGraph380Ev(data, title, ylabel, xticksNames, xticksNamesEv, fileName, le
    
     return
 
-def saveTable(pareto, month, data, isLay):
+def saveTable(pareto, month, data, isLay, year):
     params = {'axes.labelsize':90, 'axes.titlesize':40, 'text.fontsize':25}
     matplotlib.rcParams.update(params)
     print("guardo: " + pareto)
@@ -966,7 +976,7 @@ def saveTable(pareto, month, data, isLay):
         toAdd = "Lay"
     else:
         toAdd = ""
-    nameTable = "templates/images/pareto/" + str(month) + "/" + pareto.lower() + toAdd + "table.png"
+    nameTable = "templates/images/pareto/" + str(year) + "/" + str(month) + "/" + pareto.lower() + toAdd + "table.png"
     columns = ("Tipo de Defecto", "Horas", "Acción", "PPS - código", "Fecha de\n apertura del\nPPS", "Fecha de Cierre\ndel PPS")
 
     fig=Figure(figsize=(40,30))
@@ -1099,13 +1109,13 @@ def updateDataParTable(request, year, month, isLay, listToSearch):
             data.append(row)
             
         if len(data) != 0:
-            saveTable(pareto, month, data, isLay)
+            saveTable(pareto, month, data, isLay, year)
             
 #   print(request.POST["FORZAR ERROR"])
     
     return ""
 
-def drawImages(pdf, width, height, month, isLay, listToDraw):    
+def drawImages(pdf, width, height, month, isLay, listToDraw, year):    
     xCenter = width/4 - 50
     yPos1 = height/2 - 10  
     yPos2 = 5
@@ -1128,14 +1138,14 @@ def drawImages(pdf, width, height, month, isLay, listToDraw):
         toAdd = ""
         
     month = int(month)
-    monthData = "ENERO - " + MONTH[month - 1] + "   " + str(YEAR)
+    monthData = "ENERO - " + MONTH[month - 1] + "   " + str(year)
                                   
     for pareto in listToDraw:
         
         pdf.setFontSize(size = 15)
-        img = "templates/images/pareto/" + str(month) + "/" + pareto.lower() + "Top5" + toAdd + ".png"
+        img = "templates/images/pareto/" + str(year) + "/" + str(month) + "/" + pareto.lower() + "Top5" + toAdd + ".png"
         imgEv = img.replace("Top5", "Ev")  
-        table = "templates/images/pareto/" + str(month) + "/" + pareto.lower() + toAdd + "table.png"
+#        table = "templates/images/pareto/" + str(year) + "/" + str(month) + "/" + pareto.lower() + toAdd + "table.png"
         
         pdf.drawString(strRig, strUp, monthData)
         pdf.drawString(strLeft, strUp, typePareto)
@@ -1156,7 +1166,7 @@ def drawImages(pdf, width, height, month, isLay, listToDraw):
     return pdf 
 
 @csrf_exempt
-def drawTable(pdf, width, height, month, isLay, listToDraw): 
+def drawTable(pdf, width, height, month, isLay, listToDraw, year): 
     xCenter = width/4 - 50
     widhtGraph = 2*width/3 - 90
     heightGraph = height/2 + 10   
@@ -1176,12 +1186,12 @@ def drawTable(pdf, width, height, month, isLay, listToDraw):
         toAdd = ""
         
     month = int(month)
-    monthData = "ENERO - " + MONTH[month - 1] + "   " + str(YEAR)
+    monthData = "ENERO - " + MONTH[month - 1] + "   " + str(year)
                                   
     for pareto in listToDraw:
         
         pdf.setFontSize(size = 15)
-        table = "templates/images/pareto/" + str(month) + "/" + pareto.lower() + toAdd + "table.png"
+        table = "templates/images/pareto/" + str(year) + "/" + str(month) + "/" + pareto.lower() + toAdd + "table.png"
         
         pdf.setFontSize(size = 25)
         try:
@@ -1214,7 +1224,7 @@ def exportPDFPar(request):
     return HttpResponseRedirect("/exportarParetos/" + str(month))
 
 @csrf_exempt
-def exportPDFParMonth(request, month):                   
+def exportPDFParMonth(request, year, month):                   
     if request.method == "POST":
         year = request.POST["year"]
         month = request.POST["month"]
@@ -1228,9 +1238,9 @@ def exportPDFParMonth(request, month):
     pdf = canvasPDF.Canvas(buffer, pagesize=landscape(A4))
     width, height = landscape(A4)
     
-    pdf = drawImages(pdf, width, height, month, False, pareto380List)
-    pdf = drawImages(pdf, width, height, month, True, pareto380List) 
-    pdf = drawImages(pdf, width, height, month, False, indList) 
+    pdf = drawImages(pdf, width, height, month, False, pareto380List, year)
+    pdf = drawImages(pdf, width, height, month, True, pareto380List, year) 
+    pdf = drawImages(pdf, width, height, month, False, indList, year) 
     pdf.save()                                         
                                           
     pdf = buffer.getvalue()

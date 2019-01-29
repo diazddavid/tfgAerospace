@@ -2,7 +2,7 @@
 
 {% block modifyBody %}
 
-<h1>{{modifyModel}} Par Number {% if modeModify != "new" %}: {{componentToModify.name}}{% endif %}</h1>
+<h1>{{modifyModel}} Part Number {% if modeModify != "new" %}: {{componentToModify.name}}{% endif %}</h1>
 <h1>{{statusModify}}</h1>
     
 {% if modeModify != "new" %}<form style="text-align:center" action="/PN/{{pnToModify.id}}" method="post" >

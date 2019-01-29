@@ -14,23 +14,23 @@
   <input class="boton" type="submit" style="display: inline-block;" value="Paretos Area Industrial">
 </form>
 
-<form style="display: inline-block;" id="button23" method="get" action="/{{mes}}/exportPDFPareto" >
+<form style="display: inline-block;" id="button23" method="get" action="/{{YEAR}}/{{mes}}/exportPDFPareto" >
   <input class="boton" type="submit" style="display: inline-block;" value="PDF {{mesNombre}}">
 </form>
 
-<form style="display: inline-block;" id="button23" method="get" action="/{{mes}}/exportPDFTableMonth" >
+<form style="display: inline-block;" id="button23" method="get" action="/{{YEAR}}/{{mes}}/exportPDFTableMonth" >
   <input class="boton" type="submit" value="Tablas {{mesNombre}}">
 </form></br></br>
 
 {% if myUser.admin %}
-<form style="display: inline-block;" id="button21" style="margin-left:50px" method="get" action="/updateParetos/{{mes}}">
+<form style="display: inline-block;" id="button21" style="margin-left:50px" method="get" action="/updateParetos/{{YEAR}}/{{mes}}">
   <input class="boton" type="submit" style="display: inline-block;" value="Actualizar Paretos {{mesNombre}}">
 </form>
-<form style="display: inline-block;" id="button22" method="get" action="/exportarParetos/{{mes}}">
+<form style="display: inline-block;" id="button22" method="get" action="/exportarParetos/{{YEAR}}/{{mes}}">
   <input class="boton" type="submit" style="display: inline-block;" value="Añadir Tabla {{mesNombre}}">
 </form>
 
-<form style="display: inline-block;" id="button24" method="get" action="/updateParetos/todos">
+<form style="display: inline-block;" id="button24" method="get" action="/updateParetos/{{YEAR}}/todos">
   <input class="boton" type="submit" style="display: inline-block;" value="Actualizar Todos Paretos">
 </form>
 

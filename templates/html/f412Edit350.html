@@ -68,12 +68,12 @@
                 {% endif %}
               {% endif %}                          
             {% endfor %}
-        
         </select> </div><br>
+        
         
         <div>P/N
           <select name = "parNumber" id="PNID"><br>
-            <option value="{{currentF412.PN.name}}" selected >{{currentF412.PN.name}}</option>                                
+            <option value="{{currentF412.PN.name}}" selected >{{currentF412.PN.name}}</option>                     
           </select> <br>
         </div>
 
@@ -451,7 +451,7 @@ window.onload = function(){
   var HRec = String(nOp*numH);
   
   document.getElementById("hRecID").value = HRec
-  sectionFunction();         
+  sectionFunction();
 }
 
   </script>
