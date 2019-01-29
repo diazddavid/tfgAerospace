@@ -16,6 +16,7 @@
   
     <tr>
       <th>Tipo Defecto</th>
+      <th>Horas</th>
       <th>Accion</th>
       <th>PPS - código</th>
       <th>Fecha de<br> apertura del<br> PPS</th>
@@ -28,6 +29,7 @@
     {% getParteroDefc parDefc as parDefcMBef%}
         <tr>
           <td>{{parDefc.defecto.name}} </td>
+          <td>{{parDefc.horas|floatformat:3}}</td>    
           <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}">{% if parDefc.accion == "" %}{{parDefcMBef.accion}}{% else %}{{parDefc.accion}}{% endif %}</div></td>
           <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}">{% if parDefc.ppsCod == "" %}{{parDefcMBef.ppsCod}}{% else %}{{parDefc.ppsCod}}{% endif %}</div></td>
           <td><div contenteditable id="date1{{pareto}}{{parDefc.defecto.name}}">{% if modificadaFechaAp %}
@@ -56,6 +58,7 @@
   {% if result2 != "" %}
     <tr>
       <th>Tipo Defecto</th>
+      <th>Horas</th>
       <th>Accion</th>
       <th>PPS - código</th>
       <th>Fecha de<br> apertura del<br> PPS</th>
@@ -69,6 +72,7 @@
       
         <tr>
           <td>{{parDefc.defecto.name}}</td>
+          <td>{{parDefc.horas|floatformat:3}}</td>   
           <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}Lay">{% if parDefc.accion == "" %}{{parDefcMBef.accion}}{% else %}{{parDefc.accion}}{% endif %}</div></td>
           <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}Lay">{% if parDefc.ppsCod == "" %}{{parDefcMBef.ppsCod}}{% else %}{{parDefc.ppsCod}}{% endif %}</div></td>
           <td><div contenteditable id="date1{{pareto}}{{parDefc.defecto.name}}Lay">{% if modificadaFechaAp %}
@@ -108,6 +112,7 @@
   
       <tr>
         <th>Tipo Defecto</th>
+        <th>Horas</th>
         <th>Accion</th>
         <th>PPS - código</th>
         <th>Fecha de<br> apertura del<br> PPS</th>
@@ -120,6 +125,7 @@
       {% getParteroDefc parDefc as parDefcMBef%}
           <tr>
             <td>{{parDefc.defecto.name}}</td>
+            <td>{{parDefc.horas|floatformat:3}}</td>  
             <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}">{% if parDefc.accion == "" %}{{parDefcMBef.accion}}{% else %}{{parDefc.accion}}{% endif %}</div></td>
             <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}">{% if parDefc.ppsCod == "" %}{{parDefcMBef.ppsCod}}{% else %}{{parDefc.ppsCod}}{% endif %}</div></td>
             <td><div contenteditable id="date1{{pareto}}{{parDefc.defecto.name}}">{% if modificadaFechaAp %}
@@ -163,6 +169,7 @@ function functionDisplay(number){
  }
    
 function functionPrev(number){
+        
   {% for pareto in paretoList %}
   
   if (number == "{{forloop.counter}}" ){

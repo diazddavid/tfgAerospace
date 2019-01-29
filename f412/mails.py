@@ -6,7 +6,7 @@ import pythoncom
 from f412.models import *
 from f412.toString import *
 
-def sendEmail(to, subject, body):
+def sendEmail2(to, subject, body):
     pythoncom.CoInitialize()
     outlook = win32com.client.Dispatch('outlook.application')    
     mail = outlook.CreateItem(0)

@@ -17,7 +17,7 @@ from django.conf.urls import include, url
 # from f412 import manageDB, views
 from django.contrib import admin
 
-from f412 import views, manageUsers, manageDB, paretos, modify #prueba
+from f412 import views, manageUsers, manageDB, paretos, modify, mensual #prueba
 from f412.manageDB import updateDB
 
 from django.views.static import serve
@@ -69,6 +69,7 @@ urlpatterns = [
     url(r'^autenticar', manageUsers.validateUser),
     url(r'^cambiarCon', manageUsers.changePassword),
     url(r'^changePsswd/(.*)', manageUsers.changePasswordAdmin),
+    url(r'^changeEmail', manageDB.changeEmail),
        
     url(r'^ExportarF412/(.+)/(.+)', manageDB.exportCSV),
     url(r'^ExportarF412/(.*)()', manageDB.exportCSV),
@@ -161,7 +162,9 @@ urlpatterns = [
     url(r'^newCostHour', modify.newCostHour),  
     url(r'^CostHour/(.*)', modify.modifyCostHour),  
       
-        
+#    MENSUAL
+    url(r'^avionesMensual/(.*)', mensual.updatePlaneNumbers),
+    url(r'^changeMonthYear/(.*)', mensual.changeMonthYear),
        
     url(r'^(.*)', views.home),
 ]

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.figure import Figure
 import matplotlib
-from numpy import arange, array, ones
+#from numpy import arange, array, ones
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import io
 
@@ -20,16 +20,16 @@ from django.http import HttpResponseRedirect
 
 import pandas as pd
 
-from django.http import FileResponse
+#from django.http import FileResponse
 from reportlab.pdfgen import canvas as canvasPDF
-from django.views.generic import View
-from django.conf import settings
+#from django.views.generic import View
+#from django.conf import settings
 from reportlab.lib.pagesizes import A4, landscape
 
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
 
-from datetime import date
+#from datetime import date
 
 
 layupList = ["Autoclave", "Conformado", "Corte", "Desmoldeo", "Encintado", "Lay-Up"]
@@ -671,6 +671,8 @@ def createParDefc(i, defcObj, month):
     return paretoDef
 
 def saveTop5(top5List, data, pareto, month, isLay):
+    cost = costeHora.objects.get(year = YEAR).precio
+                                
     exist = True
     try:
         paretoTab = paretoTabla.objects.filter(isLay = isLay).filter(year = YEAR).filter(mes = month).get(pareto = pareto)
@@ -682,34 +684,33 @@ def saveTop5(top5List, data, pareto, month, isLay):
     if exist:
         
         top5Aux = top5List.copy()
-        
+        toRemove = []
+
         for defcPar in paretoTab.topDefc.all():
-            if pareto == "Recanteado":
-                print("Entra,  " + defcPar.defecto.name )
+            
             try:
-                if pareto == "Recanteado":
-                    print("Antes: " + str(defcPar.number) )
-                    
                 newNumber = top5Aux.index(defcPar.defecto.name)
+                defcPar.horas = data[newNumber] / cost
                 defcPar.number = newNumber
                 defcPar.save()
-                
-                if pareto == "Recanteado":
-                    print("Despues: " + str(defcPar.number) )
-                    
-                top5Aux.remove(defcPar.defecto.name)
+                toRemove.append(defcPar.defecto.name)
             except ValueError:
                 paretoTab.topDefc.remove(defcPar)
-           
+        
+        for par in toRemove:
+            top5Aux.remove(par)
+        
         for defcPar in top5Aux:
             if data[top5List.index(defcPar)] != 0.0:
                 queryDefcPar = paretoDefecto.objects.annotate(num_parTab=Count('paretoTablaList')).filter(num_parTab=0).filter(defecto__name = defcPar)
                 if queryDefcPar.count() != 0:
                     defcParObj = queryDefcPar[0]
                     defcParObj.number = top5List.index(defcPar)
+                    defcParObj.horas = data[top5List.index(defcPar)] / cost
                     defcParObj.save()
                 else:
                     defcParObj = createParDefc(top5List.index(defcPar), Defecto.objects.get(name = defcPar), month)
+                    defcParObj.horas = data[top5List.index(defcPar)] / cost
                     defcParObj.save()
                 paretoTab.topDefc.add(defcParObj)
                 paretoTab.save()   
@@ -965,7 +966,7 @@ def saveTable(pareto, month, data, isLay):
     else:
         toAdd = ""
     nameTable = "templates/images/pareto/" + str(month) + "/" + pareto.lower() + toAdd + "table.png"
-    columns = ("Tipo de Defecto", "Acción", "PPS - código", "Fecha de\n apertura del\nPPS", "Fecha de Cierre\ndel PPS")
+    columns = ("Tipo de Defecto", "Horas", "Acción", "PPS - código", "Fecha de\n apertura del\nPPS", "Fecha de Cierre\ndel PPS")
 
     fig=Figure(figsize=(40,30))
     ax=fig.add_subplot(111)
@@ -984,6 +985,7 @@ def saveTable(pareto, month, data, isLay):
     table.auto_set_column_width(2)
     table.auto_set_column_width(3)
     table.auto_set_column_width(4)
+    table.auto_set_column_width(5)
     ax.axis("off")
     
     cellDict = table.get_celld()
@@ -1092,7 +1094,7 @@ def updateDataParTable(request, year, month, isLay, listToSearch):
                 dateEndTab = dateToString(defc.fechaCierre)
                     
             defc.save()
-            row = [defc.defecto.name, parseString(defc.accion), defc.ppsCod, dateStartTab, dateEndTab]
+            row = [defc.defecto.name, round(defc.horas, 3) ,parseString(defc.accion), defc.ppsCod, dateStartTab, dateEndTab]
             data.append(row)
             
         if len(data) != 0:

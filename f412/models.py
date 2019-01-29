@@ -217,6 +217,7 @@ class paretoDefecto(models.Model):
     modificadaFechaAp = models.BooleanField(default = False)
     modificadaFechaCie = models.BooleanField(default = False)
     number = models.IntegerField(default = 1)
+    horas = models.FloatField(default = 0.0)
     
 class paretoTabla(models.Model):
     isLay = models.BooleanField(default = False)
@@ -226,7 +227,14 @@ class paretoTabla(models.Model):
     mes = models.IntegerField(default = 1)
     pareto = models.CharField(default = "", max_length = 128)
     
-#class OrderPareto(models.Model):
-#    number = models.IntegerField(default = 1)
-#    parDefecto = models.ForeignKey(paretoDefecto, related_name = 'pareto1', default = 1)
-#    tabla = models.ForeignKey(paretoTabla, default = 1)
+"""
+INFORME MENSUAL
+"""
+
+class planesCount(models.Model):
+    program = models.ForeignKey(Programa, default = 1)
+    component = models.ForeignKey(Componente, default=1)
+    year = models.IntegerField(default = 1)
+    mes = models.IntegerField(default = 1)
+    numPlanes = models.FloatField(default = 0.0)
+    

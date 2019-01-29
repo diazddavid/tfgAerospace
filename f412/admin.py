@@ -1,5 +1,5 @@
 from django.contrib import admin
-from f412.models import areaCaus, costeHora, codCaus, paretoDefecto, paretoTabla, Reparacion, f412Ant, Programa, ComponenteAPT5, avion, reasonTree, reasonTreeField, Pieza, tipoUsuario, modificaciones, Componente, myUser, PN, Area, Defecto, Designacion, Estado, SGM, F412, Seccion
+from f412.models import planesCount, areaCaus, costeHora, codCaus, paretoDefecto, paretoTabla, Reparacion, f412Ant, Programa, ComponenteAPT5, avion, reasonTree, reasonTreeField, Pieza, tipoUsuario, modificaciones, Componente, myUser, PN, Area, Defecto, Designacion, Estado, SGM, F412, Seccion
 
 # Register your models here.
 
@@ -28,3 +28,4 @@ admin.site.register(paretoTabla)
 admin.site.register(paretoDefecto)
 admin.site.register(codCaus)
 admin.site.register(areaCaus)
+admin.site.register(planesCount)

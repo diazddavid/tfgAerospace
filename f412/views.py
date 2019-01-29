@@ -11,10 +11,10 @@ from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 from django.template import Context
 
-from f412.models import Reparacion, sendMail, codCaus, Programa, ComponenteAPT5, avion, reasonTree, reasonTreeField, Pieza, tipoUsuario, modificaciones, Componente, myUser, PN, Area, Defecto, Designacion, Estado, SGM, F412, Seccion
+from f412.models import Reparacion, areaCaus, sendMail, codCaus, Programa, ComponenteAPT5, avion, reasonTree, reasonTreeField, Pieza, tipoUsuario, modificaciones, Componente, myUser, PN, Area, Defecto, Designacion, Estado, SGM, F412, Seccion
 from f412.toString import *
 from f412.manageDB import updateHours, getAvList, initEstadoDB, initSeccionDB, initProgramaDB, initTypeUser, initCodCaus, sumPlaneRepF412, updateGraph#, checkPlane
-from f412.mails import *
+#from f412.mails import *
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.views import logout
@@ -80,7 +80,9 @@ except:
 try:
     shouldSend = sendMail.objects.get(id = 1)
 except:
-    print("No existe")
+    print("No existe, creo")
+    shouldSend = sendMail(shouldSend = True)
+    shouldSend.save()
 ################################################## FUNCIONES #################################################
 
 def getUserEmailList(myContext):
@@ -108,6 +110,7 @@ def getContext(request, mode):
     myContext['myPath'] = request.path
     myContext["codCausList"] = codCaus.objects.all()
     myContext["request"] = request
+    myContext["sendMail"] = sendMail.objects.get(id = 1).shouldSend
     try:
         myContext['myUser'] = myUser.objects.get(user = request.user)
     except:
@@ -352,7 +355,6 @@ def serveForm350(request):
     myContext['numEmailAPT2'] = numEmail  
             
     mailList, numEmail = getMailList("APT3")
-
     myContext['mailListAPT3'] = mailList
     myContext['numEmailAPT3'] = numEmail
             
@@ -692,7 +694,7 @@ def newF412(request, program):
             else:
                 F412toSave.Pieza = part
             F412toSave.save()
-            sendMail("f412", F412toSave.id, currentUser.email)
+#            sendMail("f412", F412toSave.id, currentUser.email)
             Error = "None"
         else:
             myID = 0
@@ -747,6 +749,7 @@ def serveTableStatus(request, section, status):
     f412ListToReturn = F412_VALID.filter(id = -1)
     
     if request.method == "POST":
+        
         minDate = parseDate(request.POST["fromDate"])
         maxDate = parseDate(request.POST["toDate"])
         F412List = F412_VALID.filter(Fecha__lte=maxDate)
@@ -858,7 +861,7 @@ def serveTableRep(request, program):
         minDate = dateToString(minDate)
         maxDate = dateToString(maxDate)
     user = myUser.objects.get(user = request.user)
-    if user.typeUser.name == "Subcontrata" or user.typeUser.name == "Operario":
+    if user.typeUser.name == "Operario":
         return returnError(request, "No tienes permisos para acceder")
     program = Programa.objects.get(name = program)
     f412List = Reparacion.objects.filter(programa = program).order_by('-myID').order_by('-Fecha')
@@ -1055,8 +1058,8 @@ def changeStatus(f412, newStatus, action, request):
     f412.save()
     if f412.programa != PROGRAMA_380 and f412.seccion.name != "APT5":    
         updatePlane(f412, "f412")
-    if newStatus.name == "Rechazado":
-        sendMail("f412", f412.id, currentUser.email)
+#    if newStatus.name == "Rechazado":
+#        sendMail("f412", f412.id, currentUser.email)
     return
 
 #Vista para cada F412 donde se muestra informacion más detallada que en las tablas
@@ -1175,18 +1178,27 @@ def saveEdit350(request, f412):
     f412.PN = PN.objects.get(name = request.POST['parNumber'])
     f412.Area = Area.objects.get(name = request.POST['Area'])
     f412.Defecto = Defecto.objects.get(name = request.POST['Defect']) 
-    f412.reasonTree = getReasonTree(request, f412)
+    f412.Estado = Estado.objects.get(name = request.POST['status'])
+    
+    if request.POST['status'] != "Activo":
+        f412.reasonTree = getReasonTree(request, f412)
+    
     f412.Referencia = request.POST['Ref']
     f412.SGM = SGM.objects.get(number = request.POST['SGM'])
     f412.horas = request.POST['numH']
     f412.horasRecurrentes = request.POST['hRec']
     f412.nOp = request.POST['nOp']
     f412.descripcionAcortada = request.POST['Descp']
-    f412.Estado = Estado.objects.get(name = request.POST['status'])
+    f412.areaCaus = areaCaus.objects.get(name = request.POST["areaCaus"])
+    f412.operacion = request.POST["operacion"]
     
     currentUser = myUser.objects.get(user = request.user)
     f412.LastChangeUser = currentUser
     f412.codigoCausa = codCaus.objects.get(name = request.POST['codCaus'])
+    if request.POST['codCaus'] == "RL8":
+        f412.hnc = request.POST["hnc"]
+        f412.nDefecto = request.POST["nDefecto"]
+        
     f412.save()
     
     
@@ -1242,6 +1254,7 @@ def f412Edit(request, f412ID):
     myContext["sectionList"] = Seccion.objects.filter(programa = f412.programa)
     myContext["statusList"] = Estado.objects.all()
     myContext["codCausList"] = codCaus.objects.all()
+    myContext["areaCausList"] = areaCaus.objects.all()
     
     if f412.programa.name == "350":
         sectionList = Seccion.objects.filter(programa = PROGRAMA_350)
@@ -1696,8 +1709,10 @@ def getMailList(seccion):
     
     toReturn = ""
     countUser = 0
+    print(seccion)
     
     for userFor in myUser.objects.filter(seccion__name = seccion).filter(quiereCorreo = True):
+        print("entra")
         toReturn = toReturn + ";" + userFor.email
         countUser = countUser + 1
     

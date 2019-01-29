@@ -47,11 +47,25 @@ def getMailSection(dictEmails, sectionName):
         return dictEmails.get(sectionName)
     except:
         return sectionName
-    
-@register.filter
-def pruebas(name):
-    try:
-        return Componente.objects.get(name = name).alias
-    except:
-        return name
-    
+
+@register.assignment_tag
+def getNumberPlane(component, year, month, program):
+    if program == "380":
+        try:
+            return planesCount.objects.filter(program__name = program).filter(year = year).filter(mes = month).get(component__name = component).numPlanes
+        except:
+            return 0.0
+    else:
+        
+        try:
+            return planesCount.objects.filter(program__name = program).filter(year = year).get(mes = month).numPlanes
+        except:
+            return 0.0
+#    
+#@register.filter
+#def pruebas(name):
+#    try:
+#        return Componente.objects.get(name = name).alias
+#    except:
+#        return name
+#    

@@ -1,46 +1,47 @@
 {% extends 'html/base.html' %}
 
 {% block body %}
-{% if myUser.typeUser.name != "Subcontrata" and myUser.typeUser.name != "Lectura" %}
+{% if myUser.typeUser.name != "Lectura" %}
 
-{% if program380 %}
+  {% if program380 %}
+    {% if mode == "Reparaciones" %}
+      <form id="button1" method="get" action="/380/nuevoF412">
+        <input class="boton" type="submit" value="F412 A380">
+      </form>
+    {% else %}
+      <form id="button1" method="get" action="/380/nuevaRep">
+        <input class="boton" type="submit" value="Reparaciones A380">
+      </form>
+    {% endif %}
+  {% endif %}
+
+  {% if program350 %}
+    {% if mode == "Reparaciones" %}
+      <form id="button1" method="get" action="/350/nuevoF412">
+        <input class="boton" type="submit" value="F412 A350">
+      </form>
+    {% else %}  
+      <form id="button1" method="get" action="/350/nuevaRep">
+        <input class="boton" type="submit" value="Reparaciones A350">
+      </form>
+    {% endif %}
+  {% endif %}
+
+
   {% if mode == "Reparaciones" %}
-    <form id="button1" method="get" action="/380/nuevoF412">
-      <input class="boton" type="submit" value="F412 A380">
-    </form>
+    <h1 id="titleH">F412 {% if edit %}del programa{% else %}para{% endif %} A{{program.name}}</h1>
+    {% if edit and currentF412.programa.name == "350" %}
+      <h1>{{currentF412.seccion.name}}</h1>
+    {% endif %}                       
   {% else %}
-    <form id="button1" method="get" action="/380/nuevaRep">
-      <input class="boton" type="submit" value="Reparaciones A380">
-    </form>
-  {% endif %}
-{% endif %}
+    <h1 id="titleH">Reparacion para A{{program.name}}</h1><br>
+  {% endif %}     
 
-{% if program350 %}
-  {% if mode == "Reparaciones" %}
-    <form id="button1" method="get" action="/350/nuevoF412">
-      <input class="boton" type="submit" value="F412 A350">
-    </form>
-  {% else %}  
-    <form id="button1" method="get" action="/350/nuevaRep">
-      <input class="boton" type="submit" value="Reparaciones A350">
-    </form>
-  {% endif %}
-{% endif %}
-
-
-{% if mode == "Reparaciones" %}
-  <h1 id="titleH">F412 {% if edit %}del programa{% else %}para{% endif %} A{{program.name}}</h1>
-  {% if edit and currentF412.programa.name == "350" %}
-    <h1>{{currentF412.seccion.name}}</h1>
-  {% endif %}                       
-{% else %}
-  <h1 id="titleH">Reparacion para A{{program.name}}</h1><br>
-{% endif %}     
-
-{% block form %}
-{% endblock %}
+  {% block form %}
+  {% endblock %}
 
 {% else %}
+    {{myUser.typeUser.name}}
     <h1>No tiene permisos para acceder a esta dirección</h1>
 {% endif %}
 {% endblock body %}

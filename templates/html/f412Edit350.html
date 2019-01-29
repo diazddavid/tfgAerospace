@@ -30,7 +30,7 @@
         </select> </div><br>
         
         <div>Estado
-        <select name="status">
+        <select name="status" id="statusID" onchange="showRT()">
           {% for status in statusList %}
             {% if status == currentF412.Estado %}
               <option value={{ status.name }} selected> {{ status.name }}</option>
@@ -78,7 +78,7 @@
         </div>
 
        
-        <div>Area Causante
+        <div>Area
         <select name = "Area" id="AreaID">
           <!-- Esta opcion desaparecerÄÄ al seleccionar APT -->
           {% for area in areaUserSection %}
@@ -89,6 +89,17 @@
             {% endif %}                           
           {% endfor %}
         </select></div><br>
+        
+        <div>Area Causante
+          <select name="areaCaus" id="areaCaus">
+          {% for areaCaus in areaCausList %}
+            {% if currentF412.areaCaus == areaCaus %}
+              <option value="{{areaCaus.name}}" selected>{{areaCaus.name}}</option>
+            {% else %}
+              <option value="{{areaCaus.name}}">{{areaCaus.name}}</option>
+            {% endif %}                               
+          {% endfor %}
+          </select></div></td>
         
         <div>Desviacion
         <select name = "Defect" id="desvID">
@@ -102,7 +113,7 @@
           {% endfor %}
         </select> </div><br>
     
-        <div> Nivel 1 Reason Tree
+        <div id="rt1Div" {% if currentF412.Estado.name == "Activo" %}style="display:none"{% endif %}> Nivel 1 Reason Tree
           <select name = "Level1hid" id = "rt1" onchange="rt2Function()">
             <option value="default">Por defecto</option>
             {% for rt in rt1 %}
@@ -118,7 +129,7 @@
     </div>
     <div class="column">
     
-          <div>Nivel 2 Reason Tree
+          <div id="rt2Div" {% if currentF412.Estado.name == "Activo" %}style="display:none"{% endif %}%>Nivel 2 Reason Tree
           <select name = "Level2hid" id="rt2" onchange="rt3Function()">
             <option value="default">Por defecto</option>
             {% for rt in rt2F412 %}
@@ -131,7 +142,7 @@
           </select>
           </div>  
           
-          <div>Nivel 3 Reason Tree
+          <div id="rt3Div" {% if currentF412.Estado.name == "Activo" %}style="display:none"{% endif %}>Nivel 3 Reason Tree
           <select name = "Level3hid" id="rt3"">
             <option value="default">Por defecto</option>
             {% for rt in rt3F412 %}
@@ -152,6 +163,9 @@
           <option value = {{sgm.number}}>{{sgm.number}}</option>
         </select></div><br>
 
+        <div>Operación<br>
+        <input type = "number" name = "operacion" value={% if currentF412.operacion != "1" %}"{{currentF412.operacion}}"{% endif %}></br></div>
+                                                               
         <div>Horas Por Operario (LT)<br>
         <input type = "number" name = "numH" onchange="calcHRec()" value="{{currentF412.horas}}"></br></div>
         
@@ -172,7 +186,7 @@
         value="0" readonly></div></br>
         
         <div>Código Causa
-          <select name="codCaus" id="codCaus">
+          <select name="codCaus" id="codCaus" onChange="showRL8()">
             {% for codCaus in codCausList %}
               {% if codCaus == currentF412.codigoCausa %}
                 <option selected value="{{codCaus.name}}">{{codCaus.name}}</option>   
@@ -183,11 +197,19 @@
           </select>
         </div><br>
         
-        <div>Descripcion<br>
-        <textarea name="textDescp" id="textDescp" rows="5" cols="30">{% if currentF412.descripcionAcortada == "" %}{{currentF412.Descripcion}}{% else %}{{currentF412.descripcionAcortada}}{% endif %}</textarea>
-        <input type="text" hidden name = "Descp" id="descp"></br></div>
+        <div id="isRL81" style={% if currentF412.codigoCausa.name != "RL8" %}"display:none"{% endif %}>H.N.C.</br>
+          <input name = "hnc" value="{{currentF412.hnc}}"></br>                       
+        </div>                      
         
-        <input id="submit" type = "submit" value = "Enviar">
+        <div id="isRL82" style={% if currentF412.codigoCausa.name != "RL8" %}"display:none"{% endif %}>Número de defecto</br>                     
+          <input name = "nDefecto" value="{{currentF412.nDefecto}}"></br>            
+        </div>
+        
+        <div>Descripcion<br> 
+        <textarea name="textDescp" id="textDescp" rows="5" cols="30">{% if currentF412.descripcionAcortada == "" %}{{currentF412.Descripcion}}{% else %}{{currentF412.descripcionAcortada}}{% endif %}</textarea>
+        <input type="text" hidden name = "Descp" id="descp"></br>
+        
+        <input id="submit" type = "submit" value = "Enviar"></div>
       </div>
     </div>
   </form>
@@ -389,6 +411,30 @@ function rt3Function(){
     {% endfor%}    
          
 }      
+      
+function showRT(){
+  var status = document.forms["myForm"]["status"].value;                                     
+  if (status != "Activo"){                                 
+    document.getElementById("rt1Div").style.display = "";      
+    document.getElementById("rt2Div").style.display = "";       
+    document.getElementById("rt3Div").style.display = "";         
+  }else{                                    
+    document.getElementById("rt1Div").style.display = "none"  
+    document.getElementById("rt2Div").style.display = "none"   
+    document.getElementById("rt3Div").style.display = "none"         
+  }                         
+}
+  
+function showRL8(){
+  var codCaus = document.forms["myForm"]["codCaus"].value;                                     
+  if (status != "Activo"){                                 
+    document.getElementById("isRL81").style.display = "";      
+    document.getElementById("isRL82").style.display = "";         
+  }else{                                      
+    document.getElementById("isRL81").style.display = "none"   
+    document.getElementById("isRL82").style.display = "none"         
+  }                         
+}  
       
 window.onload = function(){  
   var nOp = document.forms["myForm"]["nOp"].value;

@@ -41,6 +41,10 @@
   <form id="button1" method="post" action="/modifyPage">
     <input class="boton" type="submit" value="Base de Datos">
   </form>
+  
+  <form id="button1" method="post" action="/changeEmail">
+    <input class="boton" type="submit" value="{% if sendMail == True %}Desactivar {% else %}Activar {% endif %}Correos">
+  </form>
   {% endif %}
 
   <!-- Formulario para crear usuarios -->

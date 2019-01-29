@@ -996,3 +996,22 @@ def updateAllF412Hours():
     for f412 in F412.objects.all():
         updateHours(f412)
     return
+
+@csrf_exempt
+def changeEmail(request):
+    try:
+        shouldSend = sendMail.objects.get(id = 1)
+    except:
+        print("No existe, creo")
+        shouldSend = sendMail(shouldSend = False)
+    
+    if shouldSend.shouldSend == True:
+        shouldSend.shouldSend = False
+    else:         
+        shouldSend.shouldSend = True
+
+    shouldSend.save()
+
+    return HttpResponseRedirect("/administrador")
+   
+    return HttpResponseRedirect("/administrador")

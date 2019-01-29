@@ -324,31 +324,31 @@ function validateForm() {
     }  
         
     {% if myUser.typeUser.name == "ME" %}                                 
-    var newH = document.getElementById("newHID").value;
-    
-    if (codCaus == "default"){        
-      alert("Falta introducir Código Causa") 
-      return false;       
-    }    
-    
-    if (areaCaus == "default"){        
-      alert("Falta introducir Área Causante") 
-      return false;       
-    } 
-
-    if (codCaus == "RL8"){
-      if (hnc == ""){
-        alert("Si es un RL8 hay que introducir HNC");
-        return false;
-      }      
-      if (nDfc == ""){
-        alert("Si es un RL8 hay que introducir número defecto");
-        return false;
-      }   
-    }                                       
+      var newH = document.getElementById("newHID").value;                              
    
-    if (newStatusVar == "Validado" || newStatusVar == "Concedido"){                   
-        if(operation == "" && "{{f412.operacion}}" == "1"){
+       if (newStatusVar == "Validado" || newStatusVar == "Concedido"){                   
+        
+       if (codCaus == "default"){        
+         alert("Falta introducir Código Causa") 
+         return false;       
+       }    
+    
+       if (areaCaus == "default"){        
+         alert("Falta introducir Área Causante") 
+         return false;       
+       } 
+
+       if (codCaus == "RL8"){
+         if (hnc == ""){
+           alert("Si es un RL8 hay que introducir HNC");
+           return false;
+         }      
+         if (nDfc == ""){
+           alert("Si es un RL8 hay que introducir número defecto");
+           return false;
+         }   
+       }  
+       if(operation == "" && "{{f412.operacion}}" == "1"){
             alert("No se puede cambiar el estado a concedido o validado sin indicar operacion");
             return false;
         }
@@ -399,7 +399,7 @@ function validateForm() {
         document.forms["myForm"]["Level1hid"].value = document.getElementById("Level1Id").value; 
       }
     }
-    {%endif%} 
+    {% endif %} 
     
     {% if sendMail == True %}
     if(newStatusVar == "Rechazado" || newStatusVar == "Validado"){
@@ -413,19 +413,12 @@ function validateForm() {
     
 function sendEmail(newStatus, variable){
     body = "El F412 nº {{f412.myID}} de la {{f412.seccion.name}} ha sido " + newStatus
-    /*if(newStatus == "Rechazado"){
+    if(newStatus == "Rechazado"){
       body += "\n\n Con motivo: " + variable        
-    }*/
-    if("APT3"=="{{f412.seccion.name}}"){
-      if("{{numEmailAPT3}}" != "0"){       
-        toSend = "{{mailListAPT3}}"
-      }
     }
-     
-    if("APT4"=="{{f412.seccion.name}}"){
-      if("{{numEmailAPT4}}" != "0"){       
-        toSend = "{{mailListAPT4}}"
-      }
+    
+    if("{{numEmail}}" != "0"){       
+        toSend = "{{mailList}}"
     }
     
     subject = "Notificación F412"
