@@ -3,7 +3,7 @@
 {% block body %}
 
 <h1 style="text-align: center">
-{% if userSection == "380"%}
+{% if userSection == "380" or userSection == "350" %}
     A{{userSection}}
 {% else %}
     {{userSection}}
@@ -27,29 +27,33 @@ Historial
 
   {% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "ME" %}
     {% if userSection != "A350 Todos" %}
-    <form style="display: inline-block" {% if mode == "Reparaciones" %}action="/{{userSection}}/{{Status}}/filtroFecha"
-                                        {% else %} action="rep/{{userSection}}/filtroFecha"
+    <form style="display: inline-block" {% if mode == "Reparaciones" %}action="/{{currentPage}}/{% if Status == "" %}todos{% else %}{{Status}}{% endif %}/filtroFecha"
+                                        {% else %} action="rep/{{currentPage}}/filtroFecha"
                                         {% endif %} method="post" name="myForm" onsubmit="return validateForm()">
     {% else %}
-    <form style="display: inline-block" action="/350/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
+    <form style="display: inline-block" action="/{{currentPage}}/{% if Status == "" %}todos{% else %}{{Status}}{% endif %}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
     {% endif %}                                             
       <h2 style="text-align:left; display: inline-block;margin-right:10px; font-size: 25px">Filtrar fecha:</h2> 
-      Desde: <input type="text" name="fromDate" value={% if currentDate != "" %}"{{currentDate}}"{% else %}"{{date}}" {% endif %} style="margin-right:10px" onClick="this.select();">
-      Hasta: <input type="text" name="toDate" value={% if currentDate != "" %}"{{currentDate1}}"{% else %}"{{date}}" {% endif %} onClick="this.select();">
+      Desde: <input type="text" name="fromDate" value={% if currentDate != "" %}"{{currentDate}}"{% else %}"{{date}}" {% endif %} style="margin-right:10px" >
+      Hasta: <input type="text" name="toDate" value={% if currentDate != "" %}"{{currentDate1}}"{% else %}"{{date}}" {% endif %}>
       <input class="boton" type="submit" value="Ir">
     </form>
     
     
-    {% if userSection != "A350 Todos" %}
-    <form style="display: inline-block" action="/{{userSection}}/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
-    {% else %}
-    <form style="display: inline-block" action="/350/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
-    {% endif %}
+    <form style="display: inline-block" {% if mode == "Reparaciones" %}action="/{{currentPage}}/{% if Status == "" %}todos{% else %}{{Status}}{% endif %}/filtroFecha"
+                                        {% else %} action="rep/{{currentPage}}/filtroFecha"
+                                        {% endif %} method="post" name="myForm" onsubmit="return validateForm()">
       <input type="hidden" name="fromDate" value="{{yesterday}}">
       <input type="hidden" name="toDate" value="{{yesterday}}">
       <input class="boton" type="submit" value="Dia Anterior">
     </form>           
   {% endif %}
+{% endif %}
+
+{% if myUser.typeUser.name == "ME" %}
+  <form style="display: inline-block" action="/ExportarF412" method="get" name="myForm2"> 
+    <input class="boton" type="submit" value="Exportar F412">
+  </form>
 {% endif %}
 
 {% if program == "380" %}
@@ -74,6 +78,7 @@ Historial
         <button type="input" value="/APT3/{{Status}}" onClick="checkBtn(event)">APT3</button>
         <button type="input" value="/APT4/{{Status}}" onClick="checkBtn(event)">APT4</button>
         <button type="input" value="/APT5/{{Status}}" onClick="checkBtn(event)">APT5</button>
+        <button type="input" value="/APT9/{{Status}}" onClick="checkBtn(event)">APT9</button>
         </br></br>  
     {% else %}
         {% if myUser.seccion.all.count != 1 %}

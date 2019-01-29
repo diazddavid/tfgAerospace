@@ -37,6 +37,11 @@
   <form id="button1" method="post" action="/updateDB">
     <input class="boton" type="submit" value="Actualizar Base de Datos">
   </form>
+  {% if myUser.isSuperUser %}
+  <form id="button1" method="post" action="/modifyPage">
+    <input class="boton" type="submit" value="Base de Datos">
+  </form>
+  {% endif %}
 
   <!-- Formulario para crear usuarios -->
   <form id="adminFORM" action="/administrador" method="post" name="myForm" onsubmit="return validateForm()">
@@ -83,7 +88,6 @@
             <option value=default>Seleccione Seccion</option> 
         </select><br>
         
-        
         <input type="hidden" name="type" value="newUser" >
         <input type="submit" value="Crear Usuario">
        </div>
@@ -110,6 +114,7 @@
         <th>Enviar Cambios</th>
         <th>Borrar Usuario</th>
         <th>Cambiar Contraseña</th>
+        <th>Quiere Correos</th>
       {% endif %}
     </tr>
     {% for user in userList %}
@@ -192,6 +197,9 @@
         </form></td>
         <td><form action="/changePsswd/{{user.id}}" method="get">
           <input type = "submit" value = "Cambiar">
+        </form></td>
+        <td><form action="/changeEmail/{{user.id}}" method="get">
+          <input type = "submit" value = "{% if user.quiereCorreo %}Quiere{% else %}No quiere{% endif %}">
         </form></td>
         <td>{{user.id}}</td>
         {% endif %}
@@ -276,6 +284,7 @@
           document.getElementById("sgmIDList{{user.id}}").innerHTML = "<option>Sin SGM</option>"
         }  
       {% endfor %}
+      
     }
 
   </script>

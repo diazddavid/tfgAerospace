@@ -28,6 +28,7 @@ def getBasicContext(myContext, request):
     myContext["mode"] = "Reparaciones"
     myContext['myPath'] = request.path
     myContext["codCausList"] = codCaus.objects.all()
+    myContext["request"] = request
     try:
         myContext['myUser'] = myUser.objects.get(user = request.user)
     except:

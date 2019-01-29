@@ -224,6 +224,7 @@ def updateDefect(df, section):
             dft.save()
             dft.seccion.add(section)
         except IndexError:
+            print(i)
             break
     
     for dfct in Defecto.objects.filter(seccion = section):
@@ -306,7 +307,10 @@ def update380():
                             pn.save()
                     except PN.DoesNotExist:
                         pn = PN(name = PNname, programa = PROGRAMA_380, Designacion = Designacion.objects.get(name = DesignaName))
-                        pn.save()
+                        try:
+                            pn.save()
+                        except:
+                            print("\n\nFALTA añadir controlar cuando existe la designacion con otro PN pero el PN ha cambiado")
                 except IndexError:
                     break
 
@@ -475,28 +479,45 @@ def createRt(name, code, level, superior):
     else:
         shortName = superior.codigo + "." + code
     try:
-        rt = reasonTreeField.objects.get(shortName = shortName)
+        rt = reasonTreeField.objects.filter(currentlyInUse = True).get(shortName = shortName)
     except reasonTreeField.DoesNotExist:
         if level == 1:
-            rt = reasonTreeField(nivel = level, nombre = name, codigo = code, shortName = code)
+            rt = reasonTreeField(nivel = level, nombre = name, codigo = code, shortName = code, currentlyInUse = True)
         else:
-            rt = reasonTreeField(nivel = level, nombre = name, codigo = code, superior = superior, shortName = shortName)
+            rt = reasonTreeField(nivel = level, nombre = name, codigo = code, superior = superior, shortName = shortName, currentlyInUse = True)
         rt.save()
     return rt    
    
 #para copiar los RT entre mismos lvl, dado que el lvl3 es comun para varios rt de lvl2    
 @csrf_exempt
 def copyToEquals(rt1, rtRef):
-    for rt in reasonTreeField.objects.filter(superior = rt1):
-        for rt3 in reasonTreeField.objects.filter(superior = rtRef):
+    for rt in reasonTreeField.objects.filter(currentlyInUse = True).filter(superior = rt1):
+        for rt3 in reasonTreeField.objects.filter(currentlyInUse = True).filter(superior = rtRef):
             try:
-                reasonTreeField.objects.filter(superior = rt).get(codigo = rt3.codigo)
+                reasonTreeField.objects.filter(currentlyInUse = True).filter(superior = rt).get(codigo = rt3.codigo)
             except reasonTreeField.DoesNotExist:
                 createRt(rt3.nombre, rt3.codigo, 3, rt)
+
+@csrf_exempt
+def changeUseRT():
+    
+    for rt in reasonTreeField.objects.filter(currentlyInUse = True):
+        rt.currentlyInUse = False
+        rt.save()
+        
+    for rt in reasonTree.objects.filter(program__name = "350").filter(currentlyInUse = True):
+        rt.currentlyInUse = False
+        rt.save()
+        
+
+    return
 
 #Actualizar desde el archivo     
 @csrf_exempt
 def updateRsnTree():
+    
+    changeUseRT()
+    
     file = "xls\\reasonTree.xlsx"
     xl = pd.ExcelFile(file)
     df = xl.parse("CVAT")
@@ -536,7 +557,7 @@ def updateRsnTree():
                rt1 = createRt(name1, cod1, 1, None)
                
                shortName = cod1
-               rt = reasonTree(nivel1 = rt1, nivel2 = rt1, nivel3 = rt1, shortName = shortName, program = Programa.objects.get(name = "380"))
+               rt = reasonTree(nivel1 = rt1, nivel2 = rt1, nivel3 = rt1, shortName = shortName, currentlyInUse = True, program = Programa.objects.get(name = "380"))
                rt.save()
     except IndexError:
         indexError = True               
@@ -737,7 +758,10 @@ def export380(request, status):
     response['Content-Disposition'] = 'attachment; filename=' + fileName 
     
     myContext = Context({'f412List': f412List})
+    myContext["request"] = request
     myContext["WholeProgram"] = WholeProgram
+    myContext["request"] = request
+    myContext["repList"] = Reparacion.objects.filter(programa__name = "380")
     
     template = get_template("csv/A380.txt")
     response.write(template.render(myContext))
@@ -767,8 +791,10 @@ def export350(request, sectionName, status):
     response['Content-Disposition'] = 'attachment; filename=' + fileName 
 
     myContext = Context({'f412List': f412List})
+    myContext["request"] = request
     myContext["WholeProgram"] = WholeProgram
     myContext["WholeSection"] = WholeSection
+    myContext["request"] = request
     
     if sectionName == "APT2":
         template = get_template("csv/APT2.txt")
@@ -802,7 +828,9 @@ def exportPage(request):
 #        multipleExport(request)
     template = get_template("html/CSVPage.html")
     myContext = Context({'user': request.user})
+    myContext["request"] = request
     myContext['myPath'] = request.path
+    myContext["request"] = request
     myContext['mode'] = "Reparaciones"             
     try:
         myContext['myUser'] = myUser.objects.get(user = request.user)
@@ -943,12 +971,28 @@ def updateGraph(request, av1, av2, typeGraph):
 #Funcion principal que actualiza todos los campos actualizables en la aplicacion
 @csrf_exempt
 def updateDB(request):
-    toReturn = update380()
+#    toReturn = update380()
 #    toReturn = update350()
 #    toReturn = updateRsnTree()
 #    toReturn = updateUserDB()
 #    toReturn = changeDescpTBD380()   #Funcion puntual para cambiar a TBD los f412 que salian como en_descripcion
 #    toReturn = updatePlane()
 #    toReturn = updateOldF412()   #Comentar cuando se haga 1 vez
+    updateAllF412Hours()
 
     return HttpResponseRedirect("/administrador")
+
+def updateHours(f412):
+    
+    f412.horas = f412.horas.replace(".",",") 
+    f412.horasAntiguas = f412.horasAntiguas.replace(".",",")
+    f412.horasRecurrentes = f412.horasRecurrentes.replace(".",",")
+    f412.horasAntRec = f412.horasAntRec.replace(".",",") 
+    f412.save()
+    
+    return
+
+def updateAllF412Hours():
+    for f412 in F412.objects.all():
+        updateHours(f412)
+    return

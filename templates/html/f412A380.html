@@ -20,7 +20,7 @@ tr:nth-child(even) {
   <input class="boton" type="submit" value="Historial">
 </form>
 
-  {% if myUser.admin %}
+  {% if myUser.typeUser.name == "ME" %}
     <form id="button3" method="get" style="display: inline-block;" action="/reset/{{f412.id}}"  >
       <input class="boton" type="submit" value="Resetear">
     </form>

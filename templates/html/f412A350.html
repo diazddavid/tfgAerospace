@@ -1,5 +1,7 @@
 {% extends 'html/base.html' %}
 
+{% load filtrosExtra %}
+
 {% block body %}
 <!-- <style>
 
@@ -20,7 +22,7 @@ tr:nth-child(even) {
 </form>
 {% endif %}
 
-{% if myUser.admin and mode == "Reparaciones" %}
+{% if myUser.typeUser.name == "ME" and mode == "Reparaciones" %}
 <form  method="get" action="/reset/{{f412.id}}" style="display: inline-block;">
   <input class="boton" type="submit" value="Resetear F412">
 </form>
@@ -34,6 +36,8 @@ tr:nth-child(even) {
 </form>
 
 {% endif %}
+
+{% getMailSection emailDic f412.seccion.name as emailF412Seccion %}
 
 <h1>{% if mode == "Reparaciones" %}F412{% else %}Reparación{% endif %} nº{{f412.myID}}, {% if f412.programa.name == "350"%} {{f412.seccion.name}}{%else%}A380{%endif%}</h1>
 {% if mode == "Reparaciones" %}<h1 style="color:{{f412.Estado.color}}">Este F412 está: {{f412.Estado.name}}</h1> {% endif %}
@@ -115,7 +119,7 @@ tr:nth-child(even) {
 <table style="background-color:#FFFFFF">
   <tr>
     <th>Creado Por</th>
-    <th>Ultima modificacion</th>
+    <th>Última modificación</th>
   </tr>
   <tr>
     <td style="text-align:center"><a href="mailto:{{f412.Usuario.email}}">{{f412.Usuario.email}}</a></td>
@@ -126,6 +130,7 @@ tr:nth-child(even) {
 {% if mode == "Reparaciones" %}
   <table style="background-color:#FFFFFF">
   {% if myUser.typeUser.name == "ME" %}
+    {% if f412.Estado.name != "Eliminado" %}
     {% if f412.Estado.name == "Activo" or f412.Estado.name == "Validado" or myUser.admin == True %}
     <form action="/f412/{{f412.seccion.name}}/{{f412.myID}}" id="myForm" method="post" onsubmit="return validateForm()">
       <tr>
@@ -182,7 +187,8 @@ tr:nth-child(even) {
       
         <td><input type = "text" id="action" style="width:400px;" name="action" onkeydown="maxLenght()"></td>
       
-                                                                                                  <td><input type = "submit" value = "Submit"></td>
+        <td><input type = "submit" value = "Submit"></td>
+        
         <input type="hidden" id="newH" name="newH">
         <input type="hidden" id="Level1hid" name="Level1hid">
         <input type="hidden" id="Level2hid" name="Level2hid">
@@ -191,33 +197,36 @@ tr:nth-child(even) {
 
     </form>
     {% endif %}
+    {% endif %}
   
   {% elif f412.Estado.name == "Validado" and myUser.typeUser.name == "Subcontrata" %}
-  <form action="/f412/{{f412.seccion.name}}/{{f412.myID}}" id="myForm" method="post" onsubmit="return validateForm()">
-    <tr>
-      <th>Estado Actual</th>
-      <th>Nuevo Estado</th>
-      <th id="titleStatus"> Motivo Rechazo/ Descripción acortada</th>
-      <th>Enviar</th>
-    </tr>
-    <tr>
-      <td>{{f412.Estado.name}}</td>
-      
-      <td><select name = "newStatusForm" id="newStatusForm" onchange="changeStatus()">
-        <option value ="Rechazado" selected> Rechazado</option>
-        <option value ="Concedido" selected> Condedido</option>                      
-      </select></td>
-      
-      <td><input type="text" id="action" style="width:800px;" maxlength="20" onkeydown="maxLenght()" name="action" ></td>
-      <td><input type = "submit" value = "Submit"></td>
-      <input id="newHh" type="hidden" name="newH">
-      <input type="hidden" id="operacion" name="operacion" value="default" >
-      <input type="hidden" id="Level1hid" name="Level1hid">
-      <input type="hidden" id="Level2hid" name="Level2hid">
-      <input type="hidden" id="Level3hid" name="Level3hid">
-    </tr>
-
-    </form>
+    {% if f412.Estado.name != "Eliminado" %}
+      <form action="/f412/{{f412.seccion.name}}/{{f412.myID}}" id="myForm" method="post" onsubmit="return validateForm()">
+        <tr>
+          <th>Estado Actual</th>
+          <th>Nuevo Estado</th>
+          <th id="titleStatus"> Motivo Rechazo/ Descripción acortada</th>
+          <th>Enviar</th>
+        </tr>
+        <tr>
+          <td>{{f412.Estado.name}}</td>
+          
+          <td><select name = "newStatusForm" id="newStatusForm" onchange="changeStatus()">
+            <option value ="Rechazado" selected> Rechazado</option>
+            <option value ="Concedido" selected> Condedido</option>                      
+          </select></td>
+          
+          <td><input type="text" id="action" style="width:800px;" maxlength="20" onkeydown="maxLenght()" name="action" ></td>
+          <td><input type = "submit" value = "Submit"></td>
+          <input id="newHh" type="hidden" name="newH">
+          <input type="hidden" id="operacion" name="operacion" value="default" >
+          <input type="hidden" id="Level1hid" name="Level1hid">
+          <input type="hidden" id="Level2hid" name="Level2hid">
+          <input type="hidden" id="Level3hid" name="Level3hid">
+        </tr>
+    
+        </form>
+    {% endif %}
   
   {% else %}
     <tr>
@@ -270,7 +279,12 @@ function checkCodCaus(){
       document.getElementById("hnc").style.display = ""
       document.getElementById("hncInput").style.display = ""    
       document.getElementById("nDefc").style.display = ""
-      document.getElementById("nDefcInput").style.display = ""                           
+      document.getElementById("nDefcInput").style.display = ""
+      
+      rtLevel1Choose("QUA")
+      rtLevel2Choose("REP")
+      level2()
+      
     }else{
       document.getElementById("hnc").style.display = "none"
       document.getElementById("hncInput").style.display = "none"   
@@ -387,8 +401,51 @@ function validateForm() {
     }
     {%endif%} 
     
+    {% if sendMail == True %}
+    if(newStatusVar == "Rechazado" || newStatusVar == "Validado"){
+      sendEmail(newStatusVar, variable) 
+      return true
+    }
+    {% endif %}
+
+    
   }
-      
+    
+function sendEmail(newStatus, variable){
+    body = "El F412 nº {{f412.myID}} de la {{f412.seccion.name}} ha sido " + newStatus
+    /*if(newStatus == "Rechazado"){
+      body += "\n\n Con motivo: " + variable        
+    }*/
+    if("APT3"=="{{f412.seccion.name}}"){
+      if("{{numEmailAPT3}}" != "0"){       
+        toSend = "{{mailListAPT3}}"
+      }
+    }
+     
+    if("APT4"=="{{f412.seccion.name}}"){
+      if("{{numEmailAPT4}}" != "0"){       
+        toSend = "{{mailListAPT4}}"
+      }
+    }
+    
+    subject = "Notificación F412"
+    mailTo = "mailto:" + toSend + "?subject=" + subject + "&amp;body=" + body + ""
+    window.location.href(mailTo)
+    return true;
+}
+
+function rtLevel1Choose(toChoose){
+  {% for rt1 in level1RT %}
+  
+    var fullName = "{{rt1.shortName}}"
+    if("{{rt1.codigo}}" == toChoose){
+      document.getElementById("Level1Id").innerHTML = "<option value='{{rt1.codigo}}'>{{rt1.codigo}} - {{rt1.nombre}}</option>";
+    }        
+    
+  {% endfor %} 
+        
+}    
+    
 function level1(){
   var lvl1 = document.getElementById("Level1Id").value;
   document.getElementById("Level2Id").innerHTML = "<option value ='default'> Por Defecto</option>";
@@ -399,6 +456,22 @@ function level1(){
   }        
   {% endfor %}                           
 }
+  
+function rtLevel2Choose(toChoose){
+  var lvl1 = document.getElementById("Level1Id").value;
+
+  {% for rt2 in level2RT %}
+  
+    var fullName = "{{rt2.shortName}}"
+    if(fullName.startsWith(lvl1) && "{{rt2.codigo}}" == toChoose){
+      document.getElementById("Level2Id").innerHTML = "<option value='{{rt2.codigo}}'>{{rt2.codigo}} - {{rt2.nombre}}</option>";
+    }  
+      
+  {% endfor %}  
+    
+  level2()
+        
+}     
   
 function level2(){
   var lvl2 = document.getElementById("Level2Id").value;
@@ -451,7 +524,7 @@ function changeStatus(){
   }
   
   window.onload = function(){
-    changeStatus();
+    changeStatus();        
     var f412Comment = "{{f412.Descripcion}}";                                              
     if (f412Comment.length >= 20){
       document.getElementById("descp{{f412.id}}").innerHTML = "<a style='color:red' href='/' onclick='return chargefullCom({{f412.id}})'>{{f412.Descripcion|slice:'0:20'}}"

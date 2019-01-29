@@ -1,6 +1,9 @@
 from django.db import models
 import django.contrib.auth.models as modelsAuth
 
+class sendMail(models.Model):
+    shouldSend = models.BooleanField(default = True) 
+
 class Programa(models.Model):
     name = models.CharField(max_length = 128)
 
@@ -25,7 +28,7 @@ class Designacion(models.Model):
 class PN(models.Model):
     name = models.CharField(max_length = 128)
     programa = models.ForeignKey(Programa, default = 1)
-    Designacion = models.OneToOneField(Designacion, unique=True)
+    Designacion = models.OneToOneField(Designacion, unique=True, related_name="PN")
 
 class ComponenteAPT5(models.Model):
     name = models.CharField(max_length = 128, default = "")
@@ -63,6 +66,9 @@ class myUser(models.Model):
     NA = models.CharField(max_length = 64, default = "")
     nombreCompleto = models.CharField(max_length = 128, default = "")
     seccion = models.ManyToManyField(Seccion, default = 1)
+    quiereCorreo = models.BooleanField(default = False)
+    hasChosen = models.BooleanField(default = False)
+    isSuperUser = models.BooleanField(default = False)
     
 class SGM(models.Model):
     number = models.CharField(max_length = 128)
@@ -79,6 +85,7 @@ class reasonTreeField(models.Model):
     codigo = models.CharField(max_length = 3, default = "")
     superior = models.ForeignKey("self", default = 1)
     shortName = models.CharField(max_length = 7, default = "")
+    currentlyInUse = models.BooleanField(default = False)
     
 class reasonTree(models.Model):
     nivel1 = models.ForeignKey(reasonTreeField, related_name = 'lvl1' , default=1)
@@ -86,6 +93,7 @@ class reasonTree(models.Model):
     nivel3 = models.ForeignKey(reasonTreeField, related_name = 'lvl3' , default=1)
     shortName = models.CharField(max_length = 13, default = "")
     program = models.ForeignKey(Programa, default = 14)
+    currentlyInUse = models.BooleanField(default = False)
     
 class codCaus(models.Model):
     name = models.CharField(max_length = 64)
@@ -213,7 +221,7 @@ class paretoDefecto(models.Model):
 class paretoTabla(models.Model):
     isLay = models.BooleanField(default = False)
 #    topDefc = models.ManyToManyField(paretoDefecto, related_name='topList', through='OrderPareto')
-    topDefc = models.ManyToManyField(paretoDefecto)
+    topDefc = models.ManyToManyField(paretoDefecto, related_name="paretoTablaList")
     year = models.IntegerField(default = 2018)
     mes = models.IntegerField(default = 1)
     pareto = models.CharField(default = "", max_length = 128)
