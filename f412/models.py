@@ -19,6 +19,7 @@ class Componente(models.Model):
     name = models.CharField(max_length = 128)
     alias = models.CharField(max_length = 128, default = "")
     programa = models.ForeignKey(Programa, default = 1)
+    shouldShow = models.BooleanField(default = True)
 
 class Designacion(models.Model):
     name = models.CharField(max_length = 128)
@@ -29,6 +30,13 @@ class PN(models.Model):
     name = models.CharField(max_length = 128)
     programa = models.ForeignKey(Programa, default = 1)
     Designacion = models.OneToOneField(Designacion, unique=True, related_name="PN")
+
+class PNEvol(models.Model):
+    pn = models.ForeignKey(PN, default = 1)
+    designation = models.ForeignKey(Designacion, default = 1)
+    name = models.CharField(max_length = 128)
+    shouldShow = models.BooleanField(default = True)
+    currentPN = models.BooleanField(default = True)
 
 class ComponenteAPT5(models.Model):
     name = models.CharField(max_length = 128, default = "")
@@ -107,6 +115,7 @@ class Reparacion(models.Model):
     seccion = models.ForeignKey(Seccion, default = 1)
     Componente = models.ForeignKey(Componente, default = 1)
     PN = models.ForeignKey(PN, default = 1)
+    pnEv = models.ForeignKey(PNEvol, default = 1)
     Area = models.ForeignKey(Area, default = 1)
     Defecto = models.ForeignKey(Defecto, default = 1) #EN EL CASO DE LOS FORMULARIOS PARA 350 SERAN DESVIACIONES
     Fecha = models.DateField()
@@ -132,12 +141,15 @@ class Reparacion(models.Model):
 
     myID = models.IntegerField(default = 1)
     
+    rtMod = models.BooleanField(default = True)
+    
 
 class F412(models.Model):
     programa = models.ForeignKey(Programa, default = 1)
     seccion = models.ForeignKey(Seccion, default = 1)
     Componente = models.ForeignKey(Componente, default = 1)
     PN = models.ForeignKey(PN, default = 1)
+    pnEv = models.ForeignKey(PNEvol, default = 1)
     Area = models.ForeignKey(Area, default = 1)
     Defecto = models.ForeignKey(Defecto, default = 1) #EN EL CASO DE LOS FORMULARIOS PARA 350 SERAN DESVIACIONES
     Fecha = models.DateField()
@@ -238,3 +250,13 @@ class planesCount(models.Model):
     mes = models.IntegerField(default = 1)
     numPlanes = models.FloatField(default = 0.0)
     
+class oldHour(models.Model):
+    program = models.ForeignKey(Programa, default = 1)
+    component = models.ForeignKey(Componente, default=1)
+    year = models.IntegerField(default = 1)
+    month = models.IntegerField(default = 1)
+    hours = models.FloatField(default = 0.0)
+    codCaus = models.ForeignKey(codCaus, default = 1)
+    
+class appYears(models.Model):
+    year = models.IntegerField(primary_key = True)    

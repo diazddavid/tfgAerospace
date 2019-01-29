@@ -42,7 +42,8 @@ urlpatterns = [
     url(r'^(.+)/nuevoF412', views.newF412),
     url(r'^f412/(.*)/(.*)', views.f412Page),
     url(r'^f412edit/(.*)', views.f412Edit),   
-    url(r'^rep/(.*)/(.*)', views.repPage),
+    url(r'^rep/(.*)/(.*)', views.repPage),  
+    url(r'^repEdit/(.*)', views.repEdit),
     url(r'^historial/(.*)', views.f412Hist),
     url(r'^reset/(.*)', views.f412Reset),
     url(r'^cambiarRT/(.*)', views.f412CambiarRT),
@@ -123,7 +124,11 @@ urlpatterns = [
     url(r'^Designation/(.*)', modify.modifyDesignation), 
        
     url(r'^modifyPNPage', modify.serveModifyPN),
-    url(r'^newPN', modify.newDesignaPN),  
+    url(r'^newPN', modify.newDesignaPN), 
+    url(r'^evolucionPN/(.*)', modify.evolvePN),
+    url(r'^newEV/(.*)', modify.createEv),
+    url(r'^activate/(.*)/(.*)', modify.changeName),  
+    url(r'^changeVisible/(.*)/(.*)', modify.changeVisiblePN),  
     url(r'^PN/(.*)', modify.modifyPN), 
        
     url(r'^modifyAreaCausPage', modify.serveModifyAreaCaus),
@@ -165,6 +170,11 @@ urlpatterns = [
 #    MENSUAL
     url(r'^avionesMensual/(.*)', mensual.updatePlaneNumbers),
     url(r'^changeMonthYear/(.*)', mensual.changeMonthYear),
+    url(r'^changeHour/(.*)/(.*)', mensual.changeHours),
+    url(r'^changeMonthHour/(.*)/(.*)', mensual.changeMonthHour),
+    url(r'^updateHours', mensual.handleUpdateHours),
+    url(r'^rootMensual', mensual.serveRootMensual),
+    url(r'^updateFromXls', mensual.updateFromXls),
        
     url(r'^(.*)', views.home),
 ]

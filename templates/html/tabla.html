@@ -101,68 +101,78 @@ Historial
       {% if mode == "Reparaciones"%}
         <th>Estado</th>
       {% endif %}
+      
       {% if program == "350" %}
-      {% if myUser.typeUser.name != "TL" %}
-      <th style="padding: 0px 10px 15px 0px">
-        <select name = "section" id="SectionID" onchange="sectionFunction()">
-          <option value = "default">Todos</option>
-          {% for section in sectionList %}
-            {% if section.name == userSection %}
-              <option value = {{ section.name }} selected> {{ section.name }}</option>
-            {% else %}
-              <option value = {{ section.name }}> {{ section.name }}</option>
-            {% endif %}
-          {% endfor %}
-        </select>
-      </th>
+        {% if myUser.typeUser.name != "TL" %}
+          <th style="padding: 0px 10px 15px 0px">
+            <select name = "section" id="SectionID" onchange="sectionFunction()">
+              <option value = "default">Todos</option>
+              {% for section in sectionList %}
+                {% if section.name == userSection %}
+                  <option value = {{ section.name }} selected> {{ section.name }}</option>
+                {% else %}
+                  <option value = {{ section.name }}> {{ section.name }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </th>
+        {% endif %}
       {% endif %}
-      {% endif %}
+      
     {% endif %}
+    
     {% if program == "380" %}
+      {% if mode == "Accidentales" %}
+        <th>Seccion</th>
+      {% endif %}
       <th>Defecto</th>
     {% else %}
       <th>Desviacion</th>
       <th>Nº Av</th>
     {% endif %}
+    
     <th>Componente</th>
+    
     {% if program == "380" %}
       <th>Designacion</th>
     {% else %}
       <th>Pieza</th>
     {% endif %}
+    
     <th>PN</th>
     <th>Referencia</th>
     <th>Area</th>
     <th>Horas</br>Pedidas</th>
+    
     {% if Status == "Activos" or Status == "Concedidos" %}
     <th>Horas</br>Concedidas</th>
     {% endif %}
+    
     <th>SGM</th>
     <th>Cod. Causa</>
+    
+    {% if mode == "Accidentales" %}<th>H.N.C</th>{% endif %}
     <th id="descp">Descripcion</th>
-    <!--<form id="acceptForm" method="POST" action="/{{userSection}}/multipleAcept">
-      <input type="hidden" name="next" value="{{myPath}}">
-    {% if myUser.typeUser.name == "ME" and activePage %}
-        <th><button form="acceptForm" type="submit">Pre-Aceptar</button></th>
-    {%elif preAcceptPage %}
-        {% if myUser.typeUser.name == "Subcontrata" or myUser.admin %}
-        <th><input type="submit" value="Aceptar"></th>
-        {% endif %}
-    {% endif %}Valido si queremos permitid que se acepten varios a la vez-->
     <th>Nº {% if mode == "Reparaciones" %}F412{%else%}Rep{%endif%}</th>
+           
+           
   </tr>
   </thead>
   <tbody>
   {% for f412 in F412list %}
   <tr>
       <td>{{f412.Fecha|date:"Y/m/d"}}</td>  
+          
       {% if isProgram == True and mode == "Reparaciones" %}
-        <td style="color:{{f412.Estado.color}}">{{f412.Estado.name}}</td>
-        {% if myUser.typeUser.name != "TL"%}
-        {% if program == "350" %}
-          <td>{{f412.seccion.name}}</td>
+        <td style="color:{{f412.Estado.color}}">{{f412.Estado.name}}</td>          
+        {% if myUser.typeUser.name != "TL" %}
+          {% if program == "350" %}
+            <td>A{{f412.seccion.name}}</td>
+          {% endif %}
         {% endif %}
-        {% endif %}
+      {% elif mode == "Accidentales" %}
+        <td>{% if program == "380" %}A{% endif %}{{f412.seccion.name}}</td>
+                
       {% endif %}
       
       <td>{{f412.Defecto.name}}</td>
@@ -181,20 +191,23 @@ Historial
       <td>{{f412.Referencia}}</td>
       <td>{{f412.Area.name}}</td>
       
-
-      {% if f412.horasRecurrentes == "" %}
-        <td>{{f412.horas|slice:"0:6"}}</td> 
+      {% if mode == "Accidentales" %}
+        <td>{{f412.horas}}</td>
       {% else %}
-        <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
+        {% if f412.horasRecurrentes == "" %}
+          <td>{{f412.horas|slice:"0:6"}}</td> 
+        {% else %}
+          <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
+        {% endif %}
       {% endif %}
       
       
       {% if Status == "Activos" or Status == "Concedidos" %}
-      {% if f412.horasRecurrentes == "" %}
-        <td>{{f412.horas|slice:"0:6"}}</td> 
-      {% else %}
-        <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
-      {% endif %}
+        {% if f412.horasRecurrentes == "" %}
+          <td>{{f412.horas|slice:"0:6"}}</td> 
+        {% else %}
+          <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
+        {% endif %}
       {% endif %}
       
       <td>{{f412.SGM.number}}</td>
@@ -206,6 +219,7 @@ Historial
         <td>{{f412.descripcionAcortada}}</td>
         {% endif %}
       {% else %}
+        <td>{{f412.hnc}}</td>
         <td>{{f412.Descripcion}}</td>
       {% endif %}
       

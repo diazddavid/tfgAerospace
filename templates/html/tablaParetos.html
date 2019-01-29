@@ -26,7 +26,7 @@
     </tr>
     
     {% for parDefc in result.topDefc.all|orderQuery:"number" %}    
-    {% getParteroDefc parDefc as parDefcMBef%}
+    {% getParteroDefc parDefc as parDefcMBef %}
         <tr>
           <td>{{parDefc.defecto.name}} </td>
           <td>{{parDefc.horas|floatformat:3}}</td>    

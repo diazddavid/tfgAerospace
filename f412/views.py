@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 from django.template import Context
 
-from f412.models import Reparacion, areaCaus, sendMail, codCaus, Programa, ComponenteAPT5, avion, reasonTree, reasonTreeField, Pieza, tipoUsuario, modificaciones, Componente, myUser, PN, Area, Defecto, Designacion, Estado, SGM, F412, Seccion
+from f412.models import PNEvol, Reparacion, areaCaus, sendMail, codCaus, Programa, ComponenteAPT5, avion, reasonTree, reasonTreeField, Pieza, tipoUsuario, modificaciones, Componente, myUser, PN, Area, Defecto, Designacion, Estado, SGM, F412, Seccion
 from f412.toString import *
 from f412.manageDB import updateHours, getAvList, initEstadoDB, initSeccionDB, initProgramaDB, initTypeUser, initCodCaus, sumPlaneRepF412, updateGraph#, checkPlane
 #from f412.mails import *
@@ -83,6 +83,7 @@ except:
     print("No existe, creo")
     shouldSend = sendMail(shouldSend = True)
     shouldSend.save()
+
 ################################################## FUNCIONES #################################################
 
 def getUserEmailList(myContext):
@@ -272,6 +273,7 @@ def getAPT5CompList():
     
     for compAPT5 in ComponenteAPT5.objects.all():
         APT5CompList.append(compAPT5.componente)
+        print("Añadido: " + compAPT5.componente.name + "-" + str(compAPT5.componente.id))
     
     return APT5CompList    
 
@@ -280,9 +282,11 @@ def getPNList():
     
     for parNumber in PN.objects.filter(programa = PROGRAMA_350):
         try:
-            name = parNumber.Designacion.name + "." + parNumber.name
-            name = name.replace("\n","")
-            PNList.append(name)
+            for pn in PNEvol.objects.filter(pn = parNumber):
+                if pn.shouldShow:
+                    name = parNumber.Designacion.name + "." + pn.name
+                    name = name.replace("\n","")
+                    PNList.append(name)
         except Designacion.DoesNotExist:
             continue
         
@@ -388,7 +392,9 @@ def serveForm380(request):
     #Preparo el formato para poder manejarlo facilmente con javascript
     for parNumber in allPN:
         try:
-            PNList.append(parNumber.Designacion.name + "." + parNumber.name)
+            for pn in PNEvol.objects.filter(pn = parNumber):
+                if pn.shouldShow:
+                    PNList.append(parNumber.Designacion.name + "." + pn.name)
         except Designacion.DoesNotExist:
             continue
 
@@ -485,18 +491,6 @@ def serveFormRep(request):
 
 #Funcion que devuelve un par number especifico, para el caso del 350 donde no hay desplegable y puedeCrear
 #llegar cualquier PN, si este no existe asignamos un por defecto
-def getParNumber(request, component):
-    try:
-        parNumber = PN.objects.get(name = request.POST["parNumber"])
-    except PN.DoesNotExist:
-        try:
-            parNumber = PN.objects.get(name = "default")
-        except PN.DoesNotExist:
-            defaultDesigna = Designacion(name = "default", Componente = component)
-            defaultDesigna.save()
-            parNumber = PN(name = "default", programa = PROGRAMA_350, Designacion = defaultDesigna)
-            parNumber.save()
-    return parNumber
 
 def getRT(rt1, rt2, rt3, program):
     try:
@@ -557,7 +551,10 @@ def newRep(request, program):
         rt1 = request.POST["rt1"]
         hnc = request.POST["hnc"]
         ref = request.POST["Ref"]
+        
         horas = request.POST["horas"]
+        horas = horas.replace(",", ".")
+            
         descp = request.POST["Descp"]
         dateRep = request.POST["date"]
         
@@ -565,7 +562,7 @@ def newRep(request, program):
         
         sectionObj = Seccion.objects.get(name = section)
         compObj = Componente.objects.get(name = comp)
-        parNumberObj = PN.objects.get(name = parNumber)
+        parNumberEvObj = PNEvol.objects.get(name = parNumber)
         areaObj = Area.objects.get(name = area)
         defectObj = Defecto.objects.get(name = defect)
         sgmObj = SGM.objects.get(number = sgm)
@@ -589,8 +586,8 @@ def newRep(request, program):
             nOp = "1"
             rtObj = getRT(rt1, rt1, rt1, programObj)
             rep = Reparacion(programa = programObj, seccion = sectionObj, Componente = compObj,
-                             PN = parNumberObj, Area = areaObj, Defecto = defectObj,
-                             Fecha = dateRep, Designacion = designaObj, 
+                             PN = parNumberEvObj.pn, Area = areaObj, Defecto = defectObj,
+                             Fecha = dateRep, Designacion = designaObj, pnEv = parNumberEvObj, 
                              reasonTree = rtObj, Usuario = currentUser, LastChangeUser = currentUser, 
                              SGM = sgmObj, Referencia = ref, horas = horas, hnc = hnc, 
                              nOp = nOp, horasLeadTime = hLT, Descripcion = descp, 
@@ -602,19 +599,36 @@ def newRep(request, program):
             nOp = request.POST["nOp"]
             hLT = request.POST["numH"]
             pieza = request.POST["Pieza"]
+            pnObj = parNumberEvObj.pn
             piezaObj = Pieza.objects.get(name = pieza)
             rt2 = request.POST["rt2"]
             rt3 = request.POST["rt3"]
             
-            
             rtObj = getRT(rt1, rt2, rt3, programObj)
             rep = Reparacion(programa = programObj, seccion = sectionObj, Componente = compObj,
-                             PN = parNumberObj, Area = areaObj, Defecto = defectObj, hnc = hnc,
+                             PN = pnObj, Area = areaObj, Defecto = defectObj, hnc = hnc,
                              Fecha = date.today(), reasonTree = rtObj, Usuario = currentUser,
                              LastChangeUser = currentUser, SGM = sgmObj, Pieza = piezaObj, myID = myID, 
-                             Referencia = ref, horas = horas, nOp = nOp, horasLeadTime = hLT,
-                             Descripcion = descp, nAV = nAV, codigoCausa = codCausa)
+                             Referencia = ref, horas = horas, nOp = nOp, horasLeadTime = hLT, 
+                             pnEv = parNumberEvObj, Descripcion = descp, nAV = nAV, codigoCausa = codCausa)
             rep.save()
+            
+            if request.POST["changeForm"] == "False":
+                myContext["nAVForm"] = nAV
+                myContext["sectionForm"] = section
+                myContext["piezaForm"] = pieza
+                myContext["componentForm"] = comp
+                myContext["pnForm"] = parNumber
+                myContext["desvForm"] = defect
+                myContext["areaForm"] = area
+                myContext["hncForm"] = hnc
+                myContext["rt1Form"] = rt1  
+                myContext["rt2Form"] = rt2  
+                myContext["rt3Form"] = rt3  
+                myContext["refForm"] = ref
+                myContext["sgmForm"] = sgm
+                myContext["numHForm"] = hLT
+                myContext["descpForm"] = descp
             
             if len(nAV) <= 4:
                 try:
@@ -653,7 +667,8 @@ def newF412(request, program):
         #Todos los ME UNIT podrán crear en todos y aceptar o rechazar
         if (section in currentUser.seccion.all() and currentUser.typeUser.name != "Subcontrata") or currentUser.typeUser.name == "ME":
             component = Componente.objects.get(name = request.POST["Component"])
-            parNumber = getParNumber(request,component)
+            parNumberEv = PNEvol.objects.get(name = request.POST["parNumber"])
+            parNumber = parNumberEv.pn
             area = Area.objects.get(name = request.POST["Area"])
             f412date = date.today()
             defect = Defecto.objects.get(name = request.POST["Defect"])
@@ -686,7 +701,7 @@ def newF412(request, program):
             F412toSave = F412(programa = program, Componente = component, PN = parNumber, Area = area,
                             Defecto = defect, Fecha = f412date, Estado = Status, horasRecurrentes = hRec,
                             nOp = nOp, Referencia = request.POST["Ref"], horas = numH, SGM = SGMf412,
-                            Descripcion = descp, Usuario = currentUser, seccion =section,
+                            Descripcion = descp, Usuario = currentUser, seccion =section, pnEv = parNumberEv,
                             LastChangeUser = currentUser, myID = myID, nAV = nAV)
             F412toSave.save()
             if a380:
@@ -833,6 +848,7 @@ def programF412(request,program):
 def programRep(request, program):
     minDate = ""
     maxDate = ""
+    
     if request.method == "POST":
         minDate = parseDate(request.POST["fromDate"])
         maxDate = parseDate(request.POST["toDate"])
@@ -840,14 +856,19 @@ def programRep(request, program):
         RepList = RepList.filter(Fecha__gte=minDate)
         minDate = dateToString(minDate)
         maxDate = dateToString(maxDate)
+    
     user = myUser.objects.get(user = request.user)
+    
     if user.typeUser.name == "Subcontrata" or user.typeUser.name == "Operario":
+    
         return returnError(request, "No tienes permisos para acceder")
+    
     program = Programa.objects.get(name = program)
     
     RepList = Reparacion.objects.filter(programa = program).order_by('-myID').order_by('-Fecha')
     template, myContext = returnTable(RepList, request, program.name, True, "", "", "", minDate, maxDate)    
     myContext["mode"] = "Accidentales"
+    
     return HttpResponse(template.render(myContext))
 
 def serveTableRep(request, program):
@@ -861,12 +882,14 @@ def serveTableRep(request, program):
         minDate = dateToString(minDate)
         maxDate = dateToString(maxDate)
     user = myUser.objects.get(user = request.user)
+ 
     if user.typeUser.name == "Operario":
         return returnError(request, "No tienes permisos para acceder")
     program = Programa.objects.get(name = program)
     f412List = Reparacion.objects.filter(programa = program).order_by('-myID').order_by('-Fecha')
     template, myContext = returnTable(f412List, request, program.name, True, "", "", "", minDate, maxDate)    
     myContext["mode"] = "Accidentales"
+    
     return HttpResponse(template.render(myContext))
 
 #Preparacion servir tabla, correspondiente a las distintas secciones del 350
@@ -1094,11 +1117,14 @@ def f412Page(request, sectionName, myID):
     return HttpResponse(template.render(myContext))
 
 def repPage(request, sectionName, myID):
+    
     rep = Reparacion.objects.filter(seccion__name = sectionName).get(myID = myID)
+    
     if rep.seccion.name == "380":
         a380 = True
     else:
         a380 = False
+        
     myContext = getBasicContextRep(request)
     myContext['f412'] = rep
     myContext['statusList'] = Estado.objects.all()
@@ -1106,6 +1132,7 @@ def repPage(request, sectionName, myID):
     myContext['date'] = dateToString(rep.Fecha)
     myContext['week'] = rep.Fecha.isocalendar()[1]
     template = get_template("html/f412A" + rep.programa.name + ".html")
+    
     return HttpResponse(template.render(myContext))
 
 
@@ -1169,16 +1196,18 @@ def f412CambiarRT(request, f412ID):
     return HttpResponse(template.render(myContext))
 
 @csrf_exempt
-def saveEdit350(request, f412):
+def saveEdit350(request, f412, typeObj):
     
     f412.seccion = Seccion.objects.get(name = request.POST['section'])
     f412.nAV = request.POST['nAV']
     f412.Pieza = Pieza.objects.get(name = request.POST['Pieza'])
     f412.Componente = Componente.objects.get(name = request.POST['Component'])
-    f412.PN = PN.objects.get(name = request.POST['parNumber'])
+    f412.pnEv = PNEvol.objects.get(name = request.POST['parNumber'])
+    f412.PN = f412.pnEv.pn
     f412.Area = Area.objects.get(name = request.POST['Area'])
     f412.Defecto = Defecto.objects.get(name = request.POST['Defect']) 
-    f412.Estado = Estado.objects.get(name = request.POST['status'])
+    if typeObj == "f412":
+        f412.Estado = Estado.objects.get(name = request.POST['status'])
     
     if request.POST['status'] != "Activo":
         f412.reasonTree = getReasonTree(request, f412)
@@ -1195,6 +1224,7 @@ def saveEdit350(request, f412):
     currentUser = myUser.objects.get(user = request.user)
     f412.LastChangeUser = currentUser
     f412.codigoCausa = codCaus.objects.get(name = request.POST['codCaus'])
+    
     if request.POST['codCaus'] == "RL8":
         f412.hnc = request.POST["hnc"]
         f412.nDefecto = request.POST["nDefecto"]
@@ -1205,11 +1235,12 @@ def saveEdit350(request, f412):
     return
 
 @csrf_exempt
-def saveEdit380(request, f412):
+def saveEdit380(request, f412, typeObj):
     f412.seccion = Seccion.objects.get(name = request.POST['section'])
     f412.Componente = Componente.objects.get(name = request.POST['Component'])
     f412.Designacion = Designacion.objects.get(name = request.POST['Designation'])
-    f412.PN = PN.objects.get(name = request.POST['parNumber'])
+    f412.pnEv = PNEvol.objects.get(name = request.POST['parNumber'])
+    f412.PN = f412.pnEv.pn
     f412.Area = Area.objects.get(name = request.POST['Area'])
     f412.Defecto = Defecto.objects.get(name = request.POST['Defect']) 
     f412.reasonTree = getReasonTree(request, f412)
@@ -1217,7 +1248,9 @@ def saveEdit380(request, f412):
     f412.SGM = SGM.objects.get(number = request.POST['SGM'])
     f412.horas = request.POST['numH']
     f412.Descripcion = request.POST['Descp']
-    f412.Estado = Estado.objects.get(name = request.POST['status'])
+    
+    if typeObj == "f412":
+        f412.Estado = Estado.objects.get(name = request.POST['status'])
     
     currentUser = myUser.objects.get(user = request.user)
     f412.LastChangeUser = currentUser
@@ -1241,20 +1274,59 @@ def f412Edit(request, f412ID):
     
     if request.method == "POST":
         if f412.programa.name == "350":
-            saveEdit350(request, f412)
+            saveEdit350(request, f412, "f412")
             myContext['newID'] = True
             myContext['error'] = 'None'
         else:
-            saveEdit380(request, f412)
+            saveEdit380(request, f412, "f412")
     
     myContext["currentF412"] = f412
+       
+    myContext = getCommonEditContext(myContext, f412)    
+             
+    template = get_template("html/f412Edit" + f412.programa.name + ".html")
+        
+    return HttpResponse(template.render(myContext)) 
+
+@csrf_exempt
+def repEdit(request, repID):
+
+    myContext = getBasicContextRep(request)
+    
+    try:
+        rep = Reparacion.objects.get(id=repID)
+        
+    except F412.DoesNotExist:
+        myContext["someError"] = True
+        myContext["errorMessage"] = "F412 No encontrado"                 
+        template = get_template("hmtl/f412A350.html")
+        return HttpResponse(template.render(myContext))
+    
+    if request.method == "POST":
+        if rep.programa.name == "350":
+            saveEdit350(request, rep, "rep")
+            myContext['newID'] = True
+            myContext['error'] = 'None'
+        else:
+            saveEdit380(request, rep, "rep")
+    
+    myContext["currentRep"] = rep
+
+    myContext = getCommonEditContext(myContext, rep)     
+                 
+    template = get_template("html/repEdit" + rep.programa.name + ".html")
+        
+    
+    return HttpResponse(template.render(myContext)) 
+
+def getCommonEditContext(myContext, f412):
     myContext["edit"] = True
     myContext["program"] = f412.programa
     myContext["componentList"] = Componente.objects.filter(programa = f412.programa)
     myContext["sectionList"] = Seccion.objects.filter(programa = f412.programa)
     myContext["statusList"] = Estado.objects.all()
     myContext["codCausList"] = codCaus.objects.all()
-    myContext["areaCausList"] = areaCaus.objects.all()
+    myContext["areaCausList"] = areaCaus.objects.all()       
     
     if f412.programa.name == "350":
         sectionList = Seccion.objects.filter(programa = PROGRAMA_350)
@@ -1274,9 +1346,9 @@ def f412Edit(request, f412ID):
                 if section in sgm.seccion.all():
                     SGMList.append(section.name + "." + sgm.number)
         
-        template = get_template("html/f412Edit350.html")
         myContext["piezaList"] = Pieza.objects.all()
         myContext["APT5CompList"] = getAPT5CompList() 
+        myContext['compAPT5List'] = ComponenteAPT5.objects.all().order_by("name")
         myContext['rt1'] = reasonTreeField.objects.filter(currentlyInUse = True).filter(nivel = 1)
         myContext['rt2F412'] = reasonTreeField.objects.filter(currentlyInUse = True).filter(superior = f412.reasonTree.nivel1)
         myContext['rt2'] = reasonTreeField.objects.filter(currentlyInUse = True).filter(nivel = 2)
@@ -1303,7 +1375,9 @@ def f412Edit(request, f412ID):
         #Preparo el formato para poder manejarlo facilmente con javascript
         for parNumber in allPN:
             try:
-                PNList.append(parNumber.Designacion.name + "." + parNumber.name)
+                for pn in PNEvol.objects.filter(pn = parNumber):     
+                    if pn.shouldShow:
+                        PNList.append(parNumber.Designacion.name + "." + pn.name)
             except Designacion.DoesNotExist:
                 continue
     
@@ -1323,12 +1397,9 @@ def f412Edit(request, f412ID):
         myContext['defectList'] = defectList
         myContext['date'] = dateToString(date.today())
         myContext['SGMList'] = SGMList
-        myContext['rt1'] = reasonTree.objects.filter(program = PROGRAMA_380)         
-                 
-        template = get_template("html/f412Edit380.html")
-        
-    
-    return HttpResponse(template.render(myContext)) 
+        myContext['rt1'] = reasonTree.objects.filter(program = PROGRAMA_380) 
+
+    return myContext
 
 #Funcion para cerrar sesion
 @csrf_exempt
@@ -1709,10 +1780,8 @@ def getMailList(seccion):
     
     toReturn = ""
     countUser = 0
-    print(seccion)
     
     for userFor in myUser.objects.filter(seccion__name = seccion).filter(quiereCorreo = True):
-        print("entra")
         toReturn = toReturn + ";" + userFor.email
         countUser = countUser + 1
     

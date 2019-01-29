@@ -497,6 +497,8 @@ def copyToEquals(rt1, rtRef):
                 reasonTreeField.objects.filter(currentlyInUse = True).filter(superior = rt).get(codigo = rt3.codigo)
             except reasonTreeField.DoesNotExist:
                 createRt(rt3.nombre, rt3.codigo, 3, rt)
+    
+    return 
 
 @csrf_exempt
 def changeUseRT():
@@ -509,7 +511,6 @@ def changeUseRT():
         rt.currentlyInUse = False
         rt.save()
         
-
     return
 
 #Actualizar desde el archivo     
@@ -649,6 +650,7 @@ def updateUserDB():
                 userAuth = modelsAuth.User.objects.filter(username = name)[0]
                 createMyUser(name, email,passwd, fullName, userAuth, typeUserObject, admin, NG, programList, sgmList, sectionList)
 #                print("Ya existe el usuario " + name + ", Ignorado" )
+
     except IndexError:
         indexError = True
     return "Acabado"
@@ -666,15 +668,18 @@ def sumHour(current, toAdd):
 #Ya no tiene sentido pero se deja por si acaso
 def changeDescpTBD380():
     TBDdefc = Defecto.objects.filter(seccion__name = "380").get(name = "TBD")
+    
     for f412 in F412_VALID.filter(programa__name = "380"):
         if f412.Defecto.name == "En_Descripcion":
             f412.Defecto = TBDdefc
             f412.save()
+            
     for f412 in f412Ant.objects.all():
         f412.Defecto = TBDdefc
         if f412.Defecto.name == "En_Descripcion":
             f412.Defecto = TBDdefc
             f412.save()
+            
     return ""
 
 #Añade las horasa cada avion desde el f412        
@@ -683,22 +688,29 @@ def sumPlaneRepF412(f412Rep, plane, isF412):
         hour = f412Rep.horasRecurrentes
         hourLT = f412Rep.horas
         plane.f412List.add(f412Rep)
+        
     else:
         hour = f412Rep.horas
         hourLT = f412Rep.horasLeadTime
         plane.repList.add(f412Rep)
+        
+        
     if f412Rep.codigoCausa.name == "M60":
         plane.hRecM60 = hour
         plane.hLTM60 = hourLT
+        
     elif f412Rep.codigoCausa.name == "RL8":
         plane.hRecRL8 = hour
         plane.hLTRL8 = hourLT
+        
     elif f412Rep.codigoCausa.name == "ALB":
         plane.hRecALB = hour
         plane.hLTALB = hourLT
+        
     elif f412Rep.codigoCausa.name == "V10":  
         plane.hRecV10 = hour
         plane.hLTV10 = hourLT 
+        
     plane.save()
     return ""
 
@@ -710,6 +722,7 @@ def updatePlane():
         aptName = "APT" + str(i)
         repList = repList | Reparacion.objects.filter(seccion__name = aptName)
         f412List = f412List | F412_VALID.filter(seccion__name = aptName)
+        
     for f412 in f412List:
         try:
             plane = avion.objects.get(numero = f412.nAV)
@@ -722,9 +735,11 @@ def updatePlane():
                 v1000 = False
             else:
                 v1000 = True
+                
             plane = avion(numero = f412.nAV, v1000 = v1000)    
             plane.save()
             sumPlaneRepF412(f412, plane, True)
+            
     for rep in repList:            
         try:
             plane = avion.objects.get(numero = rep.nAV)
@@ -732,6 +747,7 @@ def updatePlane():
                 continue
             else:
                 sumPlaneRepF412(rep, plane, False)
+                
         except:
             if "V9" in rep.Pieza.name :
                 v1000 = False
@@ -740,6 +756,7 @@ def updatePlane():
             plane = avion(numero = rep.nAV, v1000 = v1000)    
             plane.save()
             sumPlaneRepF412(rep, plane, False)
+            
     return ""
 
 #Exporta el 380
@@ -968,20 +985,6 @@ def updateGraph(request, av1, av2, typeGraph):
     
     return
 
-#Funcion principal que actualiza todos los campos actualizables en la aplicacion
-@csrf_exempt
-def updateDB(request):
-#    toReturn = update380()
-#    toReturn = update350()
-#    toReturn = updateRsnTree()
-#    toReturn = updateUserDB()
-#    toReturn = changeDescpTBD380()   #Funcion puntual para cambiar a TBD los f412 que salian como en_descripcion
-#    toReturn = updatePlane()
-#    toReturn = updateOldF412()   #Comentar cuando se haga 1 vez
-    updateAllF412Hours()
-
-    return HttpResponseRedirect("/administrador")
-
 def updateHours(f412):
     
     f412.horas = f412.horas.replace(".",",") 
@@ -1014,4 +1017,39 @@ def changeEmail(request):
 
     return HttpResponseRedirect("/administrador")
    
+    return HttpResponseRedirect("/administrador")
+
+def updatePNEv():
+    for pn in PN.objects.all():
+        try:
+            pn = PNEvol.objects.get(name = pn.name)
+        except:
+            newPN = PNEvol(pn = pn, designation = pn.Designacion, name = pn.name, shouldShow = True, currentPN = True)
+            newPN.save()
+            
+    for f412 in F412.objects.all():
+        if f412.PN.name != f412.pnEv.name:
+            f412.pnEv = PNEvol.objects.filter(pn = f412.PN)[0]
+            f412.save()
+    
+    for rep in Reparacion.objects.all():
+        if rep.PN.name != rep.pnEv.name:
+            rep.pnEv = PNEvol.objects.filter(pn = rep.PN)[0]   
+            rep.save()
+    
+    return
+
+#Funcion principal que actualiza todos los campos actualizables en la aplicacion
+@csrf_exempt
+def updateDB(request):
+#    toReturn = update380()
+#    toReturn = update350()
+#    toReturn = updateRsnTree()
+#    toReturn = updateUserDB()
+#    toReturn = changeDescpTBD380()   #Funcion puntual para cambiar a TBD los f412 que salian como en_descripcion
+#    toReturn = updatePlane()
+#    toReturn = updateOldF412()   #Comentar cuando se haga 1 vez
+#    updateAllF412Hours()
+    updatePNEv()
+
     return HttpResponseRedirect("/administrador")

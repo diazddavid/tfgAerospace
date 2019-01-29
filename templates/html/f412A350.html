@@ -35,6 +35,10 @@ tr:nth-child(even) {
   <input class="boton" type="submit" value="Editar F412">
 </form>
 
+{% else %}
+<form method="get" action="/repEdit/{{f412.id}}" style="display: inline-block;">
+  <input class="boton" type="submit" value="Editar Reparación">
+</form>
 {% endif %}
 
 {% getMailSection emailDic f412.seccion.name as emailF412Seccion %}
@@ -56,7 +60,9 @@ tr:nth-child(even) {
     <th>Origen Acc</th>
     <th>Comentarios</th>
     <th>Cod. Causa</th>
-    <th>Operacion</th>
+    {% if mode == "Reparaciones" %}
+      <th>Operacion</th>
+    {% endif %}
     <th>SGM</th>
     <th>Horas</th>
     <th>Nº Op</th>
@@ -74,7 +80,7 @@ tr:nth-child(even) {
     <td>wk{{week}}</td>
     <td>{{f412.nAV}}</td>
     <td>A{{f412.programa.name}}</td>
-    <td>{{f412.PN.name}}</td>
+    <td>{{f412.pnEv.name}}</td>
     <td>{{f412.Componente.name}}</td>
     <td>S19</td>
     <td>{{f412.Referencia}}</td>
@@ -82,29 +88,42 @@ tr:nth-child(even) {
     <td>{{f412.Area.name}}</td>
     <!-- Comentarios, acordamos poner la descripcion original cuando esté modificada -->
     {% if f412.descripcionAcortada == "" %}
-        <td></td>
+      <td></td>
     {% else %}
-        <td>{{f412.Descripcion}}</td>
+      <td>{{f412.Descripcion}}</td>
     {% endif %}
+    
     <td>{{f412.codigoCausa.name}}</td>
-    {% if f412.operacion != 1 %}
-    <td>{{f412.operacion}}</td> 
-    {% else %}
-    <td></td>
+    
+    {% if mode == "Reparaciones"%}
+      {% if f412.operacion != 1 %}
+        <td>{{f412.operacion}}</td> 
+      {% else %}
+        <td></td>
+      {% endif %}
     {% endif %}
+    
     <td>{{f412.SGM.number}}</td>  
-    {% if f412.Estado.name == "Activo" and myUser.typeUser.name == "ME" %}
-        <td><input type = "text" id="newHID" style="width:30px;text-align:center" value ={{f412.horasRecurrentes|slice:"0:5"}}></td>
-    {%else%}
-        <td>{{ f412.horasRecurrentes|slice:"0:5" }}</td>
-    {% endif %}
-    <td>{{f412.nOp}}</td>      
-    {% if f412.descripcionAcortada == "" %}
-        <td id="descp{{f412.id}}">{{f412.Descripcion}}</td>
+        
+    {% if mode == "Accidentales" %}    
+      <td>{{f412.horas}}</td>
+      <td>{{f412.Descripcion}}</td>    
+          
     {% else %}
-        <td>{{f412.descripcionAcortada}}</td>
-    {% endif %} 
-      
+      {% if f412.Estado.name == "Activo" and myUser.typeUser.name == "ME" %}
+          <td><input type = "text" id="newHID" style="width:30px;text-align:center" value ={{f412.horasRecurrentes|slice:"0:5"}}></td>
+      {%else%}
+          <td>{{ f412.horasRecurrentes|slice:"0:5" }}</td>
+      {% endif %}
+      <td>{{f412.nOp}}</td>      
+          
+      {% if f412.descripcionAcortada == "" %}
+          <td id="descp{{f412.id}}">{{f412.Descripcion}}</td>
+      {% else %}
+          <td>{{f412.descripcionAcortada}}</td>
+      {% endif %} 
+    {% endif %}
+    
     {% if f412.codigoCausa.name == "RL8" %}
       <td>{{f412.hnc}}</td>
     {% endif %}
@@ -193,6 +212,7 @@ tr:nth-child(even) {
         <input type="hidden" id="Level1hid" name="Level1hid">
         <input type="hidden" id="Level2hid" name="Level2hid">
         <input type="hidden" id="Level3hid" name="Level3hid">
+        
       </tr>
 
     </form>
@@ -261,9 +281,9 @@ tr:nth-child(even) {
   {% endif %}
 
   <table style="background-color:#FFFFFF">
-    <tr id="trToMod">
+    <tr id="rtToMod">
       </tr>  
-      <tr id="trToMod2">
+      <tr id="rtToMod2">
       </tr>
     </table>
     {% endif %}
@@ -283,13 +303,13 @@ function checkCodCaus(){
       
       rtLevel1Choose("QUA")
       rtLevel2Choose("REP")
-      level2()
       
     }else{
       document.getElementById("hnc").style.display = "none"
       document.getElementById("hncInput").style.display = "none"   
       document.getElementById("nDefc").style.display = "none"
       document.getElementById("nDefcInput").style.display = "none"   
+      changeStatus()
     }         
     maxLenght();    
 }
@@ -483,28 +503,28 @@ function changeStatus(){
   if(status == "Validado" || status == "Concedido"){
     document.getElementById("titleStatus").innerHTML = "Descripcion Acortada (20)";                          
     {% if a380 == False %}
-      document.getElementById("trToMod").innerHTML = ""
-      document.getElementById("trToMod").innerHTML += "<th>Reason-Tree nivel 1</th>" 
-      document.getElementById("trToMod").innerHTML += "<th>Reason-Tree nivel 2</th>" 
-      document.getElementById("trToMod").innerHTML += "<th>Reason-Tree nivel 3</th>"  
+      document.getElementById("rtToMod").innerHTML = ""
+      document.getElementById("rtToMod").innerHTML += "<th>Reason-Tree nivel 1</th>" 
+      document.getElementById("rtToMod").innerHTML += "<th>Reason-Tree nivel 2</th>" 
+      document.getElementById("rtToMod").innerHTML += "<th>Reason-Tree nivel 3</th>"  
                                                      
-      document.getElementById("trToMod2").innerHTML = ""
-      document.getElementById("trToMod2").innerHTML += "<td><select id='Level1Id' name = 'Level1' form='myForm' onchange='level1()'> <option value = 'default'>Por Defecto</option>"
+      document.getElementById("rtToMod2").innerHTML = ""
+      document.getElementById("rtToMod2").innerHTML += "<td><select id='Level1Id' name = 'Level1' form='myForm' onchange='level1()'> <option value = 'default'>Por Defecto</option>"
     
     {% for rt in level1RT %}
                                                     + "<option value = {{ rt.codigo }}> {{rt.codigo}} - {{ rt.nombre }}</option>"
     {% endfor %}
                                                     + "</select></td>" 
-      document.getElementById("trToMod2").innerHTML += "<td><select name = 'Level2' id='Level2Id' onchange='level2()'select> <option value = 'default'>Por Defecto</option>" 
-      document.getElementById("trToMod2").innerHTML += "</select></td>"                        
-      document.getElementById("trToMod2").innerHTML += "<td> <select name = 'Level3' id='Level3Id' select> <option value = 'default'>Por Defecto</option>"
-      document.getElementById("trToMod2").innerHTML += "</select></td>" 
+      document.getElementById("rtToMod2").innerHTML += "<td><select name = 'Level2' id='Level2Id' onchange='level2()'select> <option value = 'default'>Por Defecto</option>" 
+      document.getElementById("rtToMod2").innerHTML += "</select></td>"                        
+      document.getElementById("rtToMod2").innerHTML += "<td> <select name = 'Level3' id='Level3Id' select> <option value = 'default'>Por Defecto</option>"
+      document.getElementById("rtToMod2").innerHTML += "</select></td>" 
     {% endif %}
   }
   if(status == "Rechazado"){
     document.getElementById("titleStatus").innerHTML = "Motivo Rechazo"; 
-    document.getElementById("trToMod").innerHTML = "";                          
-    document.getElementById("trToMod2").innerHTML = "";
+    document.getElementById("rtToMod").innerHTML = "";                          
+    document.getElementById("rtToMod2").innerHTML = "";
   }                                    
 }
         

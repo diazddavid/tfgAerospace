@@ -33,7 +33,12 @@ tr:nth-child(even) {
 <h1 style="color:{{f412.Estado.color}}; display:block">Este F412 está: {{f412.Estado.name}}</h1>
 
 {% else %}
-
+  {% if myUser.typeUser.name == "ME" %}
+    <form method="get" action="/repEdit/{{f412.id}}" style="display: inline-block;">
+      <input class="boton" type="submit" value="Editar Reparación">
+    </form>
+  {% endif %} 
+  
 <h1 style="display:block">Reparación</h1>
                  
 {% endif %}
@@ -90,7 +95,7 @@ tr:nth-child(even) {
     <td>A{{f412.programa.name}}</td>
     <td>{{f412.Componente.alias}}</td>
     <td>{{f412.Designacion.alias}}</td>
-    <td>{{f412.PN.name}}</td>
+    <td>{{f412.pnEv.name}}</td>
     <td>{{f412.Referencia}}</td>   
         
     {% if myUser.NA == "c17712" %}
@@ -137,7 +142,7 @@ tr:nth-child(even) {
       {% endif %}
 
     {% else %}
-      <td>{{f412.id}}</td>
+      <td>{{f412.hnc}}</td>
     {% endif %}
     
     

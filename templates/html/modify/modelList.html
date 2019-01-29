@@ -20,6 +20,10 @@
         <li style="text-align:center"><a href="/{{model}}/{{modelObj.id}}">{{modelObj.nivel}}-{{modelObj.nombre}}</a></li>
       {% elif model == "CostHour" %}
         <li style="text-align:center"><a href="/{{model}}/{{modelObj.id}}">{{modelObj.year}}</a></li>
+      {% elif model == "Designation" %}
+        <li style="text-align:center"><a href="/{{model}}/{{modelObj.id}}">{{modelObj.name}} --> {{modelObj.Componente.name}}</a></li>
+      {% elif model == "PN" %}
+        <li style="text-align:center"><a href="/{{model}}/{{modelObj.id}}">{{modelObj.name}} --> {{modelObj.Designacion.name}}</a></li>
       {% else %}
         <li style="text-align:center"><a href="/{{model}}/{{modelObj.id}}">{{modelObj.name}}</a></li>
       {% endif %}

@@ -21,6 +21,12 @@
         {% endif %}
       {% endfor %}
     </select></br>
+    
+    Mostarlo:</br>
+    <select style="display:block;margin: 0 auto;" name="componentShouldShow" id="componentShouldShow">
+      <option value="True" {% if componentToModify.shouldShow %}selected{% endif %}> Si </option>
+      <option value="False" {% if componentToModify.shouldShow == False %}selected{% endif %}> No </option>
+    </select></br>
                               
                
     </br> 

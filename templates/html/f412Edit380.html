@@ -46,7 +46,14 @@
 
         <div>P/N
           <select name = "parNumber" id="PNID"><br>
-            <option value = "{{currentF412.PN.name}}">{{currentF412.PN.name}}</option>
+            {% getPNEvList currentF412.Designacion as pnEvList %}
+            {% for pn in pnEvList %}
+              {% if pn == currentF412.pnEv %}
+                <option value="{{pn.name}}" selected >{{pn.name}}</option>
+              {% else %}
+                <option value="{{pn.name}}" >{{pn.name}}</option>
+              {% endif %}   
+            {% endfor %}                            
           </select> <br>
         </div>
 

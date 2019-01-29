@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 #from django.template import Context
 
-from f412.models import areaCaus, costeHora, codCaus, Programa, ComponenteAPT5, reasonTreeField, Pieza, Componente, myUser, PN, Area, Defecto, Designacion, Estado, SGM, Seccion#, F412, avion, reasonTree, tipoUsuario, modificaciones, Reparacion
+from f412.models import PNEvol, areaCaus, costeHora, codCaus, Programa, ComponenteAPT5, reasonTreeField, Pieza, Componente, myUser, PN, Area, Defecto, Designacion, Estado, SGM, Seccion#, F412, avion, reasonTree, tipoUsuario, modificaciones, Reparacion
 from f412.toString import *
 #from f412.manageDB import updateHours, getAvList, initEstadoDB, initSeccionDB, initProgramaDB, initTypeUser, initCodCaus, sumPlaneRepF412, updateGraph#, checkPlane
 from f412.views import getBasicContext
@@ -288,8 +288,16 @@ def modifyComponent(request, ComponentID):
             componentProgram = Programa.objects.get(name = programName)
             componentToModify.programa = componentProgram
             componentToModify.name = newName
+            shouldShow = request.POST["componentShouldShow"]
+            
+            if shouldShow == "True":
+                shouldShow = True
+            else:
+                shouldShow = False
+            
+            componentToModify.shouldShow = shouldShow
             componentToModify.save()
-            myContext["statusModify"] = "Componente modificada"
+            myContext["statusModify"] = "Componente modificado"
             
         except:
             myContext["statusModify"] = "Componente no encontrado"
@@ -397,10 +405,9 @@ def newDesignaPN(request):
             return HttpResponse(template.render(myContext))
         
         myContext ["pnToModify"] = pnToModify
+        newPNEv(pnToModify.id, pnToModify.name)                  
             
     return HttpResponse(template.render(myContext))
-
-
 
 """
 PN
@@ -421,39 +428,122 @@ def serveModifyPN(request):
     
     return HttpResponse(template.render(myContext)) 
 
-@csrf_exempt 
+
+@csrf_exempt
+def evolvePN(request, pnID):
+    return servePNPage(request, pnID, "evolve", "")
+
+@csrf_exempt
 def modifyPN(request, pnID):
+    
+    return servePNPage(request, pnID, "one", "")
+
+@csrf_exempt 
+def servePNPage(request, pnID, typePN, newInfo):
+    print(typePN)
     if checkUser(request) == False:
         HttpResponseRedirect("/")
     
     myContext = getBasicContext(request)
-    template = get_template("html/modify/pn.html")
+    if typePN == "one":
+        template = get_template("html/modify/pn.html")
+    else:
+        template = get_template("html/modify/evPN.html")
     myContext["modeModify"] = "modify"
     myContext["hasLastPage"] = True
     myContext["model"] = "PN"
     myContext["modelName"] = "Par Number"
+    myContext["infoNewPN"] = newInfo
     
     try:
         pnToModify = PN.objects.get(id = pnID)
     except:
         return HttpResponseRedirect("/modifyPage")
     
-    if request.method == "POST":
-#        try:
-        if True:
+    if request.method == "POST" and typePN != "evolve":
+        try:
+#        if True:
             newName = request.POST["pnName"]
             pnToModify.name = newName
             pnToModify.save()
             myContext["statusModify"] = "Par Number modificada"
             
-#        except:
-#            myContext["statusModify"] = "Designacion no encontrado"
-#            return HttpResponse(template.render(myContext))
+        except:
+            myContext["statusModify"] = "Designacion no encontrado"
+            return HttpResponse(template.render(myContext))
         
     myContext ["modifyModel"] = "Modificar"
     myContext ["pnToModify"] = pnToModify
-            
+     
+    if typePN == "evolve":
+        myContext["pnEvList"] = PNEvol.objects.filter(pn = pnToModify)
+              
     return HttpResponse(template.render(myContext))
+
+@csrf_exempt
+def changeName(request, pnID, pnEvID):  
+    try:
+        pnToModify = PN.objects.get(id = pnID)
+    except:
+        return HttpResponseRedirect("/modifyPage")
+    
+    try:
+        pnEVToModify = PNEvol.objects.get(id = pnEvID)
+    except:
+        return HttpResponseRedirect("/modifyPage")
+    
+    pnToModify.name = pnEVToModify.name
+    pnToModify.save()
+    
+    for pn in PNEvol.objects.filter(pn = pnToModify):
+        if pn.name == pnEVToModify.name:
+            pn.currentPN = True
+        else:
+            pn.currentPN = False
+        pn.save()
+    
+    return servePNPage(request, pnID, "evolve", "")
+
+@csrf_exempt
+def createEv(request, pnID):
+    try:
+        newName = request.POST["newPN"]
+        return servePNPage(request, pnID, "evolve", newPNEv(pnID, newName))
+    except:
+        return servePNPage(request, pnID, "evolve", "Error de nombre")
+        
+    return servePNPage(request, pnID, "evolve", newPNEv(pnID, newName))
+
+@csrf_exempt
+def newPNEv(pnID, newName):
+    toReturn = ""
+    pn = PN.objects.get(id = pnID)
+    
+    try:
+        pn = PNEvol.objects.get(name = newName)
+        toReturn = "Ya existe ese PN"
+    except:
+        newPN = PNEvol(pn = pn, designation = pn.Designacion, name = newName, shouldShow = False, currentPN = False)
+        newPN.save()
+        toReturn = "PNEv Creado"
+    
+    return toReturn 
+
+@csrf_exempt
+def changeVisiblePN(request, pnId, pnEvId):
+    
+    try:
+        pnEv = PNEvol.objects.get(id = pnEvId)
+        if pnEv.shouldShow == True:
+            pnEv.shouldShow = False
+        else:
+            pnEv.shouldShow = True
+        pnEv.save()
+        
+    except:
+        print("Error")
+    
+    return HttpResponseRedirect("/evolucionPN/" + str(pnId))
 
 """
 AREA

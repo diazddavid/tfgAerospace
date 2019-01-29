@@ -10,6 +10,17 @@
     
     Nombre:</br>
     <input name="pnName" value="{{pnToModify.name}}"></input>  </br></br>
+<!--
+    <select name="pnName" select id="pnName">
+      {% for pn in pnEvList %}
+        {% if pn.name == pnToModify.name %}
+          <option value="{{pn.name}}" selected> {{pn.name}}</option>
+        {% else %}
+          <option value="{{pn.name}}" > {{pn.name}}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+-->
 
     Programa:</br>
     <input type = "text" name="program" value=A{{pnToModify.programa.name}} readonly ><br><br>
@@ -19,8 +30,13 @@
     <a href="/Designation/{{pnToModify.Designacion.id}}">{{pnToModify.Designacion.name}}</a>                                                                   
                
     </br> 
-    <input id="submit" type = "submit" value = {% if modeModify == "new" %}"Crear"{% else %}"Cambiar"{% endif %}>
-    
+    <input id="submit" type = "submit" value = {% if modeModify == "new" %}"Crear"{% else %}"Cambiar"{% endif %}></br></br></br>
+                                                          
+                                               
 </form>    
-
+                              
+    <form style="text-align:center" action="/evolucionPN/{{pnToModify.id}}" method="get">
+      <input id="submit" type = "submit" value="Evoluciones PN">    
+    </form>  </br></br></br>      
+    
 {% endblock modifyBody %}
