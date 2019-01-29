@@ -29,10 +29,7 @@
 
 
 {% if mode == "Reparaciones" %}
-  <h1 id="titleH">F412 {% if edit %}del programa{% else %}para{% endif %} A{{program.name}}</h1>
-  {% if edit and currentF412.programa.name == "350" %}
-    <h1>{{currentF412.seccion.name}}</h1>
-  {% endif %}                       
+  <h1 id="titleH">F412 para A{{program.name}}</h1><br>
 {% else %}
   <h1 id="titleH">Reparacion para A{{program.name}}</h1><br>
 {% endif %}     

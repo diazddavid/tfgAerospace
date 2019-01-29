@@ -41,7 +41,6 @@ urlpatterns = [
     url(r'^nuevoF412', views.serveFormGeneric),
     url(r'^(.+)/nuevoF412', views.newF412),
     url(r'^f412/(.*)/(.*)', views.f412Page),
-    url(r'^f412edit/(.*)', views.f412Edit),   
     url(r'^rep/(.*)/(.*)', views.repPage),
     url(r'^historial/(.*)', views.f412Hist),
     url(r'^reset/(.*)', views.f412Reset),
@@ -70,8 +69,7 @@ urlpatterns = [
     url(r'^ExportarF412/(.*)()', manageDB.exportCSV),
     url(r'^ExportarF412', manageDB.exportPage),
        
-    url(r'^paretos(.*)', views.paretos),       
-    url(r'^rep/paretos(.*)', views.repParetos),
+    url(r'^paretos(.*)', views.paretos),
     url(r'^updateParetos/(.*)', paretos.updateParetos),
     url(r'^exportarParetos/(.*)', views.exportParetos),  
     url(r'^guardarTabla', paretos.saveTablePar),   

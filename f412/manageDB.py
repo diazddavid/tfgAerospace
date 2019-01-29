@@ -31,8 +31,6 @@ from scipy import stats
 import io
 from io import *
 
-F412_VALID = F412.objects.filter(Estado__name="Concedido") | F412.objects.filter(Estado__name="Rechazado") | F412.objects.filter(Estado__name="Validado") | F412.objects.filter(Estado__name="Activo")
-
 #Inicializar codigos causa, solo por si en algún momento se borran de la base de datos
 @csrf_exempt
 def initCodCaus():
@@ -645,7 +643,7 @@ def sumHour(current, toAdd):
 #Ya no tiene sentido pero se deja por si acaso
 def changeDescpTBD380():
     TBDdefc = Defecto.objects.filter(seccion__name = "380").get(name = "TBD")
-    for f412 in F412_VALID.filter(programa__name = "380"):
+    for f412 in F412.objects.filter(programa__name = "380"):
         if f412.Defecto.name == "En_Descripcion":
             f412.Defecto = TBDdefc
             f412.save()
@@ -688,7 +686,7 @@ def updatePlane():
     for i in range(1,5):
         aptName = "APT" + str(i)
         repList = repList | Reparacion.objects.filter(seccion__name = aptName)
-        f412List = f412List | F412_VALID.filter(seccion__name = aptName)
+        f412List = f412List | F412.objects.filter(seccion__name = aptName)
     for f412 in f412List:
         try:
             plane = avion.objects.get(numero = f412.nAV)
@@ -739,7 +737,7 @@ def updateDB(request):
 def export380(request, status):
     response = HttpResponse(content_type='text/csv')
     
-    f412List = F412_VALID.filter(programa__name = "380")      
+    f412List = F412.objects.filter(programa__name = "380")      
     WholeProgram = True
             
     if status != "" :
@@ -816,7 +814,6 @@ def exportPage(request):
     template = get_template("html/CSVPage.html")
     myContext = Context({'user': request.user})
     myContext['myPath'] = request.path
-    myContext['mode'] = "Reparaciones"             
     try:
         myContext['myUser'] = myUser.objects.get(user = request.user)
     except:

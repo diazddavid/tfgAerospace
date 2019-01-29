@@ -899,7 +899,6 @@ def updateDataParTable(request, year, month, isLay, listToSearch):
             row = [defc.defecto.name, defc.accion, defc.ppsCod, dateStartTab, dateEndTab]
             data.append(row)
         
-        print("Tabla " + pareto + " GUARDADA")
         saveTable(pareto, month, data, isLay)
     
     return ""

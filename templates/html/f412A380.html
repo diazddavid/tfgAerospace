@@ -14,25 +14,17 @@ tr:nth-child(even) {
 }
 </style> -->
 
-{% if mode == "Reparaciones" %}
-
 <form id="button1" method="get" style="display: inline-block;" action="/historial/{{f412.id}}"  >
-  <input class="boton" type="submit" value="Historial">
+  <input class="boton" type="submit" value="Historial F412">
 </form>
 
 {% if myUser.admin %}
 <form id="button3" method="get" style="display: inline-block;" action="/reset/{{f412.id}}"  >
-  <input class="boton" type="submit" value="Resetear">
+  <input class="boton" type="submit" value="Resetear F412">
 </form>
 {% endif %}
 
 <h1 style="color:{{f412.Estado.color}}; display:block">Este F412 está: {{f412.Estado.name}}</h1>
-
-{% else %}
-
-<h1 style="display:block">Reparación</h1>
-                 
-{% endif %}
 
 <table style="background-color:#FFFFFF">
   <tr>
@@ -61,20 +53,14 @@ tr:nth-child(even) {
 
     <th>Horas</th>
     
-    <th>SGM</th>
-    
     {% if myUser.NA == "c17712" %}
       <th>Mes</th>
     {% endif %}
+    
+    <th>SGM</th>
     <th>Descripcion</th>
     <th>Nº F412</th>
-
-    {% if mode == "Reparaciones" %}
-      <th>Operacion</th>
-    {% else %}
-      <th>H.N.C</th>
-    {% endif %}
-
+    <th>Operacion</th>
 </tr>
   <tr>
     <td>{{date}}</td>
@@ -106,26 +92,20 @@ tr:nth-child(even) {
         <td>{{f412.horas}}</td>
     {% endif %}
     
-    <td>{{f412.SGM.number}}</td>
-        
     {% if myUser.NA == "c17712" %}
       <td></td>
     {% endif %}
     
+    <td>{{f412.SGM.number}}</td>
+    
     <td>{{f412.Descripcion}}</td>
                  
-    <td>{{f412.myID}}</td>    
-    
-    {% if mode == "Reparaciones" %}
-      {% if f412.operacion != 1 %}
-        <td>{{f412.operacion}}</td> 
-          {% else %}
-        <td></td>
-      {% endif %}
+    <td>{{f412.myID}}</td>
+    {% if f412.operacion != 1 %}
+    <td>{{f412.operacion}}</td> 
     {% else %}
-      <th>H.N.C</th>
+    <td></td>
     {% endif %}
-    
     <td>{{f412.id}}</td>
     <!--  <td>{{week}}</td>-->
         
@@ -144,7 +124,7 @@ tr:nth-child(even) {
   </tr>
 </table>
 
-{% if mode == "Reparaciones" %}
+
 <table style="background-color:#FFFFFF">
 {% if myUser.typeUser.name == "ME" %}
   {% if f412.Estado.name == "Activo" or f412.Estado.name == "Validado" or myUser.admin == True %}
@@ -232,7 +212,6 @@ tr:nth-child(even) {
   
 {% endif %}
 
-{% endif %}
 </table>
 {% if myUser.typeUser.name == "ME" %}
 <table style="background-color:#FFFFFF">

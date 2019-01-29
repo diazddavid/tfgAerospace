@@ -18,18 +18,14 @@
   {% endif %}
 
   <!-- Botones de actualizar base de datos y exportar e importar f412 a excel -->
-
-  <form id="button2" method="get" action="/grafico">
-    <input class="boton" type="submit" value="Gráficos">
+  <form id="button1" method="post" action="/updateDB">
+    <input class="boton" type="submit" value="Actualizar Base de Datos">
   </form>
-  <form id="button2" method="get" action="/paretos">
-    <input class="boton" type="submit" value="Paretos">
+  <form id="button2" method="get" action="/grafico">
+    <input class="boton" type="submit" value="Graficos">
   </form>
   <form id="button2" method="get" action="/ExportarF412">
     <input class="boton" type="submit" value="Exportar F412s a CSV">
-  </form>
-  <form id="button1" method="post" action="/updateDB">
-    <input class="boton" type="submit" value="Actualizar Base de Datos">
   </form>
 
   <!-- Formulario para crear usuarios -->

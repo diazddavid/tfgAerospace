@@ -12,7 +12,7 @@ y unos bloques para las funciones especificas de ambos programas -->
       <h2>{{error}}</h2>
     {% endif %}
   {% endif %}
- 
+
   <!-- Formulario para crear f412 del 350 -->
   <form action={% if mode == "Reparaciones" %}"/350/nuevoF412" {% else %}"/350/nuevaRep"{% endif %}
            method="post" name="myForm" onsubmit="return validateForm()">
@@ -81,42 +81,9 @@ y unos bloques para las funciones especificas de ambos programas -->
           {% endfor %}
         </select> </div><br>
 
-    {% if mode == "Accidentales" %}
-    
-        <div>H.N.C<br>
-        <input type = "text" name = "hnc"><br></div>
-     
-    
-        <div> Nivel 1 Reason Tree
-          <select name = "rt1" id = "rt1" onchange="rt2Function()">
-            <option value="default">Por defecto</option>
-            {% for rt in rt1 %}
-            <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
-            {% endfor %}                           
-          </select>
-        </div>
-        
-    {% endif %}
-
     </div>
     <div class="column">
- 
-        {% if mode == "Accidentales" %}
-    
-          <div>Nivel 2 Reason Tree
-          <select name = "rt2" id="rt2" onchange="rt3Function()">
-            <option value="default">Seleccione primero nivel 1</option>
-          </select>
-          </div>  
-          
-          <div>Nivel 3 Reason Tree
-          <select name = "rt3" id="rt3"">
-            <option value="default">Seleccione primero nivel 2</option>
-          </select>
-          </div>
         
-        {% endif %}    
-    
         <div>Fecha<br>
         <input type = "text" name = "date" value = {{ date }} readonly></br></div>
                                                    
@@ -156,8 +123,7 @@ y unos bloques para las funciones especificas de ambos programas -->
         </br></div>
         
         <div>Horas Recurrentes<br>
-        <input type = "text" name = {%if mode == "Reparaciones" %}"hRec"{% else %}"horas"{% endif %} 
-        value="0" readonly></br></div>
+        <input type = "text" name = "hRec" value="0" readonly></br></div>
         
         <div>Descripcion<br>
         <textarea name="textDescp" id="textDescp" rows="5" cols="30"></textarea>
@@ -184,7 +150,7 @@ y unos bloques para las funciones especificas de ambos programas -->
     var numH = document.forms["myForm"]["numH"].value;
     numH = numH.replace(",",".");
     var HRec = String(nOp*numH);
-    document.forms["myForm"][{%if mode == "Reparaciones" %}"hRec"{% else %}"horas"{% endif %}].value = HRec.replace(".",",");                         
+    document.forms["myForm"]["hRec"].value = HRec.replace(".",",");                         
   }
   
   function componentAPT5(){
@@ -324,35 +290,11 @@ function validateForm() {
           return false;
       }
     }
-  }   
+  }
       
-function rt2Function(){
-    document.getElementById("rt2").innerHTML = "<option value='default'>Por defecto</option>"    
-    var rt1Chosen = document.forms["myForm"]["rt1"].value;                                 
-    {% for rt in rt2 %} 
-      var rtName = "{{rt.shortName}}" 
-      if (rtName.startsWith(rt1Chosen)){
-        document.getElementById("rt2").innerHTML += "<option value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
-      }
-    {% endfor%}    
-         
-}
-      
-function rt3Function(){
-    document.getElementById("rt3").innerHTML = "<option value='default'>Por defecto</option>"       
-    var rt2Chosen = document.forms["myForm"]["rt2"].value;  
-    {% for rt in rt3 %} 
-      var rtName = "{{rt.shortName}}" 
-      if (rtName.startsWith(rt2Chosen)){
-        document.getElementById("rt3").innerHTML += "<option value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
-      }
-    {% endfor%}    
-         
-}      
-      
-window.onload = function(){  
-  sectionFunction();
-}
+  window.onload = function(){  
+    sectionFunction();
+  }
 
   </script>
 
