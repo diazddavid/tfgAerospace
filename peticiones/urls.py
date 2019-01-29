@@ -174,7 +174,9 @@ urlpatterns = [
     url(r'^changeMonthHour/(.*)/(.*)', mensual.changeMonthHour),
     url(r'^updateHours', mensual.handleUpdateHours),
     url(r'^rootMensual', mensual.serveRootMensual),
-    url(r'^updateFromXls', mensual.updateFromXls),
+    url(r'^updateFromXls', mensual.updatePlanes),
+    url(r'^updateCharts', mensual.printAllData),
+    url(r'^updateCharts/(.*)', mensual.printAllDataMonth),
        
     url(r'^(.*)', views.home),
 ]

@@ -925,6 +925,7 @@ def saveGraph380Ev(data, title, ylabel, xticksNames, xticksNamesEv, fileName, le
         
     i = 0
     pos = 0
+    
     if N > 16:
         ypos = -0.125
     else:

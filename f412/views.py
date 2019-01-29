@@ -145,7 +145,9 @@ def totalH(f412List, typeH):
                 toReturn = toFloat(f412.horasAntiguas) + toReturn
             else:
                 toReturn = toFloat(f412.horasAntRec) + toReturn
-    return str(toReturn)[:5]
+
+    print(type(toReturn))                                  
+    return str(round(toReturn, 2))
 
 def getHours(myContext, request, F412List):
     for status in Estado.objects.all():
@@ -802,7 +804,7 @@ def serveTableStatus(request, section, status):
     elif section == "380":
         programName = "380"
         sectionName = "380"
-        f412List = f412List.filter(programa = PROGRAMA_380)
+        f412List = f412List.filter(programa = PROGRAMA_380).order_by('Fecha').order_by('-myID')
         
     else:
         section = Seccion.objects.get(name = section)
@@ -1111,7 +1113,7 @@ def f412Page(request, sectionName, myID):
     mailList, numEmail = getMailList(f412.seccion.name)
     
     myContext['mailList'] = mailList
-    myContext['numEmail'] = numEmail
+    myContext['numEmail'] = numEmail    
              
     template = get_template("html/f412A" + f412.programa.name + ".html")
     return HttpResponse(template.render(myContext))
@@ -1281,7 +1283,7 @@ def f412Edit(request, f412ID):
             saveEdit380(request, f412, "f412")
     
     myContext["currentF412"] = f412
-       
+
     myContext = getCommonEditContext(myContext, f412)    
              
     template = get_template("html/f412Edit" + f412.programa.name + ".html")

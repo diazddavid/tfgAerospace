@@ -53,22 +53,39 @@ def getMailSection(dictEmails, sectionName):
         return sectionName
 
 @register.assignment_tag
-def getPNEvList(designa):
-    return PNEvol.objects.filter(designation = designa).filter(shouldShow = True)
+def getPNEvList(f412):
+    try:
+        return PNEvol.objects.filter(designation = f412.Designacion).filter(shouldShow = True)
+    except:
+        designaName = f412.programa.name + f412.Componente.name
+        return PNEvol.objects.filter(designation__name = designaName).filter(shouldShow = True)
 
 @register.assignment_tag
-def getNumberPlane(component, year, month, program):
+def getNumberPlane(component, year, month, program, is380Tot):
     if program == "380":
-        try:
-#        if True:
-            return round(planesCount.objects.filter(program__name = program).filter(year = year).filter(mes = month).get(component__name = component).numPlanes, 3)
-        except:
-            return 0.0
+        if is380Tot:
+#            try:
+            if True:
+                auxList = planesCount.objects.filter(program__name = program)
+                auxList = auxList.filter(year = year)
+                auxList = auxList.filter(is380Tot = is380Tot)
+                return round(auxList.get(mes = month).numPlanes, 3)
+#            except:
+#                return 0.0
+        else:
+            try:
+    #        if True:
+                auxList = planesCount.objects.filter(program__name = program)
+                auxList = auxList.filter(year = year).filter(mes = month)
+                return round(auxList.get(component__name = component).numPlanes, 3)
+            except:
+                return 0.0
     else:
         
         try:
 #        if True:
-            return round(planesCount.objects.filter(program__name = program).filter(year = year).get(mes = month).numPlanes, 3)
+            auxList = planesCount.objects.filter(program__name = program)
+            return round(auxList.filter(year = year).get(mes = month).numPlanes, 3)
         except:
             return 0.0
 
@@ -78,7 +95,6 @@ def getNumberHours(componentName, year, month, program, codCausName):
         try:
 #        if True:
             auxList = oldHour.objects.filter(program__name = program).filter(year = year).filter(codCaus__name = codCausName).filter(month = month)
-#            print(auxList.filter(component__name = componentName).count())
             return round(auxList.get(component__name = componentName).hours, 3)
         except:
             return 0.0

@@ -1005,7 +1005,7 @@ def changeEmail(request):
     try:
         shouldSend = sendMail.objects.get(id = 1)
     except:
-        print("No existe, creo")
+        print("No existe, creo el modelo")
         shouldSend = sendMail(shouldSend = False)
     
     if shouldSend.shouldSend == True:
@@ -1014,8 +1014,6 @@ def changeEmail(request):
         shouldSend.shouldSend = True
 
     shouldSend.save()
-
-    return HttpResponseRedirect("/administrador")
    
     return HttpResponseRedirect("/administrador")
 
@@ -1027,15 +1025,15 @@ def updatePNEv():
             newPN = PNEvol(pn = pn, designation = pn.Designacion, name = pn.name, shouldShow = True, currentPN = True)
             newPN.save()
             
-    for f412 in F412.objects.all():
-        if f412.PN.name != f412.pnEv.name:
-            f412.pnEv = PNEvol.objects.filter(pn = f412.PN)[0]
-            f412.save()
-    
-    for rep in Reparacion.objects.all():
-        if rep.PN.name != rep.pnEv.name:
-            rep.pnEv = PNEvol.objects.filter(pn = rep.PN)[0]   
-            rep.save()
+#    for f412 in F412.objects.all():
+#        if f412.PN.name != f412.pnEv.name:
+#            f412.pnEv = PNEvol.objects.filter(pn = f412.PN)[0]
+#            f412.save()
+#    
+#    for rep in Reparacion.objects.all():
+#        if rep.PN.name != rep.pnEv.name:
+#            rep.pnEv = PNEvol.objects.filter(pn = rep.PN)[0]   
+#            rep.save()
     
     return
 
@@ -1050,6 +1048,6 @@ def updateDB(request):
 #    toReturn = updatePlane()
 #    toReturn = updateOldF412()   #Comentar cuando se haga 1 vez
 #    updateAllF412Hours()
-    updatePNEv()
+#    updatePNEv()
 
     return HttpResponseRedirect("/administrador")

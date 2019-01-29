@@ -73,14 +73,7 @@
         
         <div>P/N
           <select name = "parNumber" id="PNID"><br>
-            {% getPNEvList currentF412.Designacion as pnEvList %}
-            {% for pn in pnEvList %}
-              {% if pn == currentF412.pnEv %}
-                <option value="{{pn.name}}" selected >{{pn.name}}</option>
-              {% else %}
-                <option value="{{pn.name}}" >{{pn.name}}</option>
-              {% endif %}   
-            {% endfor %}                            
+            <option value="{{currentF412.PN.name}}" selected >{{currentF412.PN.name}}</option>                                
           </select> <br>
         </div>
 
@@ -119,12 +112,12 @@
             {% endif %}                              
           {% endfor %}
         </select> </div><br>
-    
+        
         <div id="rt1Div" {% if currentF412.Estado.name == "Activo" %}style="display:none"{% endif %}> Nivel 1 Reason Tree
           <select name = "Level1hid" id = "rt1" onchange="rt2Function()">
             <option value="default">Por defecto</option>
             {% for rt in rt1 %}
-              {% if currentF412.reasonTree.nivel1 == rt  %}
+              {% if currentF412.reasonTree.nivel1.codigo == rt.codigo  %}
                 <option value="{{rt.codigo}}" selected>{{rt.codigo}} - {{rt.nombre}}</option>
               {% else %}                               
                 <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}} {{rt.id}}</option>
@@ -140,7 +133,7 @@
           <select name = "Level2hid" id="rt2" onchange="rt3Function()">
             <option value="default">Por defecto</option>
             {% for rt in rt2F412 %}
-              {% if currentF412.reasonTree.nivel2 == rt  %}
+              {% if currentF412.reasonTree.nivel2.codigo == rt.codigo  %}
                 <option value="{{rt.codigo}}" selected>{{rt.codigo}} - {{rt.nombre}}</option>
               {% else %}                               
                 <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}} </option>
@@ -153,7 +146,7 @@
           <select name = "Level3hid" id="rt3"">
             <option value="default">Por defecto</option>
             {% for rt in rt3F412 %}
-              {% if currentF412.reasonTree.nivel3 == rt  %}
+              {% if currentF412.reasonTree.nivel3.codigo == rt.codigo  %}
                 <option value="{{rt.codigo}}" selected>{{rt.codigo}} - {{rt.nombre}}</option>
               {% else %}                               
                 <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
@@ -402,6 +395,11 @@ function rt2Function(){
   {% for rt in rt2 %} 
     var rtName = "{{rt.shortName}}" 
     if (rtName.startsWith(rt1Chosen)){
+      {% if currentF412.reasonTree.nivel2.codigo == rt.codigo  %}    
+        toAdd = "selected";
+      {% else %}
+        toAdd = "";
+      {% endif %}        
       document.getElementById("rt2").innerHTML += "<option value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
     }
   {% endfor%}    
@@ -453,7 +451,7 @@ window.onload = function(){
   var HRec = String(nOp*numH);
   
   document.getElementById("hRecID").value = HRec
-  sectionFunction();
+  sectionFunction();         
 }
 
   </script>

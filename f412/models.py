@@ -249,6 +249,7 @@ class planesCount(models.Model):
     year = models.IntegerField(default = 1)
     mes = models.IntegerField(default = 1)
     numPlanes = models.FloatField(default = 0.0)
+    is380Tot = models.BooleanField(default = False)
     
 class oldHour(models.Model):
     program = models.ForeignKey(Programa, default = 1)

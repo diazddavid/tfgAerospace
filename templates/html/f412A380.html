@@ -89,6 +89,10 @@ tr:nth-child(even) {
       <th>H.N.C.</th>
     {% endif %}
 
+    {% if f412.Estado.name != "Activo" %}
+      <th>Código<br>Causa</th>
+    {% endif %}
+
 </tr>
   <tr>
     <td>{{date}}</td>
@@ -145,6 +149,9 @@ tr:nth-child(even) {
       <td>{{f412.hnc}}</td>
     {% endif %}
     
+    {% if f412.Estado.name != "Activo" %}
+      <td>{{f412.codigoCausa.name}}</td>
+    {% endif %}
     
     <td>{{f412.id}}</td>
     <!--  <td>{{week}}</td>-->
@@ -163,6 +170,17 @@ tr:nth-child(even) {
     <td style="text-align:center"><a href="mailto:{{f412.LastChangeUser.email}}">{{f412.LastChangeUser.email}}</a></td>
   </tr>
 </table>
+
+{% if f412.Estado.name == "Rechazado" and myUser.typeUser.name == "ME" %}
+  <table style="background-color:#FFFFFF">
+    <tr>
+      <th>Motivo de rechazo</th>
+    </tr>
+    <tr>
+      <td style="text-align:center">{{f412.accion}}</td>
+    </tr>
+  </table>
+{% endif %}
 
 {% if mode == "Reparaciones" %}
 <table style="background-color:#FFFFFF">

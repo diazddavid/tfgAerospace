@@ -195,9 +195,17 @@ Historial
         <td>{{f412.horas}}</td>
       {% else %}
         {% if f412.horasRecurrentes == "" %}
-          <td>{{f412.horas|slice:"0:6"}}</td> 
+          {% if f412.horasAntiguas != "" %}
+            <td>{{f412.horasAntiguas|slice:"0:6"}}</td> 
+          {% else %}
+            <td>{{f412.horas|slice:"0:6"}}</td> 
+          {% endif %}
         {% else %}
-          <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
+          {% if f412.horasAntRec != "" %}
+            <td>{{f412.horasAntRec|slice:"0:6"}}</td> 
+          {% else %}
+            <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
+          {% endif %}
         {% endif %}
       {% endif %}
       
