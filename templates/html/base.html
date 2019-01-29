@@ -28,89 +28,117 @@ Licence URI: http://www.os-templates.com/template-terms
       <a href="/"><img src = "/images/logo.jpg" style="padding-right:10px;"></a>
       <h1 style="display:inline-block"><a href="/">Formularios F412</a></h1>  
     </div>
+    
     <div class="fl_right">
     	{% if user.is_authenticated %}
-        <form method="post" action="/cerrarSesion" id="logOut">
+        
+        {% if myUser.typeUser.name == "ME" or myUser.typeUser.name == "Subcontrata" or myUser.admin %}
+          <form method="get" action="/{{mode}}" id="logOut" style="display:inline-block; margin-right:15px">
+            <input class="boton" type="submit" value="{{mode}}">
+          </form></h1>        
+        {% endif %}
+        
+        <form method="post" action="/cerrarSesion" id="logOut"  style="display:inline-block;">
           <input class="boton" type="submit" value="Cerrar Sesion"><br>
         </form>
+
 		{% else %}
+        
         {% if NameError %}
           <p>Usuario incorrecto</p>
         {% endif %}
+        
         {% if notNameError %}
           <p>Usuario correcto</p>
         {% endif %}
-				<form method="post" action="/autenticar">
-					<h1>Inicio Sesion</h1>
-					<input class="boton" type="submit" value="Inicio"><br>
-					<p><input type="text" name="username"></p><br>
-					<p><input type="password" name="password"></p>
-                 <input type="hidden" name="toRedirect" value="{{myPath}}">
-				</form>
+          <form method="post" action="/autenticar">
+            <h1>Inicio Sesion</h1>
+            <input class="boton" type="submit" value="Inicio"><br>
+            <p><input type="text" name="username"></p><br>
+            <p><input type="password" name="password"></p>
+            <input type="hidden" name="toRedirect" value="{{myPath}}">
+          </form>
 		{% endif %}
     </div>
-    <div class="fl_right" style="margin-left:50 px">
-      {% if myUser.typeUser.name == "ME" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "Subcontrata" %}
-      <form method="post" style="display:inline-block" action="/{{mode}}" id="logOut">
-          <input class="boton" type="submit" value="{{mode}}"><br>
-      </form>
-      {% endif %}
-    </div>
+    
     <div id="topnav">
-      <ul>
-        {% if mode == "Reparaciones" %}
-              <li><a href="/">Inicio</a></li>
-            {% if user.is_authenticated %}
-              {% if myUser.typeUser.name != "Subcontrata" and myUser.typeUser.name != "Lectura" and myUser.typeUser.name != "HO_CDT" %}
-              <li><a href="/nuevoF412">Nuevo F412</a></li>
-              {% endif %}
-              {% if myUser.seccion.all.count == 0 %}
-              <li><a href="/380/activos">F412 Activos</a></li>
-              <li><a href="/380/validados">F412 Validados</a></li>
-              <li><a href="/380/concedidos">F412 Concedidos</a></li>
-              <li><a href="/380/rechazados">F412 Rechazados</a></li>
-              {% endif %}
-              {% for section in myUser.seccion.all %}
-              {% if forloop.counter == 1 %}
+      {% if myUser.typeUser.name == "ME" or myUser.typeUser.name == "Subcontrata" or myUser.admin %}
+        {% if mode == "Accidentales" %}
+          <ul>
+            <li><a href="/Reparaciones">Inicio</a></li>
+            <li><a href="/nuevaRep">Nueva Reparación</a></li>
+            <li><a href="/rep/380">A380</a></li>
+            <li><a href="/rep/350">A350</a></li>
+          <!-- <li><a href="/rep/paretos">Paretos</a></li>              -->                 
+          </ul>
+        {% endif %}
+      {% endif %}
+      
+      {% if mode == "Reparaciones"%}
+        <ul>
+          <li><a href="/">Inicio</a></li>
+        {% if user.is_authenticated %}
+          {% if myUser.typeUser.name != "Subcontrata" and myUser.typeUser.name != "Lectura" and myUser.typeUser.name != "HO_CDT" %}
+          <li><a href="/nuevoF412">Nuevo F412</a></li>
+          {% endif %}
+          
+          {% if myUser.seccion.all.count == 0 %}
+            <li><a href="/380/activos">F412 Activos</a></li>
+            <li><a href="/380/validados">F412 Validados</a></li>
+            <li><a href="/380/concedidos">F412 Concedidos</a></li>
+            <li><a href="/380/rechazados">F412 Rechazados</a></li>
+          {% endif %}
+          
+          {% for section in myUser.seccion.all %}
+            {% if forloop.counter == 1 %}
               <li><a href="/{{section.name}}/activos">F412 Activos</a></li>
               <li><a href="/{{section.name}}/validados">F412 Validados</a></li>
               <li><a href="/{{section.name}}/concedidos">F412 Concedidos</a></li>
               <li><a href="/{{section.name}}/rechazados">F412 Rechazados</a></li>
-              {% endif %}
-              {% endfor %}
-            {% else %}
-              <li><a href="/activos">F412 Activos</a></li>
-              <li><a href="/concedidos">F412 Concedidos</a></li>
-              <li><a href="/validados">F412 Validados</a></li>
-              <li><a href="/rechazados">F412 Rechazados</a></li>
-              <li><a href="/cambiarCon">Cambiar Contraseña</a></li>
-            {% endif %}
-            {% if myUser.typeUser.name == "ME" or myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" %}
-              <li><a href="/programa/380">A380</a></li>
-              <li><a href="/programa/350">A350</a></li>
-            {% elif myUser.typeUser.name == "TL" %}        
-              {% for program in myUser.programa.all %}
-              <li><a href="/programa/{{program.name}}">A{{program.name}}</a></li>{% endfor %}
-            {% endif %}
             
-          {% else %}
-            <li><a href="/Reparaciones">Inicio</a></li>
-            <li><a href="/nuevaRep">Nueva Reparación</a></li>
-            <li><a href="/rep/380">A380</li>
-            <li><a href="/rep/350">A350</li>
-          {% endif %}
+              {% if myUser.NA == "ng74b49" %}
+                <li><a href="/paretos">Paretos A380</a></li>
+              {% endif %}              
           
-        {% if myUser.typeUser.name == "HO_CDT" %}
-        <li><a href="/grafico">Graficos</a></li>
-        {% endif %}
-        {% if myUser.typeUser.name == "ME" or myUser.typeUser.name == "HO_CDT"  %}
-            {% if mode == "Reparaciones" %}
-            <li class="last"><a href="/administrador">Admin</a></li>
-            {% else %}
-            <li class="last"><a href="/rep/administrador">Admin</a></li>
             {% endif %}
+          {% endfor %}
+        
+        {% else %}
+          <li><a href="/activos">F412 Activos</a></li>
+          <li><a href="/concedidos">F412 Concedidos</a></li>
+          <li><a href="/validados">F412 Validados</a></li>
+          <li><a href="/rechazados">F412 Rechazados</a></li>
+          <li><a href="/cambiarCon">Cambiar Contraseña</a></li>
         {% endif %}
-      </ul> 
+        
+        {% if myUser.typeUser.name == "ME" or myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" %}
+          <li><a href="/programa/380">A380</a></li>
+          <li><a href="/programa/350">A350</a></li>
+        {% elif myUser.typeUser.name == "TL" %}        
+          {% for program in myUser.programa.all %}
+            <li><a href="/programa/{{program.name}}">A{{program.name}}</a></li>
+          {% endfor %}
+        {% endif %}
+        
+        {% if myUser.typeUser.name == "HO_CDT" %}
+          <li><a href="/grafico">Graficos</a></li>
+        {% endif %}
+        
+        {% if myUser.admin or myUser.typeUser.name == "HO_CDT"  %}
+          <li class="last"><a href="/administrador">Admin</a></li>
+        {% elif myUser.typeUser.name == "ME"%}
+          {% for program in myUser.programa.all %}
+            {% if program.name == "350" %}
+              <li><a href="/grafico">Graficos</a></li>
+            {% endif %}  
+            {% if program.name == "380" %}
+              <li><a href="/paretos">Paretos</a></li>
+            {% endif %}
+            <li class="last"><a href="/ExportarF412">Exportar a CSV</a></li>
+          {% endfor %}  
+        {% endif %}
+      </ul>
+      {% endif %}
     </div>
   </div>
 
@@ -122,36 +150,41 @@ Licence URI: http://www.os-templates.com/template-terms
 
       <h1>{{aux}}</h1>
       {% if myUser.typeUser.name == "Lectura" %}<h1 style="font-size:15px; margin-bottom:-10px">(MODO LECTURA)</h1>{% endif %}
-      {% if user.is_authenticated or changePassword%}
-        <h1>{{errorMessage}}</h1>
-        {% if page == "/" %}
+        {% if user.is_authenticated or changePassword%}
+          <h1>{{errorMessage}}</h1>
+          {% if page == "/" %}
             <h1><a href="/">Todo</a></h1>
-        {% endif %}
-        {% if someError %}
-          {{errorMessage}}
+          {% endif %}
+          
+          {% if someError %}
+            {{errorMessage}}
+          {% else %}
+          
+            {% block body %}
+            <!-- AQUI VIENE TODA LA PAGINA-->
+            {% endblock %}
+            
+          {% endif %}    
         {% else %}
-          {% block body %}
-          {% endblock %}
-        {% endif %}    
-      {% else %}
-        <h1>Inicie Sesion</h1>
-        <h2>Puede iniciar en modo lectura<h2>
-        <form id="button1" method="post" action="/autenticar">
+          <h1>Inicie Sesion</h1>
+          <h2>Puede iniciar en modo lectura<h2>
+          <form id="button1" method="post" action="/autenticar">
             <input class="boton" type="submit" value="Modo Lectura">
             <input type="hidden" name="username" value="Lectura">
             <input type="hidden" name="password" value="Lectura">
             <input type="hidden" name="toRedirect" value="{{myPath}}">
-        </form>
+          </form>
       {% endif %}
     </div>
   </div>
 
-<div class="wrapper">
-  <div id="copyright" class="clear">
-    <p class="fl_left">Para cualquier problema, contactar con <a href="mailto:david.diaz-rivas.external@airbus.com?subject=[Peticiones F412]&amp;cc=abel.del-pino-perez@airbus.com">david.diaz-rivas.external@airbus.com</a></p>
-    <p class="fl_right">Template by <a target="_blank" href="http://www.os-templates.com/" title="Free Website Templates">OS Templates</a></p>
+  <div class="wrapper">
+    <div id="copyright" class="clear">
+      <p class="fl_left">Para cualquier problema, contactar con <a href="mailto:david.diaz-rivas.external@airbus.com?subject=[Peticiones F412]&amp;cc=abel.del-pino-perez@airbus.com">david.diaz-rivas.external@airbus.com</a></p>
+      <p class="fl_right">Template by <a target="_blank" href="http://www.os-templates.com/" title="Free Website Templates">OS Templates</a></p>
+    </div>
   </div>
-</div>
+  
 </body>
 
 <script>

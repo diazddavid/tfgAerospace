@@ -1,0 +1,37 @@
+{% extends 'html/base.html' %}
+
+{% load filtrosExtra %}
+
+{% block body %}
+
+<form id="button11" method="get" action="{% if mode == "Accidentales"%}/rep{% endif %}/paretos">
+  <input class="boton" type="submit" value="Paretos A380">
+</form>
+<form id="button12" method="get" action="{% if mode == "Accidentales"%}/rep{% endif %}/paretos/layup">
+  <input class="boton" type="submit" value="Paretos Lay-Up">
+</form>
+<form id="button13" method="get" action="{% if mode == "Accidentales"%}/rep{% endif %}/paretos/ind">
+  <input class="boton" type="submit" value="Paretos Area Industrial">
+</form>
+
+{% if myUser.admin %}
+<form id="button21" style="margin-left:50px" method="get" action="/updateParetos/{{mes}}">
+  <input class="boton" type="submit" value="Actualizar Paretos Mes">
+</form>
+<form id="button22" method="get" action="/exportarParetos/{{mes}}">
+  <input class="boton" type="submit" value="Añadir Tabla Mes Actual">
+</form>
+<form id="button23" method="get" action="/exportPDFPareto" >
+  <input class="boton" type="submit" value="PDF Mes Actual">
+</form>
+
+<form id="button24" method="get" action="/updateParetos/todos">
+  <input class="boton" type="submit" value="Actualizar Todos Paretos">
+</form>
+{% endif %}
+
+{% block pareto %}
+
+{% endblock %}
+
+{% endblock body %}

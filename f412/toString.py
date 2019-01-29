@@ -31,15 +31,32 @@ def parseDate(dateToParse):
         first = dateToParse.find('/')
     year = int(dateToParse[:first])
     dateToParse = dateToParse[first+1:]
+    
     second = dateToParse.find('-')
     if second == -1:
         second = dateToParse.find('/')
     month = int(dateToParse[:second])
+    
     space = dateToParse.find(" ")
     if space == -1:
         space = len(dateToParse)
     day = int(dateToParse[second+1:space])
+    
     if year < 2000:
         year += 2000
     toReturn = datetime.datetime(year, month, day)
     return toReturn
+
+def toList(df):
+    prev = df.values.tolist()
+    toReturn = []
+    for dfList in prev:
+        toReturn = toReturn + dfList
+        
+    return toReturn
+
+def toFloat(toConvert):
+    try:
+        return float(toConvert.replace(',','.'))
+    except:
+        return 0.0

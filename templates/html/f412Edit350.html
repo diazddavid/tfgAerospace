@@ -1,0 +1,359 @@
+{% extends 'html/form.html' %}
+
+
+{% block form %}                        
+  <!-- FuncionarÄÄ cuando enviemos un formulario y se cree un f412 -->
+  {% if newID %}
+    {% if error == "None" %}
+      <h2>F412 Editado</h2>
+    {% else %}
+      <h2>{{error}}</h2>
+    {% endif %}
+  {% endif %}
+ 
+  <!-- Formulario para crear f412 del 350 -->
+  <form action="/350/nuevoF412" method="post" name="myForm" onsubmit="return validateForm()">
+    {% csrf_token %}
+    <div class="row">
+      <div class="column">      
+
+        <div>APT
+        <select name = "section" id="SectionID" onchange="sectionFunction()">
+        {% for section in sectionList %}
+          {% if section == currentF412.seccion %}
+          <option value = {{ section.name }} selected> {{ section.name }}</option>
+          {% else %}
+          <option value = {{ section.name }}> {{ section.name }}</option>
+          {% endif %}
+        {% endfor %}
+        </select> </div><br>
+        
+        <div>N AV<br>
+        <input type = "number" name = "nAV" value="{{currentF412.nAV}}"></br></div> 
+
+        <div id="piezaIDDiv">Pieza:
+        <select name = "Pieza" id="piezaID" onchange="piezaFunction()" select>
+          {% if currentF412.Pieza not in piezaList %}<option value = "default">Por Defecto</option>{% endif %}
+          {% for pieza in piezaList %}
+            {% if pieza == currentF412.Pieza%} 
+              <option value = {{ pieza.name }} selected> {{ pieza.name }}</option>
+            {% else %}  
+              <option value = {{ pieza.name }}> {{ pieza.name }}</option>      
+            {% endif %}                              
+          {% endfor %}
+        </select> </div><br>
+
+        <div>Componente:
+        <select name = "Component" id="ComponentID" onchange="ComponentFunction()" select   >
+          {% if currentF412.Componente not in componentList %}<option value = "default">Por Defecto</option>{% endif %}
+          <option value = "prueba" selected> currentF412.Componente.name</option>
+          {% for component in componentList %}
+            {% if component not in APT5CompList %}
+              {% if component == currentF412.Componente %}
+                <option value = {{ component.name }} selected> {{ component.name }}</option>
+              {% else %}
+                <option value = {{ component.name }}> {{ component.name }}</option>
+              {% endif %}
+            {% endif %}                          
+          {% endfor %}
+        
+        </select> </div><br>
+        
+        <div>P/N
+          <select name = "parNumber" id="PNID"><br>
+            <option value = "{{currentF412.PN.name}}">{{currentF412.PN.name}}</option>
+          </select> <br>
+        </div>
+
+       
+        <div>Area Causante
+        <select name = "Area" id="AreaID">
+          <!-- Esta opcion desaparecerÄÄ al seleccionar APT -->
+          {% for area in areaUserSection %}
+          <option value = {{area.name}}>{{area.name}}</option>
+          {% endfor %}
+        </select></div><br>
+        
+        <div>Desviacion
+        <select name = "Defect" id="desvID">
+          <!-- Esta opcion desaparecerÄÄ al seleccionar APT -->
+          {% for desv in desvUser %}
+          <option value = {{desv.name}}>{{desv.name}}</option>
+          {% endfor %}
+        </select> </div><br>
+    
+        <div> Nivel 1 Reason Tree
+          <select name = "rt1" id = "rt1" onchange="rt2Function()">
+            <option value="default">Por defecto</option>
+            {% for rt in rt1 %}
+              {% if currentF412.reasonTree.nivel1 == rt  %}
+                <option value="{{rt.codigo}}" selected>{{rt.codigo}} - {{rt.nombre}}</option>
+              {% else %}                               
+                <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
+              {% endif %}
+            {% endfor %}                           
+          </select>
+        </div>
+        
+    </div>
+    <div class="column">
+    
+          <div>Nivel 2 Reason Tree
+          <select name = "rt2" id="rt2" onchange="rt3Function()">
+            <option value="default">Por defecto</option>
+            {% for rt in rt2F412 %}
+              {% if currentF412.reasonTree.nivel2 == rt  %}
+                <option value="{{rt.codigo}}" selected>{{rt.codigo}} - {{rt.nombre}}</option>
+              {% else %}                               
+                <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
+              {% endif %}
+            {% endfor %}    
+          </select>
+          </div>  
+          
+          <div>Nivel 3 Reason Tree
+          <select name = "rt3" id="rt3"">
+            <option value="default">Por defecto</option>
+            {% for rt in rt3F412 %}
+              {% if currentF412.reasonTree.nivel3 == rt  %}
+                <option value="{{rt.codigo}}" selected>{{rt.codigo}} - {{rt.nombre}}</option>
+              {% else %}                               
+                <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
+              {% endif %}
+            {% endfor %} 
+          </select>
+          </div>
+                                                   
+        <div>Referencia<br>
+        <input type = "number" name = "Ref" value="{{currentF412.Referencia}}"></br></div>
+
+        <div>SGM Solicitantes
+        <select name = "SGM" id="SGMID">
+          <option value = {{sgm.number}}>{{sgm.number}}</option>
+        </select></div><br>
+
+        <div>Horas Por Operario (LT)<br>
+        <input type = "number" name = "numH" onchange="calcHRec()" value="{{currentF412.horas}}"></br></div>
+        
+        <div>Numero Operarios<br>
+        <select name="nOp" onchange="calcHRec()">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+        </br></div>
+        
+        <div>Horas Recurrentes<br>
+        <input type = "text" name = {%if mode == "Reparaciones" %}"hRec"{% else %}"horas"{% endif %} 
+        value="0" readonly></br></div>
+        
+        <div>Descripcion<br>
+        <textarea name="textDescp" id="textDescp" rows="5" cols="30"></textarea>
+        <input type="text" hidden name = "Descp" id="descp"></br></div>
+      <input id="submit" type = "submit" value = "Enviar">
+      </div>
+    </div>
+  </form>
+
+
+
+  <p id="DesignationID"></p>
+
+<!-- JAVASCRIPT -->
+
+  <script>
+  
+  function piezaFunction(){
+    sectionFunction();
+  }
+  
+  function calcHRec(){
+    var nOp = document.forms["myForm"]["nOp"].value;
+    var numH = document.forms["myForm"]["numH"].value;
+    numH = numH.replace(",",".");
+    var HRec = String(nOp*numH);
+    document.forms["myForm"][{%if mode == "Reparaciones" %}"hRec"{% else %}"horas"{% endif %}].value = HRec.replace(".",",");                         
+  }
+  
+  function componentAPT5(){
+    document.getElementById("PNID").innerHTML = "";
+    var comp = document.getElementById("ComponentID").value;
+    var pieza = document.getElementById("piezaID").value;
+    pieza = pieza.substring(4,pieza.length)        
+                             
+    {% for comp in compAPT5List %}
+      if (comp == "{{comp.name}}"){
+        {% for pn in comp.parNumber.all %}
+          designaName = "{{pn.Designacion.name}}";
+          if (designaName.indexOf(pieza) != -1){
+            document.getElementById("PNID").innerHTML += "<option value ={{pn.name}}>{{pn.name}}</option>";
+          }
+        {% endfor %}        
+      }
+    {% endfor %}                                       
+  }
+  
+  function ComponentFunction(){
+    var section = document.getElementById("SectionID").value;   
+                                         
+    if(section == "APT5"){
+      componentAPT5();
+      return;
+    }             
+                                
+    document.getElementById("PNID").innerHTML = "";
+    var comp = document.getElementById("ComponentID").value;
+    var pieza = document.getElementById("piezaID").value;
+                                       
+    if (pieza.indexOf("V900") != -1){
+      var designation = "V900" + comp;
+    }else{
+      var designation = "V1000" + comp;
+    }
+    
+    {% for parNumber in PNList%}
+      var name = "{{parNumber}}"
+      if(name.startsWith(designation)){
+        newName = name.substring(name.lastIndexOf(".") + 1, name.length);
+        document.getElementById("PNID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
+      }
+    {% endfor %}  
+  }
+    
+  function APT5Section(){
+    var section = "APT5";
+    var pieza = document.getElementById("piezaID").value;                       
+    if(pieza != "default"){   
+      pieza = pieza.substring(4,pieza.length)         
+      document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>";        
+      {% for compAPT5 in compAPT5List %}  
+        var name = "{{compAPT5.pieza}}";      
+        if(name.indexOf(pieza) != -1){
+          document.getElementById("ComponentID").innerHTML += "<option value = {{ compAPT5.name }}> {{ compAPT5.name }}</option>";
+        }
+      {% endfor %}       
+    }else{
+      document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>";        
+      {% for compAPT5 in compAPT5List %}  
+        document.getElementById("ComponentID").innerHTML += "<option value = {{ compAPT5.name }}> {{ compAPT5.name }}</option>";
+      {% endfor %}       
+    }              
+          
+  }
+    
+  // Funcion que modifica algunos select en funcion del apt
+  function sectionFunction(){  
+    // Para cambiar area
+    document.getElementById("AreaID").innerHTML = "<option value = default> Por Defecto </option>";
+    var section = document.getElementById("SectionID").value;                                         
+    if (section == "APT5"){
+      APT5Section();
+    }else{    
+      document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>"
+      {% for component in componentList %}
+        {% if component not in APT5CompList %}
+          {% if component == currentF412.Componente %}
+            document.getElementById("ComponentID").innerHTML += "<option value ='{{component.name}}' selected> {{ component.name }}</option>"
+          {% else %}
+            document.getElementById("ComponentID").innerHTML += "<option value = {{ component.name }}> {{ component.name }}</option>"
+          {% endif %}
+        {% endif %}                          
+      {% endfor %}
+    
+    }
+                                                                              
+    {% for area in areaList%}
+      var name = "{{area}}"
+      if(name.startsWith(section)){
+        newName = name.substring(name.lastIndexOf('.') + 1, name.length);
+        document.getElementById("AreaID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
+      }
+    {% endfor %}   
+
+    // Para cambiar desviacion/defecto
+    document.getElementById("desvID").innerHTML = "<option value = default> Por Defecto </option>";
+    {% for desv in desvList%}
+      var name = "{{desv}}"
+      if(name.startsWith(section)){
+        newName = name.substring(name.lastIndexOf('.') + 1, name.length);
+        document.getElementById("desvID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
+      }
+    {% endfor %}
+    
+    // Para cambiar SGM
+    document.getElementById("SGMID").innerHTML = "<option value = default> Por Defecto </option>";
+    {% for sgm in SGMList%}
+      var name = "{{sgm}}"
+      if(name.startsWith(section)){
+        newName = name.substring(name.lastIndexOf('.') + 1, name.length);
+        document.getElementById("SGMID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
+      }
+    {% endfor %}
+    
+  }
+
+function validateForm() {
+    var variablesDef = [];
+    var variablesWhite = [];
+    variablesDef[0] = document.forms["myForm"]["Component"].value;
+    variablesDef[1] = document.forms["myForm"]["Pieza"].value;
+    variablesDef[2] = document.forms["myForm"]["parNumber"].value;
+    variablesDef[3] = document.forms["myForm"]["Area"].value;
+    variablesDef[4] = document.forms["myForm"]["Defect"].value; 
+    variablesDef[5] = document.forms["myForm"]["SGM"].value;
+    variablesWhite[0] = document.forms["myForm"]["Ref"].value;
+    variablesWhite[1] = document.forms["myForm"]["numH"].value;
+    document.forms["myForm"]["Descp"].value = document.getElementById("textDescp").value;            
+    variablesWhite[2] = document.forms["myForm"]["Descp"].value;
+    for (i = 0; i < variablesWhite.length; i++) {
+      if (variablesWhite[i] == "") { 
+        alert("No se puede enviar un formulario con campos en blanco");
+        return false;
+      }
+    }
+    for (i = 0; i < variablesDef.length; i++) {
+      if (variablesDef[i] == "default") {
+        alert("No se puede enviar un formulario con valores por defecto");
+        return false;
+      }
+    }
+  }   
+      
+function rt2Function(){
+    document.getElementById("rt2").innerHTML = "<option value='default'>Por defecto</option>"    
+    var rt1Chosen = document.forms["myForm"]["rt1"].value;                                 
+    {% for rt in rt2 %} 
+      var rtName = "{{rt.shortName}}" 
+      if (rtName.startsWith(rt1Chosen)){
+        document.getElementById("rt2").innerHTML += "<option value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
+      }
+    {% endfor%}    
+         
+}
+      
+function rt3Function(){
+    document.getElementById("rt3").innerHTML = "<option value='default'>Por defecto</option>"       
+    var rt2Chosen = document.forms["myForm"]["rt2"].value;  
+    {% for rt in rt3 %} 
+      var rtName = "{{rt.shortName}}" 
+      if (rtName.startsWith(rt2Chosen)){
+        document.getElementById("rt3").innerHTML += "<option value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
+      }
+    {% endfor%}    
+         
+}      
+      
+window.onload = function(){  
+  sectionFunction();
+}
+
+  </script>
+
+{% endblock form %}

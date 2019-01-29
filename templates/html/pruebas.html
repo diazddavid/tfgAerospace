@@ -1,0 +1,11 @@
+{% extends "html/base.html" %}
+
+{% block body %}
+
+   <h1 style="text-align:center">  {{ div | safe }} </h1>
+
+{% endblock body %}
+
+{% block extra %}
+    {{ script | safe }}
+{% endblock extra%}

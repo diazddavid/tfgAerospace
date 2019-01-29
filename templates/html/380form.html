@@ -2,36 +2,19 @@
 {% extends 'html/form.html' %}
 
 {% block form %}
-  
-  {% if mode == "Reparaciones" %}
-  <h1 id="titleH">F412 para A{{program.name}}</h1><br>
-  {% else %}      
-  <h1 id="titleH">Reparacion para A{{program.name}}</h1><br>        
-  {% endif %}    
-  
   {% if newID %}
     {% if error == "None" %}
-      <h2>Guardado con Número:{{myID}}</h2>
+      <h2>F412 Guardado con Número:{{myID}}</h2>
     {% else %}
       <h2>{{error}}</h2>
     {% endif %}
   {% endif %}
-  
-  {% if mode == "Accidentales"%}
-    {% if newID %}
-    <h2>Creada Reparacion numero: {{myID}}</h2>
-    {% endif %}             
-  {% endif %}
-  
-  {% if mode == "Reparaciones" %}
-  <form action="/380/nuevoF412" method="post" name="myForm" onsubmit="return validateForm()"></p>
-  {% else %}
-  <form action="/380/nuevaRep" method="post" name="myForm" onsubmit="return validateForm()"></p>
-  {% endif %}                                                                                        
+  <form action={% if mode == "Reparaciones" %}"/380/nuevoF412" {% else %}"/380/nuevaRep"{% endif %}
+          method="post" name="myForm" onsubmit="return validateForm()"></p>
     <div class="row">
       <div class="column">
-        <div>Seccion
-          <select name = "section" id="section">
+        <div>Seccion 
+          <select name = "section">
             <!-- <option value = "default">Por Defecto</option> -->
             {% for section in sectionList %}
             <option value = {{ section.name }}> A{{ section.name }}</option>
@@ -73,30 +56,36 @@
           <select name = "Defect">
             <option value = "default">Por Defecto</option>
             {% for defect in defectList %}
-            {% if defect.name != "En_Descripcion"%}
-              <option value = {{ defect.name }}> {{ defect.name }}</option>
-            {% endif %}                              
+            <option value = {{ defect.name }}> {{ defect.name }} </option>
             {% endfor %}
           </select> <br>
         </div>
-
+      
+        {% if mode == "Accidentales" %}
+        
+        <div>CAVT
+          <select name = "rt1">
+            {% for rt in rt1 %}
+            {% if rt.codigo != "Others" %}
+            <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
+            {% endif %}                          
+            {% endfor %}
+            <option value="Others"> Others</option> 
+          </select>
+        </div>
+        
+        {% endif %}
+        
       </div>
       <div class="column">
         {% if mode == "Accidentales" %}
         
-        <div>CVAT
-          <select name="rt1">
-            {% for rt in rt1 %}
-              <option value = "{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
-            {% endfor %}
-          </select>
-        </div>
-        
         <div>H.N.C.<br>
           <input type = "text" name = "hnc"><br>
         </div>
-        {% endif %}
         
+        {% endif %}
+      
         <div>Fecha<br>
           <input type = "text" name = "date" value = {{ date }} readonly><br>
         </div>
@@ -113,18 +102,15 @@
             {% endfor %}
           </select> <br>
         </div>
-
+        
         <div>Horas<br>
-        {% if mode == "Accidentales" %}
-        <input type = "number" name = "horas"></br></div>
-        {% else %}
-        <input type = "number" name = "numH"></br></div>
-        {% endif %}
+        <input type = "number" name = {% if mode == "Reparaciones" %}"numH"{% else %}"horas"{% endif %}></br></div>
         
         <div>Descripcion<br>
         <textarea id="textDescp" rows="5" cols="30"></textarea>
         <input type="text" hidden name = "Descp" id="descp"></br></div>
-
+        
+        
         <input id="submit" type = "submit" value = "Enviar">
       </div>
     </div>
@@ -179,18 +165,9 @@
     variablesDef[4] = document.forms["myForm"]["Defect"].value; 
     variablesDef[5] = document.forms["myForm"]["SGM"].value;
     variablesWhite[0] = document.forms["myForm"]["Ref"].value;
-                  
-    {% if mode == "Accidentales" %}                  
-    variablesWhite[1] = document.forms["myForm"]["horas"].value;
-    {% else %}
-    variablesWhite[1] = document.forms["myForm"]["numH"].value;
-    {% endif %}
-    
+    variablesWhite[1] = document.forms["myForm"]["{% if mode == "Reparaciones" %}numH{% else %}horas{% endif %}"].value;
     document.forms["myForm"]["Descp"].value = document.getElementById("textDescp").value;                 
     variablesWhite[2] = document.forms["myForm"]["Descp"].value;
-    {% if mode == "Reparaciones" %}
-    variablesWhite[3] = document.forms["myForm"]["hnc"].value;
-    {% endif %}                  
     for (i = 0; i < variablesWhite.length; i++) {
       if (variablesWhite[i] == "") {
           alert("No se puede enviar un formulario con campos en blanco");

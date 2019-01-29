@@ -11,9 +11,9 @@ from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 from django.template import Context
 
-from f412.models import *
+from f412.models import Reparacion, codCaus, Programa, ComponenteAPT5, avion, reasonTree, reasonTreeField, Pieza, tipoUsuario, modificaciones, Componente, myUser, PN, Area, Defecto, Designacion, Estado, SGM, F412, Seccion
 from f412.toString import *
-from f412.manageDB import getAvList, initEstadoDB, initSeccionDB, initProgramaDB, initTypeUser, initCodCaus, checkPlane, updateGraph
+from f412.manageDB import getAvList, initEstadoDB, initSeccionDB, initProgramaDB, initTypeUser, initCodCaus, sumPlaneRepF412, updateGraph#, checkPlane
 from f412.mails import *
 
 from django.contrib.auth import authenticate
@@ -22,8 +22,13 @@ from django.contrib.auth.views import logout
 import f412.manageDB as manageDB
 
 # import win32com.client as win32
+pareto380List = ["S_19", "S_19.1", "HTP", "LARGUERO", "COSTILLA", "MOVABLES", "TRAMPAS"]
+indList = ["Recanteado", "Reparaciones" , "Ultrasonidos"]
+monthDict = {"1":"Enero", "2":"Febrero", "3":"Marzo", "4":"Abril", "5":"Mayo", "6":"Junio",
+             "7":"Julio", "8":"Agosto", "9":"Septiembre", "10":"Octubre", "11":"Noviembre", "12":"Diciembre"}
 
-
+STATUS_LIST = Estado.objects.filter(name="Concedido") | Estado.objects.filter(name="Rechazado") | Estado.objects.filter(name="Validado") | Estado.objects.filter(name="Activo")
+F412_VALID = F412.objects.filter(Estado__name="Concedido") | F412.objects.filter(Estado__name="Rechazado") | F412.objects.filter(Estado__name="Validado") | F412.objects.filter(Estado__name="Activo")
 # Declaro constantes, con try except para evitar fallos en el caso de que no existan en la base de datos
 # si no existen y por lo tanto salta una excepcion los creamos, pues sabemos que estos están si o si
 try:
@@ -96,12 +101,6 @@ def returnError(request, message):
     myContext["errorMessage"] = message
     template = get_template("html/base.html")
     return HttpResponse(template.render(myContext))
-
-def toFloat(toConvert):
-    try:
-        return float(toConvert.replace(',','.'))
-    except:
-        return 0.0
     
 def totalH(f412List, typeH):
     toReturn = 0
@@ -125,22 +124,23 @@ def totalH(f412List, typeH):
 
 def getHours(myContext, request, F412List):
     for status in Estado.objects.all():
-        if status.name == "Activo":
-            statName = "act"
-        elif status.name == "Concedido":
-            statName = "gran"
-        elif status.name == "Rechazado":
-            statName = "reject"
-        else:
-            statName = "val"
-        for section in Seccion.objects.all():
-            if section.programa.name == "350":
-                sectName = "350" + section.name
+        if status.name != "Eliminado":
+            if status.name == "Activo":
+                statName = "act"
+            elif status.name == "Concedido":
+                statName = "gran"
+            elif status.name == "Rechazado":
+                statName = "reject"
             else:
-                sectName = section.name
-            myContext[statName + sectName] = F412List.filter(Estado = status).filter(seccion = section).count()
-            myContext[statName + sectName + "Horas"] = totalH(F412List.filter(Estado = status).filter(seccion = section), "")
-            myContext[statName + sectName + "HorasConcedidas"] = totalH(F412List.filter(Estado = status).filter(seccion = section), "con")
+                statName = "val"
+            for section in Seccion.objects.all():
+                if section.programa.name == "350":
+                    sectName = "350" + section.name
+                else:
+                    sectName = section.name
+                myContext[statName + sectName] = F412List.filter(Estado = status).filter(seccion = section).count()
+                myContext[statName + sectName + "Horas"] = totalH(F412List.filter(Estado = status).filter(seccion = section), "")
+                myContext[statName + sectName + "HorasConcedidas"] = totalH(F412List.filter(Estado = status).filter(seccion = section), "con")
 
     return myContext   
 
@@ -219,7 +219,7 @@ def home(request, aux):
             try:
                 minDate = parseDate(request.POST["fromDate"])
                 maxDate = parseDate(request.POST["toDate"])
-                F412List = F412.objects.filter(Fecha__lte=maxDate)
+                F412List = F412_VALID.filter(Fecha__lte=maxDate)
                 F412List = F412List.filter(Fecha__gte=minDate)
                 myContext["filtro"] = True
             except:
@@ -242,6 +242,27 @@ def home(request, aux):
         template = get_template("html/base.html")
         myContext['errorMessage'] = "Pagina no encontrada"
     return HttpResponse(template.render(myContext))
+
+def getAPT5CompList():
+    APT5CompList = []
+    
+    for compAPT5 in ComponenteAPT5.objects.all():
+        APT5CompList.append(compAPT5.componente)
+    
+    return APT5CompList    
+
+def getPNList():
+    PNList = []
+    
+    for parNumber in PN.objects.filter(programa = PROGRAMA_350):
+        try:
+            name = parNumber.Designacion.name + "." + parNumber.name
+            name = name.replace("\n","")
+            PNList.append(name)
+        except Designacion.DoesNotExist:
+            continue
+        
+    return PNList    
 
 # Funcion especifica para servir el formulario del 350
 @csrf_exempt
@@ -282,23 +303,9 @@ def serveForm350(request):
     
     if desvUser.count() == 0:
         desvUser = Defecto.objects.filter(seccion = SECTION_APT1 )
-    PNList = []
-    
-    for parNumber in PN.objects.filter(programa = PROGRAMA_350):
-        try:
-            name = parNumber.Designacion.name + "." + parNumber.name
-            name = name.replace("\n","")
-            PNList.append(name)
-        except Designacion.DoesNotExist:
-            continue
-    
-    APT5CompList = []
-    
-    for compAPT5 in ComponenteAPT5.objects.all():
-        APT5CompList.append(compAPT5.componente)
         
     myContext['compAPT5List'] = ComponenteAPT5.objects.all().order_by("name")
-    myContext['APT5CompList'] = APT5CompList
+    myContext['APT5CompList'] = getAPT5CompList()
     myContext['desvUser'] = desvUser
     myContext['sgmUser'] = SGM.objects.filter(seccion = reqUser.seccion.all())
     myContext['program'] = Programa.objects.get(name = "350")
@@ -309,7 +316,7 @@ def serveForm350(request):
     myContext['desvList'] = desvList
     myContext['date'] = dateToString(date.today())
     myContext['SGMList'] = SGMList
-    myContext['PNList'] = PNList
+    myContext['PNList'] = getPNList()
 
     return myContext
 
@@ -392,13 +399,18 @@ def getContextFormRep(request, program):
     if program == "350":
         myContext = serveForm350(request)
         rt1 = reasonTreeField.objects.filter(nivel = 1)        
-        myContext["rt2"] = reasonTreeField.objects.filter(nivel = 2) 
-        myContext["rt3"] = reasonTreeField.objects.filter(nivel = 3) 
+        rt2 = reasonTreeField.objects.filter(nivel = 2) 
+        myContext["rt2"] = rt2             
+        rt3 = reasonTreeField.objects.filter(nivel = 3) 
+        myContext["rt3"] = rt3    
     elif program == "380":
         myContext = serveForm380(request)
         rt1 = []
         for rt in reasonTree.objects.filter(program__name = "380" ):
-            rt1.append(rt.nivel1)
+            if rt.nivel1 in rt1:
+                continue
+            else:
+                rt1.append(rt.nivel1)
     myContext["rt1"] = rt1
     myContext["mode"] = "Accidentales"
     myContext["program380"] = True
@@ -454,7 +466,8 @@ def getRT(rt1, rt2, rt3, program):
         
         rt = reasonTree(nivel1 = rt1, nivel2 = rt2, nivel3 = rt3, shortName = name, program = program)
         rt.save()
-    
+    except reasonTree.MultipleObjectsReturned:
+        rt = reasonTree.objects.filter(nivel1__codigo = rt1).filter(nivel2__codigo = rt2).filter(nivel3__codigo = rt3)[0]
     return rt
     
 #Vista correspondiente a todos los F412, tanto para recibir el formulario como para enviarlo
@@ -489,7 +502,6 @@ def newRep(request, program):
         ref = request.POST["Ref"]
         horas = request.POST["horas"]
         descp = request.POST["Descp"]
-        hnc = request.POST["hnc"]
         
         sectionObj = Seccion.objects.get(name = section)
         compObj = Componente.objects.get(name = comp)
@@ -504,13 +516,11 @@ def newRep(request, program):
             myID = 1
         else:
             myID = Reparacion.objects.filter(seccion = sectionObj).latest('id').myID + 1
-        
-        print(myID)                   
+                        
         
         myContext['newID'] = True
         myContext["myID"] = myID                 
         
-        print(section)
         if section == "380":
             designa = request.POST["Designation"]
             nAV = 1
@@ -524,15 +534,11 @@ def newRep(request, program):
                              reasonTree = rtObj, Usuario = currentUser, LastChangeUser = currentUser, 
                              SGM = sgmObj, Referencia = ref, horas = horas, hnc = hnc, 
                              nOp = nOp, horasLeadTime = hLT, Descripcion = descp, 
-                             nAV = nAV, añadidoAv = True, codigoCausa = codCausa, myID = myID)
+                             nAV = nAV, codigoCausa = codCausa, myID = myID)
             rep.save()
             
         else:
             nAV = request.POST["nAV"]
-            try:
-                plane = avion.objects.get(numero = nAV)
-            except avion.DoesNotExist:
-                plane = avion(numero = nAV)
             nOp = request.POST["nOp"]
             hLT = request.POST["numH"]
             pieza = request.POST["Pieza"]
@@ -540,10 +546,6 @@ def newRep(request, program):
             rt2 = request.POST["rt2"]
             rt3 = request.POST["rt3"]
             
-            plane.hRecRL8 = manageDB.sumHour(plane.hRecRL8, horas)
-            plane.hLTRL8 = manageDB.sumHour(plane.hLTRL8, hLT)    
-            
-            plane.save()
             
             rtObj = getRT(rt1, rt2, rt3, programObj)
             rep = Reparacion(programa = programObj, seccion = sectionObj, Componente = compObj,
@@ -551,10 +553,21 @@ def newRep(request, program):
                              Fecha = date.today(), reasonTree = rtObj, Usuario = currentUser,
                              LastChangeUser = currentUser, SGM = sgmObj, Pieza = piezaObj, myID = myID, 
                              Referencia = ref, horas = horas, nOp = nOp, horasLeadTime = hLT,
-                             Descripcion = descp, nAV = nAV, añadidoAv = True, codigoCausa = codCausa)
+                             Descripcion = descp, nAV = nAV, codigoCausa = codCausa)
             rep.save()
             
-        
+            if len(nAV) <= 4:
+                try:
+                    plane = avion.objects.get(numero = nAV)
+                except avion.DoesNotExist:
+                    if "V9" in rep.Pieza.name :
+                        v1000 = False
+                    else:
+                        v1000 = True
+                    plane = avion(numero = nAV, v1000 = v1000)
+                    plane.save()
+                    
+                sumPlaneRepF412(rep, plane, False)
         
         return HttpResponse(template.render(myContext))
         
@@ -607,7 +620,7 @@ def newF412(request, program):
             SGMf412 = SGM.objects.get(number = request.POST["SGM"])
             #Por si hemos reseteado base de datos y es el primer f412
             try:
-                myID = F412.objects.filter(seccion =section).latest('id').myID + 1
+                myID = F412_VALID.filter(seccion =section).latest('id').myID + 1
             except F412.DoesNotExist:
                 myID = 1
             F412toSave = F412(programa = program, Componente = component, PN = parNumber, Area = area,
@@ -659,29 +672,15 @@ def returnTable(f412List, request, program, isProgram, section, typePage, status
     template = get_template("html/tabla.html")
     return template, myContext
 
-#Sirve en caso de que se quiera habilitar la aceptación multiple de usuarios
-#@csrf_exempt
-#def multipleAcept(request, section):
-#    sectionObject = Seccion.objects.get(name = section)
-#    for f412 in F412.objects.filter(seccion = sectionObject):
-#        strToSearch = "accept" + str(f412.myID)
-#        if strToSearch in request.POST:
-#            changeStatus(f412, Estado.objects.get(name = "Aceptado"), "", request)
-#        strToSearch = "preAccept" + str(f412.myID)
-#        if strToSearch in request.POST:
-#            changeStatus(f412, Estado.objects.get(name = "Pre-Aceptado"), "", request)
-#    return HttpResponseRedirect(request.POST["next"])
-
-#Preparacion servir tabla
 @csrf_exempt
 def serveTableStatus(request, section, status):
-    F412List = F412.objects.all()
+    F412List = F412_VALID
     minDate = ""
     maxDate = ""
     if request.method == "POST":
         minDate = parseDate(request.POST["fromDate"])
         maxDate = parseDate(request.POST["toDate"])
-        F412List = F412.objects.filter(Fecha__lte=maxDate)
+        F412List = F412_VALID.filter(Fecha__lte=maxDate)
         F412List = F412List.filter(Fecha__gte=minDate)
         minDate = dateToString(minDate)
         maxDate = dateToString(maxDate)
@@ -722,7 +721,7 @@ def programF412(request,program):
     if request.method == "POST":
         minDate = parseDate(request.POST["fromDate"])
         maxDate = parseDate(request.POST["toDate"])
-        F412List = F412.objects.filter(Fecha__lte=maxDate)
+        F412List = F412_VALID.filter(Fecha__lte=maxDate)
         F412List = F412List.filter(Fecha__gte=minDate)
         minDate = dateToString(minDate)
         maxDate = dateToString(maxDate)
@@ -731,9 +730,9 @@ def programF412(request,program):
         return returnError(request, "No tienes permisos para acceder")
     program = Programa.objects.get(name = program)
     if user.typeUser.name == "TL":
-        f412List = F412.objects.filter(seccion = user.seccion.all()).order_by('-myID').order_by('-Fecha')
+        f412List = F412_VALID.filter(seccion = user.seccion.all()).order_by('-myID').order_by('-Fecha')
     else:
-        f412List = F412.objects.filter(programa = program).order_by('-myID').order_by('-Fecha')
+        f412List = F412_VALID.filter(programa = program).order_by('-myID').order_by('-Fecha')
     template, myContext = returnTable(f412List, request, program.name, True, "", "", "", minDate, maxDate)    
     return HttpResponse(template.render(myContext))
 
@@ -763,7 +762,7 @@ def serveTableRep(request, program):
     if request.method == "POST":
         minDate = parseDate(request.POST["fromDate"])
         maxDate = parseDate(request.POST["toDate"])
-        F412List = F412.objects.filter(Fecha__lte=maxDate)
+        F412List = F412_VALID.filter(Fecha__lte=maxDate)
         F412List = F412List.filter(Fecha__gte=minDate)
         minDate = dateToString(minDate)
         maxDate = dateToString(maxDate)
@@ -784,14 +783,14 @@ def programSectionF412(request,section):
     if request.method == "POST":
         minDate = parseDate(request.POST["fromDate"])
         maxDate = parseDate(request.POST["toDate"])
-        F412List = F412.objects.filter(Fecha__lte=maxDate)
+        F412List = F412_VALID.filter(Fecha__lte=maxDate)
         F412List = F412List.filter(Fecha__gte=minDate)
         minDate = dateToString(minDate)
         maxDate = dateToString(maxDate)
     user = myUser.objects.get(user = request.user)
     if user.typeUser.name == "Subcontrata" or user.typeUser.name == "Operario":
         return returnError(request, "No tienes permisos para acceder")
-    f412List = F412.objects.filter(seccion__name = section).order_by('-myID').order_by('-Fecha')
+    f412List = F412_VALID.filter(seccion__name = section).order_by('-myID').order_by('-Fecha')
     if user.typeUser.name == "TL":
         f412List = f412List.filter(seccion = user.seccion.all())
     template, myContext = returnTable(f412List, request, "350", True, section, "", "",minDate, maxDate)    
@@ -856,6 +855,41 @@ def saveChange(f412Mod, newStatus, action, request):
         
     return
 
+def getHour(f412Rep, typeToAdd):
+    if typeToAdd == "f412":
+        return f412Rep.horasRecurrentes, f412Rep.horas
+    else:
+        return f412Rep.horas, f412Rep.horasLeadTime
+
+def updatePlane(f412Rep, typeToAdd):
+    
+    num = f412Rep.nAV
+    if "V9" in f412Rep.Pieza.name:
+        v1000 = False
+    else:
+        v1000 = True
+        
+    try:
+        plane = avion.objects.get(numero = num)
+    except avion.DoesNotExist:
+        plane = avion(numero = num, v1000 = v1000)
+        plane.save()
+    if typeToAdd == "f412":
+        plane.f412List.add(f412Rep)
+    else:
+        plane.repList.add(f412Rep)
+    
+    if f412Rep.codigoCausa.name == "ALB":
+        plane.hRecALB, plane.hLTALB = getHour(f412Rep, typeToAdd)
+    elif f412Rep.codigoCausa.name == "V10":
+        plane.hRecV10, plane.hLTV10 = getHour(f412Rep, typeToAdd)
+    elif f412Rep.codigoCausa.name == "RL8":
+        plane.hRecRL8, plane.hLTRL8 = getHour(f412Rep, typeToAdd)
+    else:
+        plane.hRecM60, plane.hLTM60 = getHour(f412Rep, typeToAdd)
+    plane.save()
+    return
+
 def changeStatus(f412, newStatus, action, request):
     saveChange(f412, newStatus, action, request)
     currentUser = myUser.objects.get(user = request.user)
@@ -863,9 +897,7 @@ def changeStatus(f412, newStatus, action, request):
     f412.Estado = newStatus
     try:
         newStatus = Estado.objects.get(name = request.POST["newStatusForm"])
-        print(request.POST["codCausSelect"])
         f412.codigoCausa = codCaus.objects.get(name = request.POST["codCausSelect"])
-        checkPlane(f412)
     except:
         print("NO COD CAUS")
     try:
@@ -889,6 +921,7 @@ def changeStatus(f412, newStatus, action, request):
             rt = getReasonTree(request, f412)
             f412.reasonTree = rt
             f412.rtMod = True
+            print(action)
             if action != "":
                 f412.descripcionAcortada = rt.shortName + action
             else:
@@ -898,6 +931,8 @@ def changeStatus(f412, newStatus, action, request):
     else:
         f412.accion = action 
     f412.save()
+    if f412.programa != PROGRAMA_380 and f412.seccion.name != "APT5":    
+        updatePlane(f412, "f412")
     if newStatus.name == "Rechazado":
         sendMail("f412", f412.id, currentUser.email)
     return
@@ -905,7 +940,7 @@ def changeStatus(f412, newStatus, action, request):
 #Vista para cada F412 donde se muestra informacion más detallada que en las tablas
 @csrf_exempt
 def f412Page(request, sectionName, myID):
-    f412 = F412.objects.filter(seccion = Seccion.objects.get(name = sectionName)).get(myID = myID)
+    f412 = F412_VALID.filter(seccion = Seccion.objects.get(name = sectionName)).get(myID = myID)
     if f412.seccion.name == "380":
         a380 = True
     else:
@@ -916,7 +951,7 @@ def f412Page(request, sectionName, myID):
         changeStatus(f412, newStatus, action, request)
     myContext = getBasicContext(request)
     myContext['f412'] = f412
-    myContext['statusList'] = Estado.objects.all()
+    myContext['statusList'] = STATUS_LIST
     myContext['a380'] = a380
     myContext['date'] = dateToString(f412.Fecha)
     myContext['week'] = f412.Fecha.isocalendar()[1]
@@ -932,13 +967,12 @@ def repPage(request, sectionName, myID):
         a380 = True
     else:
         a380 = False
-    myContext = getBasicContext(request)
+    myContext = getBasicContextRep(request)
     myContext['f412'] = rep
     myContext['statusList'] = Estado.objects.all()
     myContext['a380'] = a380
     myContext['date'] = dateToString(rep.Fecha)
     myContext['week'] = rep.Fecha.isocalendar()[1]
-    myContext["mode"] = "Accidentales"
     template = get_template("html/f412A" + rep.programa.name + ".html")
     return HttpResponse(template.render(myContext))
 
@@ -948,11 +982,11 @@ def f412Hist(request, f412ID):
     myContext = getBasicContext(request)
     try:
         f412 = F412.objects.get(id=f412ID)
-        myContext["f412"] = f412
         myContext["histMod"] = modificaciones.objects.filter(f412 = f412)
+        myContext["f412"] = f412
     except:
         print("F412 no encontrado")
-        myContext["MSGerror"] = "El f412 elegido no tiene historial"
+    myContext["MSGerror"] = "El f412 elegido no tiene historial"
     return HttpResponse(template.render(myContext))   
 
 def f412Reset(request, f412ID):
@@ -978,10 +1012,9 @@ def f412Reset(request, f412ID):
 
 @csrf_exempt
 def f412CambiarRT(request, f412ID):
-    print(f412ID)
-    if True:
+    try:
         f412 = F412.objects.get(id=f412ID)
-    else:
+    except F412.DoesNotExist:
         print("F412 no encontrado")
         return HttpResponseRedirect("/")
     myContext = getBasicContext(request)
@@ -1002,6 +1035,40 @@ def f412CambiarRT(request, f412ID):
     
     return HttpResponse(template.render(myContext))
 
+@csrf_exempt
+def f412Edit(request, f412ID):
+
+    myContext = getBasicContext(request)
+    try:
+        f412 = F412.objects.get(id=f412ID)
+    except F412.DoesNotExist:
+        myContext["someError"] = True
+        myContext["errorMessage"] = "F412 No encontrado"                 
+        template = get_template("hmtl/f412A350.html")
+        return HttpResponse(template.render(myContext))
+    
+    myContext["currentF412"] = f412
+    myContext["edit"] = True
+    myContext["program"] = f412.programa
+    myContext["componentList"] = Componente.objects.filter(programa = f412.programa)
+    myContext["sectionList"] = Seccion.objects.filter(programa = f412.programa)
+    
+    if f412.programa.name == "350":
+        template = get_template("html/f412Edit350.html")
+        myContext["piezaList"] = Pieza.objects.all()
+        myContext["APT5CompList"] = getAPT5CompList() 
+        myContext['rt1'] = reasonTreeField.objects.filter(nivel = 1)
+        myContext['rt2F412'] = reasonTreeField.objects.filter(superior = f412.reasonTree.nivel1)
+        myContext['rt2'] = reasonTreeField.objects.filter(nivel = 2)
+        myContext['rt3F412'] = reasonTreeField.objects.filter(superior = f412.reasonTree.nivel2)
+        myContext['rt3'] = reasonTreeField.objects.filter(nivel = 3) 
+        myContext['PNList'] = getPNList()
+    else:
+        template = get_template("html/f412Edit380.html")
+        
+    
+    return HttpResponse(template.render(myContext)) 
+
 #Funcion para cerrar sesion
 @csrf_exempt
 def logOut(request):
@@ -1017,10 +1084,10 @@ def simple(request):
         av1 = request.POST["av1"]
         av2 = request.POST["av2"]
         typeGraph = request.POST["typeGraph"]
-    if typeGraph == "TL":
-        updateGraph(request, av1, av2, "TL")
-    else:
-        updateGraph(request, av1, av2, "") 
+        if typeGraph == "TL":
+            updateGraph(request, av1, av2, "TL")
+        else:
+            updateGraph(request, av1, av2, "") 
     planeList = getAvList(av1, av2)
     wholeAvList = avion.objects.all().order_by("numero")
     
@@ -1039,9 +1106,59 @@ def simple(request):
         else:
             myContext["av1"] = avion.objects.get(numero = av1)
             myContext["av2"] = avion.objects.get(numero = av2)
-        
-        
    
     return HttpResponse(template.render(myContext))
 
+def getCurrentMonthDict():
+    myMonthDict = {}
+    for key in monthDict.keys():
+        if int(key) <= date.today().month:
+            myMonthDict[key] = monthDict[key]
+    return myMonthDict
 
+@csrf_exempt
+def serveParetos(request, typePar, mode):
+    template = get_template("html/paretos.html")
+    myContext = getBasicContext(request)
+    month = datetime.datetime.now().month
+                                 
+    if request.method == "POST":
+        try:
+            month = request.POST["month"]
+        except:
+            print("Mes no encontrado")
+            
+    if "/lay" in typePar:
+        typeGraph = "Lay"
+    elif "/ind" in typePar:
+        typeGraph = "Ind"
+    else:
+        typeGraph = ""
+    
+    typePar = "/paretos" + typePar    
+    myContext["typePar"] = typeGraph
+    myContext["path"] = typePar
+    myContext["monthDict"] = getCurrentMonthDict()
+    myContext["mes"] = month
+    myContext["mode"] = mode
+    return HttpResponse(template.render(myContext))
+
+@csrf_exempt
+def paretos(request, typePar):
+    return serveParetos(request, typePar, "Reparaciones")
+    
+@csrf_exempt
+def repParetos(request, typePar):
+    return serveParetos(request, typePar, "Accidentales")
+
+def exportParetos(request, month):
+    template = get_template("html/tablaParetos.html")
+    myContext = getBasicContext(request)
+    myContext["paretoList"] = pareto380List
+    myContext["paretoInd"] = indList
+    myContext["month"] = datetime.datetime.now().month
+    myContext["mes"] = datetime.datetime.now().month
+    myContext["year"] = datetime.datetime.now().year
+    myContext["isLay"] = True
+    myContext["notIsLay"] = False
+    return HttpResponse(template.render(myContext))

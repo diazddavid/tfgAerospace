@@ -4,6 +4,10 @@ import django.contrib.auth.models as modelsAuth
 class Programa(models.Model):
     name = models.CharField(max_length = 128)
 
+class costeHora(models.Model):
+    year = models.IntegerField(default = 1)
+    precio = models.FloatField(default = 1.0)
+    
 class Seccion(models.Model):
     name = models.CharField(max_length = 128)
     programa = models.ForeignKey(Programa, default = 1)
@@ -86,17 +90,6 @@ class reasonTree(models.Model):
 class codCaus(models.Model):
     name = models.CharField(max_length = 64)
 
-class avion(models.Model):
-    numero = models.IntegerField(default = 1)
-    hRecALB = models.CharField(default = "", max_length = 200)
-    hRecV10 = models.CharField(default = "", max_length = 200)
-    hRecRL8 = models.CharField(default = "", max_length = 200)
-    hRecM60 = models.CharField(default = "", max_length = 200)
-    hLTALB = models.CharField(default = "", max_length = 200)
-    hLTV10 = models.CharField(default = "", max_length = 200)
-    hLTRL8 = models.CharField(default = "", max_length = 200)
-    hLTM60 = models.CharField(default = "", max_length = 200)
-    v1000 = models.BooleanField(default = False)
 
 class Reparacion(models.Model):
     programa = models.ForeignKey(Programa, default = 1)
@@ -123,8 +116,6 @@ class Reparacion(models.Model):
     Descripcion = models.CharField(max_length = 1024, default = "")
     
     nAV = models.IntegerField(default = 1)
-    avion = models.ForeignKey(avion, default = 1)   
-    añadidoAv = models.BooleanField(default = False)
     
     codigoCausa = models.ForeignKey(codCaus, default = 1)
 
@@ -150,26 +141,38 @@ class F412(models.Model):
 #    Horas son Horas por Operario, de LT
     horas = models.CharField(max_length = 64, default = "")
 #    Horas antiguas por Operario, de LT
-    horasAntiguas = models.CharField(max_length = 64, default = "")
-    nOp = models.CharField(max_length = 64, default = "")
+    horasAntiguas = models.CharField(max_length = 64, default = "", null = True)
+    nOp = models.CharField(max_length = 64, default = "", null = True)
 #    Las que hay que pagar
-    horasRecurrentes = models.CharField(max_length = 64, default = "")
-    horasAntRec = models.CharField(max_length = 64, default = "")
+    horasRecurrentes = models.CharField(max_length = 64, default = "", null = True)
+    horasAntRec = models.CharField(max_length = 64, default = "", null = True)
     
     Descripcion = models.CharField(max_length = 1024, default = "")
-    accion = models.CharField(max_length = 512, default = "")
+    accion = models.CharField(max_length = 512, default = "", null = True)
     
-    nAV = models.IntegerField(default = 1)
-    avion = models.ForeignKey(avion, default = 1)   
-    añadidoAv = models.BooleanField(default = False)
+    nAV = models.IntegerField(default = 1, null = True)
     
-    descripcionAcortada = models.CharField(max_length = 40, default = "")
-    reasonTree = models.ForeignKey(reasonTree, default = 1)
+    descripcionAcortada = models.CharField(max_length = 40, default = "", null = True)
+    reasonTree = models.ForeignKey(reasonTree, default = 1, null = True)
     rtMod = models.BooleanField(default = False)
-    operacion = models.CharField(max_length = 40, default = 1)
-    codigoCausa = models.ForeignKey(codCaus, default = 1)
+    operacion = models.CharField(max_length = 40, default = 1, null = True)
+    codigoCausa = models.ForeignKey(codCaus, default = 1, null = True)
 
     myID = models.IntegerField(default = 1)
+    
+class avion(models.Model):
+    numero = models.IntegerField(default = 1)
+    hRecALB = models.CharField(default = "", max_length = 200)
+    hRecV10 = models.CharField(default = "", max_length = 200)
+    hRecRL8 = models.CharField(default = "", max_length = 200)
+    hRecM60 = models.CharField(default = "", max_length = 200)
+    hLTALB = models.CharField(default = "", max_length = 200)
+    hLTV10 = models.CharField(default = "", max_length = 200)
+    hLTRL8 = models.CharField(default = "", max_length = 200)
+    hLTM60 = models.CharField(default = "", max_length = 200)
+    v1000 = models.BooleanField(default = False)
+    f412List = models.ManyToManyField(F412, default = 1)
+    repList = models.ManyToManyField(Reparacion, default = 1)
     
 class modificaciones(models.Model):
     numero = models.IntegerField(default = 1)
@@ -179,3 +182,37 @@ class modificaciones(models.Model):
     estadoViejo = models.ForeignKey(Estado, related_name = 'estadoViejo', default = 1)
     estadoNuevo = models.ForeignKey(Estado, related_name = 'estadoNuevo', default = 1)
     comentarios = models.CharField(max_length = 256, default = "")
+    
+class f412Ant(models.Model):
+    Componente = models.ForeignKey(Componente, default = 1)
+    Defecto = models.ForeignKey(Defecto, default = 1)
+    Area = models.ForeignKey(Area, default = 1)
+    Fecha = models.DateField()
+    horas = models.CharField(max_length = 128, default = "")
+    myID = models.IntegerField(default = 1)    
+    
+class paretoDefecto(models.Model):
+    defecto = models.ForeignKey(Defecto, default = 1)
+    accion = models.CharField(max_length = 1024, default = "")
+    ppsCod = models.CharField(max_length = 256, default = "")
+    fechaApertura = models.DateField(null = True)
+    fechaCierre = models.DateField(null = True)
+    area = models.CharField(max_length = 256, default = "")
+    ahorro = models.CharField(max_length = 256, default = "")
+    isPPS = models.BooleanField(default = False)
+    modificadaFechaAp = models.BooleanField(default = False)
+    modificadaFechaCie = models.BooleanField(default = False)
+    number = models.IntegerField(default = 1)
+    
+class paretoTabla(models.Model):
+    isLay = models.BooleanField(default = False)
+#    topDefc = models.ManyToManyField(paretoDefecto, related_name='topList', through='OrderPareto')
+    topDefc = models.ManyToManyField(paretoDefecto)
+    year = models.IntegerField(default = 2018)
+    mes = models.IntegerField(default = 1)
+    pareto = models.CharField(default = "", max_length = 128)
+    
+#class OrderPareto(models.Model):
+#    number = models.IntegerField(default = 1)
+#    parDefecto = models.ForeignKey(paretoDefecto, related_name = 'pareto1', default = 1)
+#    tabla = models.ForeignKey(paretoTabla, default = 1)

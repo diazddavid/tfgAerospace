@@ -28,7 +28,6 @@ html[xmlns] .clear{display:block;}
 a{outline:none; text-decoration:none;}
 
 .fl_left, .imgl{float:left;}
-.fl_center, .imgl{float:center;}
 .fl_right, .imgr{float:right;}
 
 img{margin:0; padding:0; border:none;}

@@ -4,15 +4,15 @@ import xlsxwriter
 
 from django.views.decorators.csrf import csrf_exempt
 
-from f412.models import *
-
 from django.http import HttpResponse, HttpResponseRedirect
 
 import f412.toString as toString
+from f412.toString import *
+from f412.paretos import *
+from f412.models import *
 
 import datetime
 from datetime import date
-from f412.toString import *
 
 from django.template import Context, loader
 from django.template.loader import get_template
@@ -31,6 +31,9 @@ from scipy import stats
 import io
 from io import *
 
+F412_VALID = F412.objects.filter(Estado__name="Concedido") | F412.objects.filter(Estado__name="Rechazado") | F412.objects.filter(Estado__name="Validado") | F412.objects.filter(Estado__name="Activo")
+
+#Inicializar codigos causa, solo por si en algún momento se borran de la base de datos
 @csrf_exempt
 def initCodCaus():
     try:
@@ -67,6 +70,7 @@ def initProgramaDB():
     p350.save()
 
     return
+
 #Para meter en bd las secciones 380 y APT1 APT2... en caso de que no estén por cualquier motivo
 @csrf_exempt
 def initSeccionDB():
@@ -94,6 +98,7 @@ def initSeccionDB():
 
     return
 
+#Inicializar tipos de usuarios
 @csrf_exempt
 def initTypeUser():
    ME_USER = tipoUsuario(name = "ME")
@@ -162,7 +167,9 @@ def updateComponent(df, program):
                 componente = Componente(name = name, alias = alias, programa = program)
                 componente.save()
         except IndexError:
-            return
+            break        
+    return
+
 
 #funcion para de datafrem obtener las secciones grupo maquina
 @csrf_exempt
@@ -208,16 +215,26 @@ def updateDefect(df, section):
             else:
                 alias = df.iat[i,1]
             if pd.isnull(name):
-                return
+                break
             try:
                 dft = Defecto.objects.get(name=name)
             except Defecto.DoesNotExist:
                 dft = Defecto(name = name)
-                dft.save()
+            dft.alias = alias
+            dft.save()
             dft.seccion.add(section)
         except IndexError:
-            return
+            break
+    
+    for dfct in Defecto.objects.filter(seccion = section):
+        if ( dfct.name in toList(df) )== False:
+            if F412.objects.filter(Defecto = dfct).count() == 0 and f412Ant.objects.filter(Defecto = dfct).count() == 0:
+                print("Borrado " + dfct.name)
+                dfct.delete()
 
+    return
+
+#Para actualizar las aereas desde una hoja excel(df) asignandolas a una seccion
 @csrf_exempt
 def updateArea(df, section):
     for i in range(0,200):
@@ -239,7 +256,6 @@ def updateArea(df, section):
 def update380():
     file = 'xls\\380.xlsx'
     xl = pd.ExcelFile(file)
-
     #Cargar variables comprobando que no hay errores
     try:
         PROGRAMA_380 = Programa.objects.get(name = "380")
@@ -296,11 +312,13 @@ def update380():
 
     return "HECHO"
 
+#Limpiar los PN de un componente, por si cambian
 def resetCompObject():
     for comp in ComponenteAPT5.objects.all():
         comp.parNumber.clear()
         comp.save()
 
+#Actualizar los componentes del APT5, están en un excel aparte, por eso se hace aqui
 @csrf_exempt
 def updateCompAPT5(df):
     resetCompObject()
@@ -319,8 +337,7 @@ def updateCompAPT5(df):
             compAPT5 = ComponenteAPT5(name = CompName, componente = Componente.objects.get(name = CompName))
         compAPT5.save()
 #        compList = ["LAMINADO_NUT_PLATES_OPP_&_NACA","ENC/COR_ATL_NACA_&_OPP_RH","ENC/COR_ATL_NACA_&_OPP_LH","KIT_FV_GASKETS_NACA_&_OPP"]
-    
-        
+
         pieza = "V900V1000"
         if pd.isnull(PNname) == False:  
             PNname = PNname.replace("\n","")
@@ -450,6 +467,7 @@ def update350():
                     break
     return "HECHO"
 
+#Crea el objeto RT a partir de nombre, codigo, nivel y el rt del nivel superior
 @csrf_exempt
 def createRt(name, code, level, superior):   
     if level == 1:
@@ -466,6 +484,7 @@ def createRt(name, code, level, superior):
         rt.save()
     return rt    
    
+#para copiar los RT entre mismos lvl, dado que el lvl3 es comun para varios rt de lvl2    
 @csrf_exempt
 def copyToEquals(rt1, rtRef):
     for rt in reasonTreeField.objects.filter(superior = rt1):
@@ -474,7 +493,8 @@ def copyToEquals(rt1, rtRef):
                 reasonTreeField.objects.filter(superior = rt).get(codigo = rt3.codigo)
             except reasonTreeField.DoesNotExist:
                 createRt(rt3.nombre, rt3.codigo, 3, rt)
-     
+
+#Actualizar desde el archivo     
 @csrf_exempt
 def updateRsnTree():
     file = "xls\\reasonTree.xlsx"
@@ -505,7 +525,7 @@ def updateRsnTree():
                     createRt(name3, cod3, 3, rtLvl2) 
         copyToEquals(rt1, first)                
     except IndexError:
-        print("Acabado")
+        indexError = True
         
     df = xl.parse("380CVAT")
     try:
@@ -519,10 +539,11 @@ def updateRsnTree():
                rt = reasonTree(nivel1 = rt1, nivel2 = rt1, nivel3 = rt1, shortName = shortName, program = Programa.objects.get(name = "380"))
                rt.save()
     except IndexError:
-        print("Acabado")                
+        indexError = True               
                 
     return "Not Error"
 
+#Para quitar comas de las lineas de los csv
 def parseCSV(typeToParse, strToParse):
     toReturn = []
     strToParse = str(strToParse)
@@ -550,6 +571,7 @@ def parseCSV(typeToParse, strToParse):
         index = strToParse.find(',')
     return toReturn
 
+#Crear usuario desde csv
 @csrf_exempt
 def createMyUser(name, email,passwd, fullName, userAuth, typeUserObject, admin, NG, programList, sgmList, sectionList):
     if myUser.objects.filter(user=userAuth).count() == 0:
@@ -574,6 +596,7 @@ def createMyUser(name, email,passwd, fullName, userAuth, typeUserObject, admin, 
 #        print("Ya existe el usuario " + name + ", Ignorado" )
     return "Acabado"
 
+#actualizar usuarios desde archivo csv
 @csrf_exempt
 def updateUserDB():
     file = "xls\\usuarios.csv"
@@ -606,84 +629,117 @@ def updateUserDB():
                 createMyUser(name, email,passwd, fullName, userAuth, typeUserObject, admin, NG, programList, sgmList, sectionList)
 #                print("Ya existe el usuario " + name + ", Ignorado" )
     except IndexError:
-        print("Acabado")
+        indexError = True
     return "Acabado"
 
+#Suma las horas en string y las devuelve en string
 def sumHour(current, toAdd):
     if current == "":
         current = "0"
     try:
         return str(float(current.replace(',','.')) + float(toAdd.replace(',','.')))
     except:
-        return 0.0
+        return "0.0"
 
-@csrf_exempt
-def updateHourPlane(f412, plane):
-    if f412.codigoCausa.name == "RL8":
-        plane.hRecRL8 = sumHour(plane.hRecRL8, f412.horasRecurrentes)
-        plane.hLTRL8 = sumHour(plane.hLTRL8, f412.horas)
-    elif f412.codigoCausa.name == "V10":
-        plane.hRecV10 = sumHour(plane.hRecV10, f412.horasRecurrentes)
-        plane.hLTV10 = sumHour(plane.hLTV10, f412.horas)
-    elif f412.codigoCausa.name == "M60":
-        plane.hRecM60 = sumHour(plane.hRecM60, f412.horasRecurrentes)
-        plane.hLTM60 = sumHour(plane.hLTM60, f412.horas)
-    elif f412.codigoCausa.name == "ALB":
-        plane.hRecALB = sumHour(plane.hRecALB, f412.horasRecurrentes)
-        plane.hLTALB = sumHour(plane.hLTALB, f412.horas)
-    f412.añadidoAv = True
-    f412.save()
-    return "Actualizado"
-
-@csrf_exempt
-def checkPlane(f412):
-    try:
-        plane = avion.objects.get(numero = f412.nAV)
-    except avion.DoesNotExist:
-        plane = avion(numero = f412.nAV)    
-    plane.save()
-    updateHourPlane(f412, plane)
-    plane.save()
-    
-    return plane
-
-@csrf_exempt
-def updatePlane():
-    for f412 in F412.objects.filter(añadidoAv = False):
-        if f412.programa.name == "350" and (f412.Estado.name == "Concedido" or f412.Estado.name == "Validado"):
-            plane = checkPlane(f412)
-            f412.avion = plane
+#Para cambiar el error de agregar en descripcion como posible defecto.
+#Ya no tiene sentido pero se deja por si acaso
+def changeDescpTBD380():
+    TBDdefc = Defecto.objects.filter(seccion__name = "380").get(name = "TBD")
+    for f412 in F412_VALID.filter(programa__name = "380"):
+        if f412.Defecto.name == "En_Descripcion":
+            f412.Defecto = TBDdefc
             f412.save()
-    return "Acabado"
+    for f412 in f412Ant.objects.all():
+        f412.Defecto = TBDdefc
+        if f412.Defecto.name == "En_Descripcion":
+            f412.Defecto = TBDdefc
+            f412.save()
+    return ""
 
-@csrf_exempt
-def updatePlaneModel():
-    for f412 in F412.objects.filter(programa__name = "350"):
+#Añade las horasa cada avion desde el f412        
+def sumPlaneRepF412(f412Rep, plane, isF412):
+    if isF412:
+        hour = f412Rep.horasRecurrentes
+        hourLT = f412Rep.horas
+        plane.f412List.add(f412Rep)
+    else:
+        hour = f412Rep.horas
+        hourLT = f412Rep.horasLeadTime
+        plane.repList.add(f412Rep)
+    if f412Rep.codigoCausa.name == "M60":
+        plane.hRecM60 = hour
+        plane.hLTM60 = hourLT
+    elif f412Rep.codigoCausa.name == "RL8":
+        plane.hRecRL8 = hour
+        plane.hLTRL8 = hourLT
+    elif f412Rep.codigoCausa.name == "ALB":
+        plane.hRecALB = hour
+        plane.hLTALB = hourLT
+    elif f412Rep.codigoCausa.name == "V10":  
+        plane.hRecV10 = hour
+        plane.hLTV10 = hourLT 
+    plane.save()
+    return ""
+
+#Actualiza un avion
+def updatePlane():
+    f412List = F412.objects.filter(programa__name = "")
+    repList = Reparacion.objects.filter(programa__name = "")
+    for i in range(1,5):
+        aptName = "APT" + str(i)
+        repList = repList | Reparacion.objects.filter(seccion__name = aptName)
+        f412List = f412List | F412_VALID.filter(seccion__name = aptName)
+    for f412 in f412List:
         try:
             plane = avion.objects.get(numero = f412.nAV)
-            if "V1000" in f412.Pieza.name:
-                plane.v1000 = True
-                plane.save()
+            if f412 in plane.f412List.all():
+                continue
+            else:
+                sumPlaneRepF412(f412, plane, True)
         except:
-            print("No encontrado" + str(f412.nAV))
-    return "Acabado"
+            if "V9" in f412.Pieza.name :
+                v1000 = False
+            else:
+                v1000 = True
+            plane = avion(numero = f412.nAV, v1000 = v1000)    
+            plane.save()
+            sumPlaneRepF412(f412, plane, True)
+    for rep in repList:            
+        try:
+            plane = avion.objects.get(numero = rep.nAV)
+            if rep in plane.repList.all():
+                continue
+            else:
+                sumPlaneRepF412(rep, plane, False)
+        except:
+            if "V9" in rep.Pieza.name :
+                v1000 = False
+            else:
+                v1000 = True
+            plane = avion(numero = rep.nAV, v1000 = v1000)    
+            plane.save()
+            sumPlaneRepF412(rep, plane, False)
+    return ""
 
+#Funcion principal que actualiza todos los campos actualizables en la aplicacion
 @csrf_exempt
 def updateDB(request):
-    toReturn = update380()
-    toReturn = update350()
-    toReturn = updateRsnTree()
-    toReturn = updateUserDB()
+#    toReturn = update380()
+#    toReturn = update350()
+#    toReturn = updateRsnTree()
+#    toReturn = updateUserDB()
+#    toReturn = changeDescpTBD380()   #Funcion puntual para cambiar a TBD los f412 que salian como en_descripcion
     toReturn = updatePlane()
-    toReturn = updatePlaneModel()
+#    toReturn = updateOldF412()   #Comentar cuando se haga 1 vez
 
     return HttpResponseRedirect("/administrador")
 
+#Exporta el 380
 @csrf_exempt
 def export380(request, status):
     response = HttpResponse(content_type='text/csv')
     
-    f412List = F412.objects.filter(programa__name = "380")      
+    f412List = F412_VALID.filter(programa__name = "380")      
     WholeProgram = True
             
     if status != "" :
@@ -701,6 +757,7 @@ def export380(request, status):
     
     return response
 
+#Exporta el 350 
 @csrf_exempt
 def export350(request, sectionName, status):
     response = HttpResponse(content_type='text/csv')
@@ -734,6 +791,7 @@ def export350(request, sectionName, status):
     
     return response
 
+#Vista de /exportarCSV
 @csrf_exempt
 def exportCSV(request, section, status):
     if status == "":
@@ -750,39 +808,15 @@ def exportCSV(request, section, status):
             toReturn = export350(request, section, status)
     return toReturn
 
-@csrf_exempt
-def multipleExport(request):
-    names = request.POST['toExport'].split(";")
-    f412List = F412.objects.filter(programa__name = "350a")
-    for name in names:
-        
-        if "380" in name:
-            section = Seccion.objects.get(name="380")
-            statusCod = name[3:0]
-        else:
-            section = Seccion.objects.get(name = name[:4])
-            statusCod = name[:3]
-            
-        if statusCod == "Rej":
-            status = Estado.objects.get(name="Rechazado")
-        elif statusCod == "Gra":
-            status = Estado.objects.get(name="Concedido")
-        elif statusCod == "Val":
-            status = Estado.objects.get(name="Validado")
-        else:
-            status = Estado.objects.get(name="Activo")
-            
-        f412List = f412List | F412.objects.filter(seccion = section).filter(Estado = status)
-    print(f412List.count())
-    return
-
+#Pagina de HTML exporta
 @csrf_exempt
 def exportPage(request):
-    if request.method == "POST":
-        multipleExport(request)
+#    if request.method == "POST":
+#        multipleExport(request)
     template = get_template("html/CSVPage.html")
     myContext = Context({'user': request.user})
     myContext['myPath'] = request.path
+    myContext['mode'] = "Reparaciones"             
     try:
         myContext['myUser'] = myUser.objects.get(user = request.user)
     except:
@@ -790,12 +824,14 @@ def exportPage(request):
         
     return HttpResponse(template.render(myContext))
 
+#Pasa string a float
 def toFloat(toConvert):  #En este archivo tambien pues daba problemas al importar del otro
     try:
         return float(toConvert.replace(',','.'))
     except:
         return 0.0
 
+#obtiene datos para el grafico
 def getData(avList, typeGraph): 
     N = avList.count()
     data = []
@@ -830,6 +866,7 @@ def getData(avList, typeGraph):
     data.append(list4)
     return data, N, plaList
 
+#Lista de aviones segun los aviones en los que estemos
 def getAvList (av1, av2):
     avList = avion.objects.all().order_by("numero")
     if av1 != "":
@@ -839,9 +876,21 @@ def getAvList (av1, av2):
         
     return avList
 
-def updateGraph(request, av1, av2, typeGraph):
+#Actualiza las graficas a estado basico
+def updateBothGraph(request):
+    count = avion.objects.all().count() - 1
+    lastAv = avion.objects.all().order_by("numero")[count].numero     
+    countFirst = avion.objects.all().count() - 10
+    firstAv = avion.objects.all().order_by("numero")[countFirst].numero     
+    updateGraph(request, firstAv, lastAv, "")
+    updateGraph(request, firstAv, lastAv, "TL")       
     
-    fig=Figure(figsize=(12,10))
+    return HttpResponseRedirect("/grafico")
+
+#actualiza el grafico
+def updateGraph(request, av1, av2, typeGraph):
+
+    fig=Figure(figsize=(6,7))
     ax=fig.add_subplot(111)
     
     N = 5
@@ -862,11 +911,14 @@ def updateGraph(request, av1, av2, typeGraph):
         ax.set_title("Horas LT / Rank")
     else:
         ax.set_title("Horas Recurrentes / Rank")
+        
     ax.set_xlabel('Rank')
     ax.set_ylabel('Horas')
     ax.set_xticks(ind)
+    
     for tick in ax.get_xticklabels():
         tick.set_rotation(60)
+        
     ax.set_xticklabels(plaList)
     ax.legend((p[0],p[1],p[2], p[3]), ('ALB','M60','V10', 'RL8'), loc="upper left")
     for j in range(len(p)):
@@ -900,3 +952,4 @@ def updateGraph(request, av1, av2, typeGraph):
         fig.savefig("templates/images/chart.png", format="png")
     canvas.print_png(graphic)
     
+    return

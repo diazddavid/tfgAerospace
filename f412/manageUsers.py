@@ -25,6 +25,9 @@ def userContext(myContext):
 #Contexto necesario para base
 def getBasicContext(myContext, request):
     myContext['user'] = request.user
+    myContext["mode"] = "Accidentales"
+    myContext['myPath'] = request.path
+    myContext["codCausList"] = codCaus.objects.all()
     try:
         myContext['myUser'] = myUser.objects.get(user = request.user)
     except:

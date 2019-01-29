@@ -17,7 +17,7 @@ from django.conf.urls import include, url
 # from f412 import manageDB, views
 from django.contrib import admin
 
-from f412 import views, manageUsers, manageDB
+from f412 import views, manageUsers, manageDB, paretos, prueba
 from f412.manageDB import updateDB
 
 from django.views.static import serve
@@ -41,6 +41,7 @@ urlpatterns = [
     url(r'^nuevoF412', views.serveFormGeneric),
     url(r'^(.+)/nuevoF412', views.newF412),
     url(r'^f412/(.*)/(.*)', views.f412Page),
+    url(r'^f412edit/(.*)', views.f412Edit),   
     url(r'^rep/(.*)/(.*)', views.repPage),
     url(r'^historial/(.*)', views.f412Hist),
     url(r'^reset/(.*)', views.f412Reset),
@@ -57,6 +58,7 @@ urlpatterns = [
     url(r'^programa/(.+)', views.programF412),   
     
     url(r'^grafico', views.simple),
+    url(r'^updateGraph', manageDB.updateBothGraph),
     
     url(r'^administrador', manageUsers.adminPage),
     url(r'^rep/administrador', manageUsers.adminPageRep),   
@@ -68,10 +70,19 @@ urlpatterns = [
     url(r'^ExportarF412/(.*)()', manageDB.exportCSV),
     url(r'^ExportarF412', manageDB.exportPage),
        
+    url(r'^paretos(.*)', views.paretos),       
+    url(r'^rep/paretos(.*)', views.repParetos),
+    url(r'^updateParetos/(.*)', paretos.updateParetos),
+    url(r'^exportarParetos/(.*)', views.exportParetos),  
+    url(r'^guardarTabla', paretos.saveTablePar),   
+    url(r'^exportPDFPareto', paretos.exportPDFPar),   
+       
     url(r'^css/(.*.css)$', serve, {'document_root': 'templates/styles'}),
     url(r'^js/(.*.js)$', serve, {'document_root': 'templates/js'}),
     url(r'^images/(.+)', serve, {'document_root': 'templates/images'}, name = "Serve Images"),
     
+    url(r'^prueba', prueba.index),
+       
     url(r'^rep/(380)', views.serveTableRep),
     url(r'^rep/(350)', views.serveTableRep),   
     url(r'^(filtroFecha)', views.home),

@@ -1,0 +1,157 @@
+{% extends 'html/baseParetos.html' %}
+{% load filtrosExtra %}
+
+{% block pareto %}
+
+<p> </p>
+
+<h1>Paretos Mes   <select id="monthID" style="display:inline-block" onchange="monthFunction()">
+  {% for key, value in monthDict.items %}
+    {% if key == mes|toSTR:"int" %}
+      <option value={{key}} selected> {{value}}</option>
+    {% else %}
+      <option value={{key}}> {{value}}</option>
+    {% endif %}
+  {% endfor %}
+</select>
+</h1>
+
+<style>
+tr img {
+    width: auto;
+    max-width: 700px;
+    height: auto;
+    max-height: 700px;        
+}
+</style>
+
+{% if typePar != "Ind" %}
+
+<table>
+   
+  <tr>
+    <th>S19</th>
+    <th>HTP</th>
+  </tr>
+ 
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/s_19Top5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{mes}}/htpTop5{{typePar}}.png" ></h1></td>
+  </tr>
+  
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/s_19Ev{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{mes}}/htpEv{{typePar}}.png" ></h1></td>
+  </tr>
+ 
+    
+  
+  <tr>
+    <th>S19.1</th>
+    <th>Trampas</th>
+  </tr>
+ 
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/s_19.1Top5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{mes}}/trampasTop5{{typePar}}.png" ></h1></td>
+  </tr>
+  
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/s_19.1Ev{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{mes}}/trampasEv{{typePar}}.png" ></h1></td>
+  </tr> 
+
+
+
+  <tr>
+    <th>Movables</th>
+    <th>costilla HTP</th>
+  </tr>
+ 
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/movablesTop5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{mes}}/costillaTop5{{typePar}}.png" ></h1></td>
+  </tr>
+  
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/movablesEv{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{mes}}/costillaEv{{typePar}}.png" ></h1></td>
+  </tr>
+ 
+    
+  
+  <tr>
+    <th>larguero HTP</th>
+    <th>A380</th>
+  </tr>
+ 
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/largueroTop5{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{mes}}/a380Top5{{typePar}}.png" ></h1></td>
+  </tr>
+  
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/largueroEv{{typePar}}.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{mes}}/a380Ev{{typePar}}.png" ></h1></td>
+  </tr>  
+  
+</table>
+
+{% else %}
+
+<table>
+  <tr>
+    <th>Recanteado</th>
+    <th>Ultrasonidos</th>
+  </tr>
+ 
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/recanteadoTop5.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{mes}}/ultrasonidosTop5.png" ></h1></td>
+  </tr>
+  
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/recanteadoEv.png" ></h1></td>
+    <td><h1><img src = " /images/pareto/{{mes}}/ultrasonidosEv.png" ></h1></td>
+  </tr>
+ 
+    
+  
+  <tr>
+    <th>Reparaciones</th>
+  </tr>
+ 
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/reparacionesTop5.png" ></h1></td>
+  </tr>
+  
+  <tr>
+    <td><h1><img src = " /images/pareto/{{mes}}/reparacionesEv.png" ></h1></td>
+  </tr> 
+</table>
+
+{% endif %}
+
+<script>
+function monthFunction(){
+  month =  document.getElementById("monthID").value;
+  var method = "post";                           
+  
+  var form = document.createElement("form");
+  form.setAttribute("method", method);
+  form.setAttribute("action", "{{path}}");
+                  
+  var hiddenMonth = document.createElement("input");
+  hiddenMonth.setAttribute("type", "hidden");
+  hiddenMonth.setAttribute("name", "month");                       
+  hiddenMonth.setAttribute("value", month);                                                     
+  
+  form.appendChild(hiddenMonth);
+                  
+  document.body.appendChild(form);                   
+  form.submit();           
+         
+}
+</script>
+
+{% endblock pareto %}

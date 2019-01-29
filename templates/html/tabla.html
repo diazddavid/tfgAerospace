@@ -23,12 +23,13 @@
 Historial
 {% endif %}
 </h1>
+{% if mode == "Reparaciones" %}
 
-{% if Status != "" %}
-
-    {% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "ME" %}
+  {% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "ME" %}
     {% if userSection != "A350 Todos" %}
-    <form style="display: inline-block" action="/{{userSection}}/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
+    <form style="display: inline-block" {% if mode == "Reparaciones" %}action="/{{userSection}}/{{Status}}/filtroFecha"
+                                        {% else %} action="rep/{{userSection}}/filtroFecha"
+                                        {% endif %} method="post" name="myForm" onsubmit="return validateForm()">
     {% else %}
     <form style="display: inline-block" action="/350/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
     {% endif %}                                             
@@ -37,19 +38,31 @@ Historial
       Hasta: <input type="text" name="toDate" value={% if currentDate != "" %}"{{currentDate1}}"{% else %}"{{date}}" {% endif %} onClick="this.select();">
       <input class="boton" type="submit" value="Ir">
     </form>
-
+    
+    
+    {% if userSection != "A350 Todos" %}
+    <form style="display: inline-block" action="/{{userSection}}/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
+    {% else %}
+    <form style="display: inline-block" action="/350/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
+    {% endif %}
+      <input type="hidden" name="fromDate" value="{{yesterday}}">
+      <input type="hidden" name="toDate" value="{{yesterday}}">
+      <input class="boton" type="submit" value="Dia Anterior">
+    </form>           
+  {% endif %}
 {% endif %}
 
-{% if userSection != "A350 Todos" %}
-<form style="display: inline-block" action="/{{userSection}}/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
-{% else %}
-<form style="display: inline-block" action="/350/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
+{% if program == "380" %}
+  <form style="display: inline-block" action="/paretos" method="get" name="myForm2"> 
+    <input class="boton" type="submit" value="Paretos">
+  </form>
+{% elif program == "350" %}
+  <form style="display: inline-block" action="/grafico" method="get" name="myForm2"> 
+    <input class="boton" type="submit" value="Gráficos">
+  </form>
 {% endif %}
-  <input type="hidden" name="fromDate" value="{{yesterday}}">
-  <input type="hidden" name="toDate" value="{{yesterday}}">
-  <input class="boton" type="submit" value="Dia Anterior">
-</form>         </br>      
-{% endif %}
+
+</br>
 
 <!-- Botones de actualizar base de datos y exportar e importar f412 a excel -->
 {% if isProgram == False %} 
@@ -79,9 +92,9 @@ Historial
   <thead class="fixedHeader">
   <tr style="text-align:center">
     <th>Fecha</th>
-    {% if isProgram == True%}
-      {% if mode == "Reparaciones" %}
-      <th>Estado</th>
+    {% if isProgram == True %}
+      {% if mode == "Reparaciones"%}
+        <th>Estado</th>
       {% endif %}
       {% if program == "350" %}
       {% if myUser.typeUser.name != "TL" %}
@@ -115,11 +128,12 @@ Historial
     <th>PN</th>
     <th>Referencia</th>
     <th>Area</th>
-    <th>Horas{% if mode == "Reparaciones" %}</br>Pedidas{% endif %}</th>
-    {% if Status == "Activo" or Status == "Concedido" %}
+    <th>Horas</br>Pedidas</th>
+    {% if Status == "Activos" or Status == "Concedidos" %}
     <th>Horas</br>Concedidas</th>
     {% endif %}
     <th>SGM</th>
+    <th>Cod. Causa</>
     <th id="descp">Descripcion</th>
     <!--<form id="acceptForm" method="POST" action="/{{userSection}}/multipleAcept">
       <input type="hidden" name="next" value="{{myPath}}">
@@ -130,18 +144,15 @@ Historial
         <th><input type="submit" value="Aceptar"></th>
         {% endif %}
     {% endif %}Valido si queremos permitid que se acepten varios a la vez-->
-    <th>Nº F412</th>
+    <th>Nº {% if mode == "Reparaciones" %}F412{%else%}Rep{%endif%}</th>
   </tr>
   </thead>
   <tbody>
   {% for f412 in F412list %}
   <tr>
       <td>{{f412.Fecha|date:"Y/m/d"}}</td>  
-      
-      {% if isProgram == True%}
-        {% if mode == "Reparaciones" %}
+      {% if isProgram == True and mode == "Reparaciones" %}
         <td style="color:{{f412.Estado.color}}">{{f412.Estado.name}}</td>
-        {% endif %}                         
         {% if myUser.typeUser.name != "TL"%}
         {% if program == "350" %}
           <td>{{f412.seccion.name}}</td>
@@ -165,43 +176,41 @@ Historial
       <td>{{f412.Referencia}}</td>
       <td>{{f412.Area.name}}</td>
       
-      {% if mode == "Reparaciones" %}      
-        {% if f412.horasAntRec == "" %}
-          {% if f412.horasAntiguas == ""%}
-            {% if f412.horasRecurrentes == "" %}
-              <td>{{f412.horas|slice:"0:6"}}</td> 
-            {% else %}
-              <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
-            {% endif %}
-          {% else %}
-            <td>{{f412.horasAntiguas|slice:"0:6"}}</td>
-          {% endif %}
-        {% else %}
-          <td>{{f412.horasAntRec|slice:"0:6"}}</td> 
-        {% endif %}
-      {% else %}
-        <td>{{f412.horas|slice:"0:6"}}</td>
-      {% endif %}
-      
-      {% if Status == "Activo" or Status == "Concedido" %}
+      {% if f412.horasAntRec == "" %}
+        {% if f412.horasAntiguas == ""%}
           {% if f412.horasRecurrentes == "" %}
             <td>{{f412.horas|slice:"0:6"}}</td> 
           {% else %}
             <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
           {% endif %}
+        {% else %}
+          <td>{{f412.horasAntiguas|slice:"0:6"}}</td>
+        {% endif %}
+      {% else %}
+        <td>{{f412.horasAntRec|slice:"0:6"}}</td> 
+      {% endif %}
+      
+      
+      {% if Status == "Activos" or Status == "Concedidos" %}
+      {% if f412.horasRecurrentes == "" %}
+        <td>{{f412.horas|slice:"0:6"}}</td> 
+      {% else %}
+        <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
+      {% endif %}
       {% endif %}
       
       <td>{{f412.SGM.number}}</td>
-   
-      {% if mode == "Reparaciones" %}
+      <td>{{f412.codigoCausa.name}}</td>    
+      {% if mode == "Reparaciones" %}    
         {% if f412.descripcionAcortada == "" %}
-          <td id="descp{{f412.id}}" onload="changeColor()">{{f412.Descripcion}}</td>
+        <td id="descp{{f412.id}}" onload="changeColor()">{{f412.Descripcion}}</td>
         {% else %}
-          <td>{{f412.descripcionAcortada}}</td>
+        <td>{{f412.descripcionAcortada}}</td>
         {% endif %}
       {% else %}
-        <td>{{f412.Descripcion}}</td>  
+        <td>{{f412.Descripcion}}</td>
       {% endif %}
+      
       <!--{% if myUser.typeUser.name == "ME" and activePage %} 
           <td><input type="checkbox" name="preAccept{{f412.myID}}" form="acceptForm" value={{f412.myID}}></td>
       {% elif preAcceptPage %}
@@ -209,12 +218,9 @@ Historial
           <td><input type="checkbox" name="accept{{f412.myID}}" value={{f412.myID}}></td>
           {% endif %}
       {% endif %} Valido si queremos permitid que se acepten varios a la vez -->
-      
-      {% if mode == "Reparaciones" %}
-      <td><a href="/f412/{{f412.seccion.name}}/{{f412.myID}}">{{f412.myID}}</a><br></td>
-      {% else %}
-      <td><a href="/rep/{{f412.seccion.name}}/{{f412.myID}}">{{f412.myID}}</a><br></td>
-      {% endif %}                         
+
+      <td><a href="{% if mode == "Reparaciones" %}/f412/{% else %}/rep/{% endif %}{{f412.seccion.name}}/{{f412.myID}}">{{f412.myID}}</a><br></td>
+                      
   </tr>
   {% endfor %}
   <!--</form>  Valido si queremos permitid que se acepten varios a la vez-->
@@ -274,23 +280,19 @@ function validateForm() {
 
   function sectionFunction() {
     var section = document.getElementById("SectionID").value;
-    {% if mode == "Reparaciones" %}
-      var rep = "";
-    {% else %}
-      var rep = "/rep";
-    {% endif %}                                         
+    var base = {% if mode == "Reparaciones" %} "" {% else %} "/rep" {% endif %}                                        
     if(section == "default"){
-      location.replace(rep + "/programa/350")
+      location.replace(base + "/programa/350")
     }else if (section == "APT1") {
-      location.replace(rep + "/programa/seccion/APT1")
+      location.replace(base + "/programa/seccion/APT1")
     }else if (section == "APT2") {
-      location.replace(rep + "/programa/seccion/APT2")
+      location.replace(base + "/programa/seccion/APT2")
     }else if (section == "APT3") {
-      location.replace(rep + "/programa/seccion/APT3")
+      location.replace(base + "/programa/seccion/APT3")
     }else if (section == "APT4") {
-      location.replace(rep + "/programa/seccion/APT4")
+      location.replace(base + "/programa/seccion/APT4")
     }else if (section == "APT5") {
-      location.replace(rep + "/programa/seccion/APT5")
+      location.replace(base + "/programa/seccion/APT5")
     }
   }
     

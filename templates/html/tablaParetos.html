@@ -1,0 +1,437 @@
+{% extends 'html/baseParetos.html' %}
+
+{% load filtrosExtra %}
+
+{% block pareto %}
+
+{% for pareto in paretoList %}
+
+{% getPareto pareto month year notIsLay as result %}
+
+<div id="{{forloop.counter}}div" style={% if forloop.counter != 1 %}"display:None"{% endif %}>
+  <h1>{{pareto}}</h1>
+  <table style="text-align: center; background-color:white">
+  
+  {% if result != "" %}
+  
+    <tr>
+      <th>Tipo Defecto</th>
+      <th>Accion</th>
+      <th>PPS - código</th>
+      <th>Fecha de<br> apertura del<br> PPS</th>
+      <th>Fecha de<br> cierre del PPS</th>
+      <!---<th>AREA</th>
+      <th>Ahorro <br>€/avión</th>-->
+    </tr>
+    
+    {% for parDefc in result.topDefc.all|orderQuery:"number" %}    
+
+        <tr>
+          <td>{{parDefc.defecto.name}}</td>
+          <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}">{{parDefc.accion}}</div></td>
+          <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}">{{parDefc.ppsCod}}</div></td>
+          <td><div contenteditable id="date1{{pareto}}{{parDefc.defecto.name}}">{% if modificadaFechaAp %}
+          {{parDefc.fechaApertura|date:"Y/m/d"}}{% endif %}</div></td>
+          <td><div contenteditable id="date2{{pareto}}{{parDefc.defecto.name}}">{% if modificadaFechaCie %}
+          {{parDefc.fechaCierre|date:"Y/m/d"}}{% endif %}</div></td>
+          <!--<td><div contenteditable></div></td>
+          <td><div contenteditable></div></td> -->                               
+        </tr>
+    {% endfor %}
+  
+  {% elif myUser.typeUser.name == "ME" %}
+   
+    <tr><th>{{pareto}} no encontrado</th></tr>
+  
+  {% endif %}
+  
+  </table>
+  
+  {% getPareto pareto month year isLay as result2 %}
+
+  <h1>{{pareto}} Lay-Up</h1>
+      
+  <table style="text-align: center; background-color:white">
+  
+  {% if result2 != "" %}
+    <tr>
+      <th>Tipo Defecto</th>
+      <th>Accion</th>
+      <th>PPS - código</th>
+      <th>Fecha de<br> apertura del<br> PPS</th>
+      <th>Fecha de<br> cierre del PPS</th>
+      <!--<th>AREA</th>
+      <th>Ahorro <br>€/avión</th>-->
+    </tr>
+    
+    {% for parDefc in result2.topDefc.all|orderQuery:"number" %}    
+      
+        <tr>
+          <td>{{parDefc.defecto.name}}</td>
+          <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}Lay">{{parDefc.accion}}</div></td>
+          <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}Lay">{{parDefc.ppsCod}}</div></td>
+          <td><div contenteditable id="date1{{pareto}}{{parDefc.defecto.name}}Lay">{% if modificadaFechaAp %}
+          {{parDefc.fechaApertura|date:"Y/m/d"}}{% endif %}</div></td>
+          <td><div contenteditable id="date2{{pareto}}{{parDefc.defecto.name}}Lay">{% if modificadaFechaCie %}
+          {{parDefc.fechaCierre|date:"Y/m/d"}}{% endif %}</div></td>
+          <!--<td><div contenteditable></div></td>
+          <td><div contenteditable></div></td> -->                               
+        </tr>
+    
+    
+    {% endfor %}
+  
+  {% elif myUser.typeUser.name == "ME" %}
+   
+    <tr><th>{{pareto}} no encontrado</th></tr>
+  
+  {% endif %}
+  
+  </table>
+
+{% if forloop.counter != 1 %}
+<input class="boton" style="margin-left:900px" type="submit" value="Atrás" onclick="functionPrev('{{forloop.counter}}')"> 
+{% endif %}
+<input class="boton" style="{% if forloop.counter == 1 %}margin-left:1000px{% endif %}" type="submit" value="Siguiente" onclick="functionDisplay('{{forloop.counter}}')">
+</div>  
+{% endfor %}
+
+<div id="8div" style="display:none">
+  {% for pareto in paretoInd %}
+   
+    {% getPareto pareto month year notIsLay as result3 %}
+    <h1>{{pareto}}</h1>
+    <table style="text-align: center; background-color:white">
+  
+    {% if result3 != "" %}
+  
+      <tr>
+        <th>Tipo Defecto</th>
+        <th>Accion</th>
+        <th>PPS - código</th>
+        <th>Fecha de<br> apertura del<br> PPS</th>
+        <th>Fecha de<br> cierre del PPS</th>
+        <!--<th>AREA</th>
+        <th>Ahorro <br>€/avión</th>-->
+      </tr>
+    
+      {% for parDefc in result3.topDefc.all|orderQuery:"number" %}    
+      
+          <tr>
+            <td>{{parDefc.defecto.name}}</td>
+            <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}">{{parDefc.accion}}</div></td>
+            <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}">{{parDefc.ppsCod}}</div></td>
+            <td><div contenteditable id="date1{{pareto}}{{parDefc.defecto.name}}">{% if modificadaFechaAp %}
+            {{parDefc.fechaApertura|date:"Y/m/d"}}{% endif %}</div></td>
+            <td><div contenteditable id="date2{{pareto}}{{parDefc.defecto.name}}">{% if modificadaFechaCie %}
+            {{parDefc.fechaCierre|date:"Y/m/d"}}{% endif %}</div></td>
+            <!--<td><div contenteditable></div></td>
+            <td><div contenteditable></div></td> -->                               
+          </tr>
+    
+      {% endfor %}
+  
+    {% elif myUser.typeUser.name == "ME" %}
+   
+      <tr><th>{{pareto}} no encontrado</th></tr>
+  
+    {% endif %}
+
+  </table>  
+  
+  {% endfor %}  
+  
+  <input class="boton" style="margin-left:800px" type="submit" value="Atrás" onclick="functionPrev('8')"> 
+  <input class="boton"  type="submit" value="Guardar Tabla" onclick="saveTable()"> 
+  <input class="boton"  type="submit" value="Obtener PDF" onclick="servePDF()"> 
+</div>
+
+<script>
+
+function functionDisplay(number){
+  {% for pareto in paretoList %}
+    if (number == "{{forloop.counter}}" ){
+      next = parseInt(Number(number) + 1)
+      document.getElementById("{{forloop.counter}}div").style.display = "none"
+      document.getElementById(next + "div").style.display = "";
+    }
+  
+  {% endfor %}
+  
+ }
+   
+function functionPrev(number){
+  {% for pareto in paretoList %}
+  
+  if (number == "{{forloop.counter}}" ){
+    next = parseInt(Number(number) - 1)
+    document.getElementById("{{forloop.counter}}div").style.display = "none"
+    document.getElementById(next + "div").style.display = "";
+  }
+  
+  if (number == "8"){
+    next = parseInt(Number(number) - 1)
+    document.getElementById("8div").style.display = "none"
+    document.getElementById(next + "div").style.display = "";
+  }
+  
+  {% endfor %}
+}      
+  
+function validDate(date){
+  var year = date.substring(0, date.indexOf("/"));
+  var aux = date.substring(date.indexOf("/") + 1, date.length);         
+  var month = aux.substring(0, aux.indexOf("/"));
+  var day = aux.substring(aux.indexOf("/") + 1, aux.length);  
+  if(isNaN(year) || isNaN(month) || isNaN(day)){
+    alert("El formato de la fecha no es adecuado")
+    return false;
+  }
+  if(year.length != 4 || month.length != 2 || day.length != 2){
+      alert("El formato de la fecha no es el adecuado")
+      return false;
+  }
+  if (parseInt(month)>12){
+      alert("El formato de la fecha no es el adecuado")
+      return false;
+  }
+  if(month == "1" || month == "3" ||month == "5" || month == "7" || month == "8" || month == "10" || month == "12"){
+    if(parseInt(day) > 31){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }else if(month == "2"){
+    if(parseInt(day) > 29){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }else{
+    if(parseInt(day) > 30){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }
+  return true;
+} 
+    
+function moveToDate(pareto){
+    var counter = 0;
+    {% for pareto in paretoList%}
+      if ("{{pareto}}" == pareto){
+        counter = "{{forloop.counter}}"
+      }
+      document.getElementById("{{forloop.counter}}div").style.display = "none";
+    {% endfor %}    
+    
+    document.getElementById(counter + "div").style.display = "";    
+    
+    
+}
+
+function getForm(){
+ var form = document.createElement("form");
+  form.setAttribute("method", "POST");
+                   
+  var month = document.createElement("input");
+  month.setAttribute("type", "hidden");
+  month.setAttribute("name", "month");                       
+  month.setAttribute("value", "{{month}}");                                                     
+      
+  form.appendChild(month);
+                      
+  var year = document.createElement("input");
+  year.setAttribute("type", "hidden");
+  year.setAttribute("name", "year");                       
+  year.setAttribute("value", "{{year}}");                                                     
+      
+  form.appendChild(year);
+                  
+  var shouldSubmit = true;                  
+                   
+  {% for pareto in paretoList %} 
+  
+    {% getPareto pareto month year notIsLay as result %}
+    {% for parDefc in result.topDefc.all|orderQuery:"number" %}
+    
+      var actionTable = document.getElementById("action{{pareto}}{{parDefc.defecto.name}}").innerHTML;                
+      var action = document.createElement("input");
+      action.setAttribute("type", "hidden");
+      action.setAttribute("name", "action{{pareto}}{{parDefc.defecto.name}}");                       
+      action.setAttribute("value", actionTable);                                                     
+      
+      form.appendChild(action);
+      
+      var PPSTable = document.getElementById("PPS{{pareto}}{{parDefc.defecto.name}}").innerHTML;                   
+      var PPSCod = document.createElement("input");
+      PPSCod.setAttribute("type", "hidden");
+      PPSCod.setAttribute("name", "PPSCod{{pareto}}{{parDefc.defecto.name}}");                       
+      PPSCod.setAttribute("value", PPSTable);                                                     
+      
+      form.appendChild(PPSCod);
+      
+      var date1Table = document.getElementById("date1{{pareto}}{{parDefc.defecto.name}}").innerHTML; 
+      if (date1Table != "<br>"){      
+        shouldSubmit = validDate(date1Table); 
+        if (shouldSubmit == false){
+          moveToDate(pareto);
+          return;
+        }                                
+      }
+                                 
+      var dateInit = document.createElement("input");
+      dateInit.setAttribute("type", "hidden");
+      dateInit.setAttribute("name", "dateInit{{pareto}}{{parDefc.defecto.name}}");                       
+      dateInit.setAttribute("value", date1Table);                                                     
+      
+      form.appendChild(dateInit);
+      
+      var date2Table =  document.getElementById("date2{{pareto}}{{parDefc.defecto.name}}").innerHTML;    
+      if (date2Table != "<br>"){      
+        shouldSubmit = validDate(date2Table);  
+        if (shouldSubmit == false){
+          moveToDate(pareto);
+          return;
+        }                       
+      }
+                                 
+      var dateEnd = document.createElement("input");                            
+      dateEnd.setAttribute("type", "hidden");
+      dateEnd.setAttribute("name", "dateEnd{{pareto}}{{parDefc.defecto.name}}");                       
+      dateEnd.setAttribute("value", date2Table);                                                     
+      
+      form.appendChild(dateEnd);  
+
+    {% endfor %}
+  
+  {% getPareto pareto month year isLay as result2 %}
+  
+    {% for parDefc in result2.topDefc.all|orderQuery:"number" %}
+  
+      var actionTableLay = document.getElementById("action{{pareto}}{{parDefc.defecto.name}}Lay").innerHTML;                
+      var actionLay = document.createElement("input");
+      actionLay.setAttribute("type", "hidden");
+      actionLay.setAttribute("name", "action{{pareto}}{{parDefc.defecto.name}}Lay");                       
+      actionLay.setAttribute("value", actionTable);                                                         
+  
+      form.appendChild(actionLay);
+  
+      var PPSTableLay = document.getElementById("PPS{{pareto}}{{parDefc.defecto.name}}Lay").innerHTML;                   
+      var PPSCodLay = document.createElement("input");
+      PPSCodLay.setAttribute("type", "hidden");
+      PPSCodLay.setAttribute("name", "PPSCod{{pareto}}{{parDefc.defecto.name}}Lay");                       
+      PPSCodLay.setAttribute("value", PPSTable);                                                     
+      
+      form.appendChild(PPSCodLay);
+  
+      var date1TableLay = document.getElementById("date1{{pareto}}{{parDefc.defecto.name}}Lay").innerHTML; 
+      if (date1TableLay != "<br>"){      
+        shouldSubmit = validDate(date1TableLay);  
+        if (shouldSubmit == false){
+          moveToDate(pareto);
+          return;
+        }                       
+      }
+                                 
+      var dateInitLay = document.createElement("input");
+      dateInitLay.setAttribute("type", "hidden");
+      dateInitLay.setAttribute("name", "dateInit{{pareto}}{{parDefc.defecto.name}}Lay");                       
+      dateInitLay.setAttribute("value", date1Table);                                                     
+      
+      form.appendChild(dateInitLay);
+      
+      var date2TableLay =  document.getElementById("date2{{pareto}}{{parDefc.defecto.name}}Lay").innerHTML;    
+      if (date2TableLay != "<br>"){      
+        shouldSubmit = validDate(date2TableLay);   
+        if (shouldSubmit == false){
+          moveToDate(pareto);
+          return;
+        }                      
+      }
+                 
+      var dateEndLay = document.createElement("input");
+      dateEndLay.setAttribute("type", "hidden");
+      dateEndLay.setAttribute("name", "dateEnd{{pareto}}{{parDefc.defecto.name}}Lay");                       
+      dateEndLay.setAttribute("value", date2TableLay);                                                     
+  
+      form.appendChild(dateEndLay);                                  
+  
+    {% endfor %}  
+  {% endfor %} 
+
+  {% for pareto in paretoInd %}
+    {% getPareto pareto month year notIsLay as result3 %}
+    {% for parDefc in result3.topDefc.all|orderQuery:"number" %}
+    
+      var actionTable = document.getElementById("action{{pareto}}{{parDefc.defecto.name}}").innerHTML;                
+      var action = document.createElement("input");
+      action.setAttribute("type", "hidden");
+      action.setAttribute("name", "action{{pareto}}{{parDefc.defecto.name}}");                       
+      action.setAttribute("value", actionTable);                                                     
+      
+      form.appendChild(action);
+      
+      var PPSTable = document.getElementById("PPS{{pareto}}{{parDefc.defecto.name}}").innerHTML;                   
+      var PPSCod = document.createElement("input");
+      PPSCod.setAttribute("type", "hidden");
+      PPSCod.setAttribute("name", "PPSCod{{pareto}}{{parDefc.defecto.name}}");                       
+      PPSCod.setAttribute("value", PPSTable);                                                     
+      
+      form.appendChild(PPSCod);
+      
+      var date1Table = document.getElementById("date1{{pareto}}{{parDefc.defecto.name}}").innerHTML; 
+      if (date1Table != "<br>"){      
+        shouldSubmit = validDate(date1Table); 
+        if (shouldSubmit == false){
+          moveToDate(pareto);
+          return;
+        }                                
+      }
+                                 
+      var dateInit = document.createElement("input");
+      dateInit.setAttribute("type", "hidden");
+      dateInit.setAttribute("name", "dateInit{{pareto}}{{parDefc.defecto.name}}");                       
+      dateInit.setAttribute("value", date1Table);                                                     
+      
+      form.appendChild(dateInit);
+      
+      var date2Table =  document.getElementById("date2{{pareto}}{{parDefc.defecto.name}}").innerHTML;    
+      if (date2Table != "<br>"){      
+        shouldSubmit = validDate(date2Table);  
+        if (shouldSubmit == false){
+          moveToDate(pareto);
+          return;
+        }                       
+      }
+                                 
+      var dateEnd = document.createElement("input");                            
+      dateEnd.setAttribute("type", "hidden");
+      dateEnd.setAttribute("name", "dateEnd{{pareto}}{{parDefc.defecto.name}}");                       
+      dateEnd.setAttribute("value", date2Table);                                                     
+      
+      form.appendChild(dateEnd);  
+
+    {% endfor %}
+  {% endfor %}
+         
+  return form;
+
+}
+
+function saveTable(){
+    
+  form = getForm()
+  form.setAttribute("action", "/guardarTabla");
+  document.body.appendChild(form);      
+  form.submit();   
+}  
+    
+function servePDF() {
+  form = getForm()
+  form.setAttribute("action", "/exportPDFPareto");
+  document.body.appendChild(form);      
+  form.submit();                    
+}
+ 
+
+</script>
+{% endblock pareto %}

@@ -1,5 +1,5 @@
 {% extends 'html/base.html' %}
-{% load filtrosExtra%}
+
 {% block body %}
 <!-- <style>
 
@@ -28,12 +28,9 @@ tr:nth-child(even) {
 </form>
 {% endif %}
 
-{% if mode == "Reparaciones" %}
-  <h1>F412 nº{{f412.myID}}, {% if f412.programa.name == "350"%} {{f412.seccion.name}}{%else%}A380{%endif%}</h1>
-  <h1 style="color:{{f412.Estado.color}}">Este F412 está: {{f412.Estado.name}}</h1>
-{% else %} 
-  <h1>Reparación nº{{f412.myID}}, {% if f412.programa.name == "350"%} {{f412.seccion.name}}{%else%}A380{%endif%}</h1>
-{% endif %}                 
+<h1>F412 nº{{f412.myID}}, {% if f412.programa.name == "350"%} {{f412.seccion.name}}{%else%}A380{%endif%}</h1>
+<h1 style="color:{{f412.Estado.color}}">Este F412 está: {{f412.Estado.name}}</h1>
+                 
 <table style="background-color:#FFFFFF">
   <tr>
     <th>Fecha</th>
@@ -48,11 +45,7 @@ tr:nth-child(even) {
     <th>Origen Acc</th>
     <th>Comentarios</th>
     <th>Cod. Causa</th>
-    {% if mode == "Reparaciones" %}
     <th>Operacion</th>
-    {% else %}
-    <th>H.N.C.</th>
-    {% endif %}
     <th>SGM</th>
     <th>Horas</th>
     <th>Nº Op</th>
@@ -78,17 +71,11 @@ tr:nth-child(even) {
         <td>{{f412.Descripcion}}</td>
     {% endif %}
     <td>{{f412.codigoCausa.name}}</td>
-         
-    {% if mode == "Reparaciones" %}
-        {% if f412.operacion != 1 %}
-        <td>{{f412.operacion}}</td> 
-        {% else %}
-        <td></td>
-        {% endif %}
+    {% if f412.operacion != 1 %}
+    <td>{{f412.operacion}}</td> 
     {% else %}
-        <td>{{f412.hnc}}</td>
+    <td></td>
     {% endif %}
-    
     <td>{{f412.SGM.number}}</td>  
     {% if f412.Estado.name == "Activo" and myUser.typeUser.name == "ME" %}
         <td><input type = "text" id="newHID" style="width:30px;text-align:center" value ={{f412.horasRecurrentes|slice:"0:5"}}></td>
@@ -119,124 +106,117 @@ tr:nth-child(even) {
   </tr>
 </table>
 
-{% if mode == "Reparaciones" %}
-
-  <table style="background-color:#FFFFFF">
-  {% if myUser.typeUser.name == "ME" %}
-    {% if f412.Estado.name == "Activo" or f412.Estado.name == "Validado" or myUser.admin == True %}
-    <form action="/f412/{{f412.seccion.name}}/{{f412.myID}}" id="myForm" method="post" onsubmit="return validateForm()">
-      <tr>
-        <th>Estado Actual</th>
-        <th>Nuevo Estado</th>
-        <th>CodCausa</th>
-        <th>Operacion</th>
-        <th>Comentario Adicional</th>
-        <th id="titleStatus"> Motivo Rechazo/ Descripción acortada</th>
-        <th>Enviar</th>
-      </tr>
-      <tr>
-        <td>{{f412.Estado.name}}</td>
-        <td><select name = "newStatusForm" id="newStatusForm" onchange="changeStatus()">
-          {% for status in statusList %}
-            {% if status.name != "Activo" %}
-            {% if status.name == "Validado" %}
-              <option value = {{ status.name }} selected> {{ status.name }}</option>
-            {% else %}
-              <option value = {{ status.name }} > {{ status.name }}</option>
-            {% endif %}
-            {% endif %}
-          {% endfor %}
-        </select></td>
-        <td><select name="codCausSelect" id="codCausSelect">
-           {% for cod in codCausList %}
-           {% if cod == f412.codCaus %}
-             <option value="{{cod.name}}" selected>{{cod.name}}</option>
-           {% else %}
-             <option value="{{cod.name}}">{{cod.name}}</option>
-           {% endif %}
-           {% endfor %}
-        </select></td>
-        <td><input type = "text" id="operacion" name="operacion" ></td>
-        <td><input type = "text" id="comment" style="width:400px;" name="comment"></td>
-        <td><input type = "text" id="action" style="width:400px;" name="action" ></td>
-        <td><input type = "submit" value = "Submit"></td>
-        <input type="hidden" id="newH" name="newH">
-        <input type="hidden" id="Level1hid" name="Level1hid">
-        <input type="hidden" id="Level2hid" name="Level2hid">
-        <input type="hidden" id="Level3hid" name="Level3hid">
-      </tr>
-  
-    </form>
-    {% endif %}
-      
-  {% elif f412.Estado.name == "Validado" and myUser.typeUser.name == "Subcontrata" %}
+<table style="background-color:#FFFFFF">
+{% if myUser.typeUser.name == "ME" %}
+  {% if f412.Estado.name == "Activo" or f412.Estado.name == "Validado" or myUser.admin == True %}
   <form action="/f412/{{f412.seccion.name}}/{{f412.myID}}" id="myForm" method="post" onsubmit="return validateForm()">
     <tr>
       <th>Estado Actual</th>
       <th>Nuevo Estado</th>
+      <th>CodCausa</th>
+      <th>Operacion</th>
+      <th>Comentario Adicional</th>
       <th id="titleStatus"> Motivo Rechazo/ Descripción acortada</th>
       <th>Enviar</th>
     </tr>
     <tr>
       <td>{{f412.Estado.name}}</td>
       <td><select name = "newStatusForm" id="newStatusForm" onchange="changeStatus()">
-        <option value ="Rechazado" selected> Rechazado</option>
-        <option value ="Concedido" selected> Condedido</option>                      
+        {% for status in statusList %}
+          {% if status.name != "Activo" %}
+          {% if status.name == "Validado" %}
+            <option value = {{ status.name }} selected> {{ status.name }}</option>
+          {% else %}
+            <option value = {{ status.name }} > {{ status.name }}</option>
+          {% endif %}
+          {% endif %}
+        {% endfor %}
       </select></td>
-      <td><input type = "text" id="action" style="width:800px;" maxlength="27" name="action" ></td>
+      <td><select name="codCausSelect" id="codCausSelect">
+         {% for cod in codCausList %}
+         {% if cod == f412.codCaus %}
+           <option value="{{cod.name}}" selected>{{cod.name}}</option>
+         {% else %}
+           <option value="{{cod.name}}">{{cod.name}}</option>
+         {% endif %}
+         {% endfor %}
+      </select></td>
+      <td><input type = "text" id="operacion" name="operacion" ></td>
+      <td><input type = "text" id="comment" style="width:400px;" name="comment"></td>
+      <td><input type = "text" id="action" style="width:400px;" name="action" ></td>
       <td><input type = "submit" value = "Submit"></td>
-      <input id="newHh" type="hidden" name="newH">
-      <input type="hidden" id="operacion" name="operacion" value="default" >
+      <input type="hidden" id="newH" name="newH">
       <input type="hidden" id="Level1hid" name="Level1hid">
       <input type="hidden" id="Level2hid" name="Level2hid">
       <input type="hidden" id="Level3hid" name="Level3hid">
     </tr>
-  
-    </form>
-    
-  {% else %}
-    <tr>
-      <th>Estado</th>
-      {% if f412.Estado.name == "Rechazado" %}
-      <th> Motivo Rechazo</th>
-      {% else %}
-      <th> Comentarios Adicionales</th>
-      {% endif %}
-    </tr>
-    <tr>
-      <td style="text-align:center">{{f412.Estado.name}}</td>
-      <td style="text-align:center">{{f412.accion}}</td>
-    </tr>
+
+  </form>
   {% endif %}
-  </table>
   
-  <table style="background-color:#ffffff">
-    <tr><th>Comentario</th></tr>
-    <tr><td>{{f412|getFirstModComm}}</td></tr>
-  </table>
-      
-  {% if myUser.typeUser.name == "ME" %}
+{% elif f412.Estado.name == "Validado" and myUser.typeUser.name == "Subcontrata" %}
+<form action="/f412/{{f412.seccion.name}}/{{f412.myID}}" id="myForm" method="post" onsubmit="return validateForm()">
+  <tr>
+    <th>Estado Actual</th>
+    <th>Nuevo Estado</th>
+    <th id="titleStatus"> Motivo Rechazo/ Descripción acortada</th>
+    <th>Enviar</th>
+  </tr>
+  <tr>
+    <td>{{f412.Estado.name}}</td>
+    <td><select name = "newStatusForm" id="newStatusForm" onchange="changeStatus()">
+      <option value ="Rechazado" selected> Rechazado</option>
+      <option value ="Concedido" selected> Condedido</option>                      
+    </select></td>
+    <td><input type = "text" id="action" style="width:800px;" maxlength="27" name="action" ></td>
+    <td><input type = "submit" value = "Submit"></td>
+    <input id="newHh" type="hidden" name="newH">
+    <input type="hidden" id="operacion" name="operacion" value="default" >
+    <input type="hidden" id="Level1hid" name="Level1hid">
+    <input type="hidden" id="Level2hid" name="Level2hid">
+    <input type="hidden" id="Level3hid" name="Level3hid">
+  </tr>
+
+  </form>
   
-  {% if f412.Estado.name == "Rechazado" %}
-  <table style="background-color:#ffffff">
-    <tr>
-      <th>Estado</th>
-      <th> Motivo Rechazo</th>
-    </tr>
-    <tr>
-      <td style="text-align:center">{{f412.Estado.name}}</td>
-      <td style="text-align:center">{{f412.accion}}</td>
-    </tr>
-  </table>
-  {% endif %}
-    
-  <table style="background-color:#FFFFFF">
-    <tr id="trToMod">
-    </tr>  
-    <tr id="trToMod2">
-    </tr>
-  </table>
-  {% endif %}
+{% else %}
+  <tr>
+    <th>Estado</th>
+    {% if f412.Estado.name == "Rechazado" %}
+    <th> Motivo Rechazo</th>
+    {% else %}
+    <th> Comentarios Adicionales</th>
+    {% endif %}
+  </tr>
+  <tr>
+    <td style="text-align:center">{{f412.Estado.name}}</td>
+    <td style="text-align:center">{{f412.accion}}</td>
+  </tr>
+{% endif %}
+</table>
+
+  
+{% if myUser.typeUser.name == "ME" %}
+
+{% if f412.Estado.name == "Rechazado" %}
+<table style="background-color:#ffffff">
+  <tr>
+    <th>Estado</th>
+    <th> Motivo Rechazo</th>
+  </tr>
+  <tr>
+    <td style="text-align:center">{{f412.Estado.name}}</td>
+    <td style="text-align:center">{{f412.accion}}</td>
+  </tr>
+</table>
+{% endif %}
+
+<table style="background-color:#FFFFFF">
+  <tr id="trToMod">
+  </tr>  
+  <tr id="trToMod2">
+  </tr>
+</table>
 {% endif %}
 
 <script>
@@ -270,7 +250,7 @@ function validateForm() {
                 return false;
             }
         }
-        if (newH.replace(",",".") != "{{f412.horasRecurrentes}}".replace(",",".")){
+        if (newH != "{{f412.horasRecurrentes}}"){
             var confirmed = confirm("¿Seguro que quiere cambiar el valor de la hora introducida previamente?")
             if (confirmed){
                 document.forms["myForm"]["newH"].value = newH;

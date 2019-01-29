@@ -1,62 +1,28 @@
-#from django.shortcuts import render, render_to_response
-#
-#from bokeh.plotting import figure, output_file, show 
-#from bokeh.embed import components
-#
-#def index(request):
-#    x= [1,3,5,7,9,11,13]
-#    y= [1,2,3,4,5,6,7]
-#    title = 'y = f(x)'
-#
-#    plot = figure(title= title , 
-#        x_axis_label= 'X-Axis', 
-#        y_axis_label= 'Y-Axis', 
-#        plot_width =400,
-#        plot_height =400)
-#
-#    plot.line(x, y, legend= 'f(x)', line_width = 2)
-#    #Store components 
-#    script, div = components(plot)
-#
-#    #Feed them to the Django template.
-#    return render_to_response( 'bokeh/index.html',
-#            {'script' : script , 'div' : div} )
-## -*- coding: utf-8 -*-
-#
+from django.views.generic import TemplateView
+from django.contrib.auth.models import User
+
+import arrow
 
 
-#def simple(request):
-#
-#    fig=Figure()
-#
-#    ax=fig.add_subplot(111)
-#    
-#    N = 5
-#    menMeans = (20, 35, 30, 35, 27)
-#    womenMeans = (25, 32, 34, 20, 25)
-#    ind = np.arange(N)    # the x locations for the groups
-#    width = 0.35       # the width of the bars: can also be len(x) sequence
-#    
-#    p1 = ax.bar(ind, menMeans, width)
-#    p2 = ax.bar(ind, womenMeans, width,
-#                 bottom=menMeans)
-#    
-#    ax.set_ylabel('Scores')
-#    ax.set_title('Scores by group and gender')
-#    ax.set_xticks(ind, ('','G1', 'G2', 'G3', 'G4', 'G5'))
-#    ax.set_xticklabels(('', 'G1', 'G2', 'G3', 'G4', 'G5'))
-#    ax.legend((p1[0], p2[0]), ('Men', 'Women'))
-#
-#    canvas=FigureCanvas(fig)
-##    response=HttpResponse(content_type='image/png')
-#    graphic = io.BytesIO()    
-#    canvas.print_figure(graphic)
-##    fig.savefig(graphic, format="png")
-#    fig.clf()
-##    canvas.print_png(graphic)
-#    
-#    template = get_template("html/chart.html")
-#    myContext = getBasicContext(request)
-#    
-#    myContext["chart"] = graphic.getvalue()
-#    return HttpResponse(template.render(myContext))
+class AnalyticsIndexView(TemplateView):
+    template_name = 'analytics/admin/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AnalyticsIndexView, self).get_context_data(**kwargs)
+        context['30_day_registrations'] = self.thirty_day_registrations()
+        return context
+
+    def thirty_day_registrations(self):
+        final_data = []
+
+        date = arrow.now()
+        for day in range(1, 30):
+            date = date.replace(days=-1)
+            count = User.objects.filter(
+                date_joined__gte=date.floor('day').datetime,
+                date_joined__lte=date.ceil('day').datetime).count()
+            final_data.append(count)
+
+        return final_data
+    
+def chartShow(request):

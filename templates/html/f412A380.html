@@ -14,22 +14,26 @@ tr:nth-child(even) {
 }
 </style> -->
 
+{% if mode == "Reparaciones" %}
+
 <form id="button1" method="get" style="display: inline-block;" action="/historial/{{f412.id}}"  >
-  <input class="boton" type="submit" value="Historial F412">
+  <input class="boton" type="submit" value="Historial">
 </form>
 
 {% if myUser.admin %}
 <form id="button3" method="get" style="display: inline-block;" action="/reset/{{f412.id}}"  >
-  <input class="boton" type="submit" value="Resetear F412">
+  <input class="boton" type="submit" value="Resetear">
 </form>
 {% endif %}
 
-{% if mode == "Reparaciones" %}
 <h1 style="color:{{f412.Estado.color}}; display:block">Este F412 está: {{f412.Estado.name}}</h1>
-{% else %}                
-<h1> Reparación A380 nº: {{f412.myID}}</h1> 
-{% endif %}
+
+{% else %}
+
+<h1 style="display:block">Reparación</h1>
                  
+{% endif %}
+
 <table style="background-color:#FFFFFF">
   <tr>
     <th>Fecha</th>
@@ -39,32 +43,38 @@ tr:nth-child(even) {
     <th>P/N</th>
     <th>REF.</th>
     
-    {% if myUser.typeUser.name == "ME"%}
-    <th>H.N.C.</th>
+    {% if myUser.NA == "c17712" %}
+      <th>H.N.C</th>
+      <th>Defecto</th>
     {% endif %}
     
-    <th>Defecto</th>
-    
-    {% if myUser.typeUser.name == "ME"%}
     <th>Tipo Defecto</th>
+    <th>Area</th>    
+    
+    {% if myUser.NA == "c17712" %}
+      <th>AP</th>
     {% endif %}
     
-    <th>Area</th>
-    
-    {% if myUser.typeUser.name == "ME"%}
-    <th>AP</th>
-    <th>Cod.Causa</th>
+    {% if myUser.NA == "ng74b49" or myUser.NA == "c17712" %}
+      <th>Cod. Causa</th>
     {% endif %}
-    
+
     <th>Horas</th>
+    
     <th>SGM</th>
     
-    {% if myUser.typeUser.name == "ME"%}
-    <th>MES</th>
+    {% if myUser.NA == "c17712" %}
+      <th>Mes</th>
     {% endif %}
-    
     <th>Descripcion</th>
     <th>Nº F412</th>
+
+    {% if mode == "Reparaciones" %}
+      <th>Operacion</th>
+    {% else %}
+      <th>H.N.C</th>
+    {% endif %}
+
 </tr>
   <tr>
     <td>{{date}}</td>
@@ -72,35 +82,51 @@ tr:nth-child(even) {
     <td>{{f412.Componente.alias}}</td>
     <td>{{f412.Designacion.alias}}</td>
     <td>{{f412.PN.name}}</td>
-    <td>{{f412.Referencia}}</td>
-    {% if myUser.typeUser.name == "ME"%}
-    <td>{{f412.hnc}}</td>
-    <td></td>
+    <td>{{f412.Referencia}}</td>   
+        
+    {% if myUser.NA == "c17712" %}
+      <td></td>
+      <td></td>
     {% endif %}
+ 
     <td>{{f412.Defecto.name}}</td>
     <td>{{f412.Area.name}}</td>
-    {% if myUser.typeUser.name == "ME"%}
-    <td></td>
-    <td></td>
+    
+    {% if myUser.NA == "c17712" %}
+      <td></td>
     {% endif %}
+        
+    {% if myUser.typeUser.NA == "ng74b49" or myUser.NA == "c17712" %}
+      <td>{{f412.codigoCausa.name}}</td>  
+    {% endif %}
+    
     {% if f412.Estado.name == "Activo" and myUser.typeUser.name == "ME" %}
         <td><input type = "text" id="newHID" style="width:30px;text-align:center" value ={{f412.horas}}></td>
     {%else%}
         <td>{{f412.horas}}</td>
     {% endif %}
+    
     <td>{{f412.SGM.number}}</td>
-     
-    {% if myUser.typeUser.name == "ME"%}
-    <td></td>
+        
+    {% if myUser.NA == "c17712" %}
+      <td></td>
     {% endif %}
     
-    {% if f412.descripcionAcortada == "" %}
-        <td id="descp{{f412.id}}">{{f412.Descripcion}}</td>
+    <td>{{f412.Descripcion}}</td>
+                 
+    <td>{{f412.myID}}</td>    
+    
+    {% if mode == "Reparaciones" %}
+      {% if f412.operacion != 1 %}
+        <td>{{f412.operacion}}</td> 
+          {% else %}
+        <td></td>
+      {% endif %}
     {% else %}
-        <td>{{f412.descripcionAcortada}}</td>
+      <th>H.N.C</th>
     {% endif %}
-    <td>{{f412.myID}}</td>
-    <td>{{f412.id}}</td>    
+    
+    <td>{{f412.id}}</td>
     <!--  <td>{{week}}</td>-->
         
   </tr>
@@ -126,6 +152,7 @@ tr:nth-child(even) {
       <tr>
         <th>Estado Actual</th>
         <th>Nuevo Estado</th>
+        <th>CodCausa</th>
         <th id="titleStatus"> Motivo Rechazo/Comentario</th>
         <th>Enviar</th>
       </tr>
@@ -140,6 +167,15 @@ tr:nth-child(even) {
               <option value = {{ status.name }} > {{ status.name }}</option>
             {% endif %}
             {% endif %}
+          {% endfor %}
+        </select></td>
+        <td><select name="codCausSelect" id="codCausSelect">
+          {% for cod in codCausList %}
+          {% if cod == f412.codCaus %}
+            <option value="{{cod.name}}" selected>{{cod.name}}</option>
+          {% else %}
+            <option value="{{cod.name}}">{{cod.name}}</option>
+          {% endif %}
           {% endfor %}
         </select></td>
         <td><input type = "text" style="width:800px;" name="action" ></td>
@@ -196,21 +232,9 @@ tr:nth-child(even) {
   
 {% endif %}
 
+{% endif %}
 </table>
 {% if myUser.typeUser.name == "ME" %}
-  
-  {% if f412.Estado.name == "Rechazado" %}
-  <table style="background-color:#ffffff">
-    <tr>
-      <th>Estado</th>
-      <th> Motivo Rechazo</th>
-    </tr>
-    <tr>
-      <td style="text-align:center">{{f412.Estado.name}}</td>
-      <td style="text-align:center">{{f412.accion}}</td>
-    </tr>
-  </table>
-  {% endif %}
 <table style="background-color:#FFFFFF">
   <tr id="trToMod">
   </tr>  
@@ -219,7 +243,6 @@ tr:nth-child(even) {
 </table>
 {% endif %}
 
-{% endif %}
 <script>
 
 function validateForm() {
@@ -243,7 +266,7 @@ function validateForm() {
                 return false;
             }
         }
-        if (newH.replace(",",".") != "{{f412.horas}}".replace(",",".")){
+        if (newH != "{{f412.horas}}"){
             var confirmed = confirm("¿Seguro que quiere cambiar el valor de la hora introducida previamente?")
             if (confirmed){
                 document.forms["myForm"]["newHh"].value = newH;

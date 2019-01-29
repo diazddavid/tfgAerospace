@@ -3,35 +3,19 @@ y unos bloques para las funciones especificas de ambos programas -->
 {% extends 'html/form.html' %}
 
 
-{% block form %}
-
-  {% if mode == "Reparaciones" %}
-  <h1 id="titleH">F412 para A{{program.name}}</h1><br>
-  {% else %}      
-  <h1 id="titleH">Reparacion para A{{program.name}}</h1><br>        
-  {% endif %}       
-                            
+{% block form %}                        
   <!-- FuncionarĂĄ cuando enviemos un formulario y se cree un f412 -->
   {% if newID %}
     {% if error == "None" %}
-      <h2>Guardado con Numero:{{myID}}</h2>
+      <h2>F412 Guardado con Numero:{{myID}}</h2>
     {% else %}
       <h2>{{error}}</h2>
     {% endif %}
   {% endif %}
-  
-  {% if mode == "Accidentales"%}
-    {% if newID %}
-    <h2>Creada Reparacion numero: {{myID}}</h2>
-    {% endif %}             
-  {% endif %}
-  
+ 
   <!-- Formulario para crear f412 del 350 -->
-  {% if mode == "Reparaciones" %}
-    <form action="/350/nuevoF412" method="post" name="myForm" onsubmit="return validateForm()">
-  {% else %}      
-    <form action="/350/nuevaRep" method="post" name="myForm" onsubmit="return validateForm()">                               
-  {% endif %}                                                    
+  <form action={% if mode == "Reparaciones" %}"/350/nuevoF412" {% else %}"/350/nuevaRep"{% endif %}
+           method="post" name="myForm" onsubmit="return validateForm()">
     {% csrf_token %}
     <div class="row">
       <div class="column">
@@ -96,44 +80,50 @@ y unos bloques para las funciones especificas de ambos programas -->
           <option value = {{desv.name}}>{{desv.name}}</option>
           {% endfor %}
         </select> </div><br>
-        
-        {% if mode == "Accidentales" %}
-        <div>CVAT Nivel 1
-        <select name="rt1" id="rt1" onchange="CVAT1Function()">
-          <option value="default">Por Defecto</option>
-          {% for rt in rt1 %}
-            <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre|slice:'0:40'}}</option>
-          {% endfor %}
-        </select>
+
+    {% if mode == "Accidentales" %}
+    
+        <div>H.N.C<br>
+        <input type = "text" name = "hnc"><br></div>
+     
+    
+        <div> Nivel 1 Reason Tree
+          <select name = "rt1" id = "rt1" onchange="rt2Function()">
+            <option value="default">Por defecto</option>
+            {% for rt in rt1 %}
+            <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
+            {% endfor %}                           
+          </select>
         </div>
         
-        <div>CVAT Nivel 2
-        <select name="rt2" id="rt2" onchange="CVAT2Function()">
-          <option value="default">Seleccione Nivel 1</option>
-        </select>
-        </div>
-        {% endif %}
-        
+    {% endif %}
+
     </div>
     <div class="column">
-    
+ 
         {% if mode == "Accidentales" %}
-        <div>CVAT Nivel 3
-        <select name="rt3" id="rt3">
-          <option value="default">Seleccione Nivel 2</option>
-          {% for rt in rt1 %}
-          {% endfor %}
-        </select></div>
+    
+          <div>Nivel 2 Reason Tree
+          <select name = "rt2" id="rt2" onchange="rt3Function()">
+            <option value="default">Seleccione primero nivel 1</option>
+          </select>
+          </div>  
+          
+          <div>Nivel 3 Reason Tree
+          <select name = "rt3" id="rt3"">
+            <option value="default">Seleccione primero nivel 2</option>
+          </select>
+          </div>
         
-        <div>H.N.C.
-          <br><input type = "text" name = "hnc"></br>
-        </div>
-        {% endif %}
+        {% endif %}    
+    
+        <div>Fecha<br>
+        <input type = "text" name = "date" value = {{ date }} readonly></br></div>
                                                    
         <div>Referencia<br>
         <input type = "number" name = "Ref"></br></div>
 
-        <div>SGM a imputar horas
+        <div>SGM Solicitantes
         <select name = "SGM" id="SGMID">
           <!-- Esta opcion desaparecerĂĄ al seleccionar APT -->
           {% if myUser.typeUser.name == "ME"%}
@@ -166,11 +156,8 @@ y unos bloques para las funciones especificas de ambos programas -->
         </br></div>
         
         <div>Horas Recurrentes<br>
-        {% if mode == "Accidentales" %}
-        <input type = "text" name = "horas" value="0" readonly></br></div>
-        {% else %}
-        <input type = "text" name = "hRec" value="0" readonly></br></div>
-        {% endif %}
+        <input type = "text" name = {%if mode == "Reparaciones" %}"hRec"{% else %}"horas"{% endif %} 
+        value="0" readonly></br></div>
         
         <div>Descripcion<br>
         <textarea name="textDescp" id="textDescp" rows="5" cols="30"></textarea>
@@ -188,28 +175,6 @@ y unos bloques para las funciones especificas de ambos programas -->
 
   <script>
   
-  function CVAT1Function(){
-    var lvl1 = document.forms["myForm"]["rt1"].value;
-    document.getElementById("rt2").innerHTML = "";   
-    {% for rt in rt2 %}
-      var fullName = "{{rt.shortName}}"
-      if(fullName.startsWith(lvl1)){
-        document.getElementById("rt2").innerHTML += "<option value='{{rt.codigo}}'>{{rt.codigo}} - {{rt.nombre |slice:'0:50'}}</option>"
-      }
-    {% endfor %}                  
-  }
-  
-  function CVAT2Function(){
-    var lvl2 = document.forms["myForm"]["rt2"].value;
-    document.getElementById("rt3").innerHTML = "";                             
-    {% for rt in rt3 %}
-      var fullName = "{{rt.shortName}}"
-      if(fullName.startsWith(lvl2)){
-        document.getElementById("rt3").innerHTML += "<option value='{{rt.codigo}}'>{{rt.codigo}} - {{rt.nombre|slice:'0:40'}}</option>"
-      }
-    {% endfor %}                  
-  }
-  
   function piezaFunction(){
       sectionFunction();
   }
@@ -219,11 +184,7 @@ y unos bloques para las funciones especificas de ambos programas -->
     var numH = document.forms["myForm"]["numH"].value;
     numH = numH.replace(",",".");
     var HRec = String(nOp*numH);
-    {% if mode == "Reparaciones" %}                     
-        document.forms["myForm"]["hRec"].value = HRec.replace(".",",");    
-    {% else %}
-        document.forms["myForm"]["horas"].value = HRec.replace(".",",");    
-    {% endif %}                      
+    document.forms["myForm"][{%if mode == "Reparaciones" %}"hRec"{% else %}"horas"{% endif %}].value = HRec.replace(".",",");                         
   }
   
   function componentAPT5(){
@@ -237,7 +198,7 @@ y unos bloques para las funciones especificas de ambos programas -->
         {% for pn in comp.parNumber.all %}
           designaName = "{{pn.Designacion.name}}";
           if (designaName.indexOf(pieza) != -1){
-            document.getElementById("PNID").innerHTML += "<option value ={{pn.name}}>{{pn.name}} - {{pn.id}}</option>";
+            document.getElementById("PNID").innerHTML += "<option value ={{pn.name}}>{{pn.name}}</option>";
           }
         {% endfor %}        
       }
@@ -266,7 +227,6 @@ y unos bloques para las funciones especificas de ambos programas -->
     var name = "{{parNumber}}"
     if(name.startsWith(designation)){
       newName = name.substring(name.lastIndexOf(".") + 1, name.length);
-                              
       document.getElementById("PNID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
     }
     {% endfor %}  
@@ -352,12 +312,6 @@ function validateForm() {
     variablesWhite[1] = document.forms["myForm"]["numH"].value;
     document.forms["myForm"]["Descp"].value = document.getElementById("textDescp").value;            
     variablesWhite[2] = document.forms["myForm"]["Descp"].value;
-    {% if mode == "Accidentales" %}           
-    variablesDef[6] = document.forms["myForm"]["rt1"].value;
-    variablesDef[7] = document.forms["myForm"]["rt2"].value;
-    variablesDef[8] = document.forms["myForm"]["rt3"].value; 
-    variablesWhite[3] = document.forms["myForm"]["hnc"].value;   
-    {% endif %}                
     for (i = 0; i < variablesWhite.length; i++) {
       if (variablesWhite[i] == "") { 
           alert("No se puede enviar un formulario con campos en blanco");
@@ -370,11 +324,35 @@ function validateForm() {
           return false;
       }
     }
-  }
+  }   
       
-  window.onload = function(){  
-    sectionFunction();
-  }
+function rt2Function(){
+    document.getElementById("rt2").innerHTML = "<option value='default'>Por defecto</option>"    
+    var rt1Chosen = document.forms["myForm"]["rt1"].value;                                 
+    {% for rt in rt2 %} 
+      var rtName = "{{rt.shortName}}" 
+      if (rtName.startsWith(rt1Chosen)){
+        document.getElementById("rt2").innerHTML += "<option value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
+      }
+    {% endfor%}    
+         
+}
+      
+function rt3Function(){
+    document.getElementById("rt3").innerHTML = "<option value='default'>Por defecto</option>"       
+    var rt2Chosen = document.forms["myForm"]["rt2"].value;  
+    {% for rt in rt3 %} 
+      var rtName = "{{rt.shortName}}" 
+      if (rtName.startsWith(rt2Chosen)){
+        document.getElementById("rt3").innerHTML += "<option value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
+      }
+    {% endfor%}    
+         
+}      
+      
+window.onload = function(){  
+  sectionFunction();
+}
 
   </script>
 
