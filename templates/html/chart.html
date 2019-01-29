@@ -1,0 +1,136 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+<h1>F412 por Cod. Causa </h1>
+ <form id="button1" method="get" action="#Rec">
+    <input class="boton" type="submit" value="Recurrentes">
+  </form>
+  <form id="button2" method="get" action="#LT">
+    <input class="boton" type="submit" value="Life Time">
+  </form>
+   <form id="button2" method="get" action="/updateGraph">
+    <input class="boton" type="submit" value="Actualizar">
+  </form>
+  </br>
+<!--V verde
+al rojo
+m naranja
+ -->
+
+{{msg}}
+<form id="Rec" style="display: inline-block" name="myForm">
+  <h2 style="text-align:left; display: inline-block;margin-right:10px; font-size: 25px">Filtrar aviones:</h2> 
+  Desde:<select name = "av1" id="av1" onchange="planeFunction()" style="display: inline-block">
+    {% for plane in planeList %}
+    {% if plane.numero <= av2.numero %}
+      <option value="{{plane.numero}}" {% if plane == av1 %}selected{% endif %}>{{plane.numero}}</option>
+    {% endif %}                 
+    {% endfor %}
+  <select>
+  Hasta:<select name = "av2" id="av2" style="display: inline-block" onchange="plane2Function()">
+    {% for plane in planeList %}
+    {% if plane.numero >= av1.numero %}
+     <option value="{{plane.numero}}" {% if plane == av2 or plane == lastPlane %} selected {% endif %}>{{plane.numero}}</option> 
+    {% endif %}
+    {% endfor %}
+  </select>        
+</form> 
+
+<h1><img src = "/images/chart.png" ></h1>
+
+<form style="display: inline-block" name="myForm" id="LT">
+  <h2 style="text-align:left; display: inline-block;margin-right:10px; font-size: 25px">Filtrar aviones:</h2> 
+  Desde:<select name = "av1TL" id="av1TL" onchange="planeFunctionTL()" style="display: inline-block">
+    {% for plane in planeList %}
+    {% if plane.numero <= av2TL.numero %}
+      <option value="{{plane.numero}}" {% if plane == av1TL %}selected{% endif %}>{{plane.numero}}</option>
+    {% endif %}                 
+    {% endfor %}
+  <select>
+  Hasta:<select name = "av2TL" id="av2TL" style="display: inline-block" onchange="plane2FunctionTL()">
+    {% for plane in planeList %}
+    {% if plane.numero >= av1TL.numero %}
+     <option value="{{plane.numero}}" {% if plane == av2TL or plane == lastPlane %} selected {% endif %}>{{plane.numero}}</option> 
+    {% endif %}
+    {% endfor %}
+  </select>        
+</form> 
+
+<h1><img src = "/images/chartTL.png" ></h1>
+
+<script>
+
+function planeFunctionTL(){
+  var planeNum = document.getElementById("av1TL").value;
+  document.getElementById("av2TL").innerHTML = "";
+  {% for plane in planeList %}
+    if ("{{plane.numero}}" >= planeNum){
+      document.getElementById("av2TL").innerHTML += "<option value='{{plane.numero}}'{% if plane == lastPlane %} selected {% endif %}>{{plane.numero}}</option>";        
+    }
+  {% endfor %}    
+  plane2FunctionTL();
+}
+
+function plane2FunctionTL(){ 
+  var av1 = document.getElementById("av1TL").value;
+  var av2 = document.getElementById("av2TL").value;  
+  var path = "/grafico#LT";    
+  makeForm("TL", av1, av2, path)                
+}
+
+function planeFunction(){
+  var planeNum = document.getElementById("av1").value;
+  document.getElementById("av2").innerHTML = "";
+  {% for plane in planeList %}
+    if ("{{plane.numero}}" >= planeNum){
+      document.getElementById("av2").innerHTML += "<option value='{{plane.numero}}'{% if plane == lastPlane %} selected {% endif %}>{{plane.numero}}</option>";        
+    }
+  {% endfor %}    
+  plane2Function()
+}
+    
+function plane2Function(){   
+  var av1 = document.getElementById("av1").value;
+  var av2 = document.getElementById("av2").value; 
+  var path = "/grafico";     
+  makeForm("", av1, av2, path);                             
+}         
+
+function makeForm(typeGraph, av1, av2, path){
+  var method = "post";                           
+  
+  var form = document.createElement("form");
+  form.setAttribute("method", method);
+  form.setAttribute("action", path);
+                  
+  var hiddenAv = document.createElement("input");
+  hiddenAv.setAttribute("type", "hidden");
+  hiddenAv.setAttribute("name", "av1");                       
+  hiddenAv.setAttribute("value", av1); 
+
+  var hiddenAv2 = document.createElement("input");
+  hiddenAv2.setAttribute("type", "hidden");
+  hiddenAv2.setAttribute("name", "av2");                       
+  hiddenAv2.setAttribute("value", av2);
+                        
+  var hiddenTypeGraph = document.createElement("input");
+  hiddenTypeGraph.setAttribute("type", "hidden");
+  hiddenTypeGraph.setAttribute("name", "typeGraph");
+  if (typeGraph){
+    hiddenTypeGraph.setAttribute("value", typeGraph);
+  }else{
+    hiddenTypeGraph.setAttribute("value", "");
+  }                                                    
+  
+  form.appendChild(hiddenAv);
+  form.appendChild(hiddenAv2);
+  form.appendChild(hiddenTypeGraph);
+                  
+  document.body.appendChild(form);                   
+  form.submit();           
+}               
+    
+
+</script>
+
+{% endblock %}

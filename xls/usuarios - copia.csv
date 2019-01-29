@@ -1,0 +1,46 @@
+NAME ;EMAIL;PROGRAMA;SECCION;tipo usuario;password;NG;SGM ;Nombre Completo
+c16181;Ricardo.Remon@airbus.com;380;380;MANDOTL;cambiar;c16181;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301;REMON-NAVARRETE, Ricardo
+c40140;enrique.fraile-alvarez@airbus.com;380;380;MANDOTL;cambiar;c40140;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301;FRAILE-ALVAREZ, Enrique-E
+c18151;jorge-octavio.romero-pesquero@airbus.com;380;380;MANDOTL;cambiar;c18151;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301;ROMERO-PESQUERO, Jorge Octavio
+c18172;francisco-miguel.munoz-monterde@airbus.com;380;380;MANDOTL;cambiar;c18172;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301;MUNOZ-MONTERDE, Francisco Miguel
+c18134;jose-angel.monzon-ruedas@airbus.com;380;380;MANDOTL;cambiar;c18134;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301;MONZON-RUEDAS, Jose-Angel
+c18268;ivan.ortiz-bueno@airbus.com;380;380;MANDOTL;cambiar;c18268;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301;ORTIZ-BUENO, Ivan-I
+c41339;jesus.gonzalez-vaquero@airbus.com;380;380;MANDOTL;cambiar;c41339;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301;GONZALEZ-VAQUERO, JESUS
+c17671;juan.lancho@airbus.com;380;380;MANDOTL;cambiar;c17671;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301;LANCHO-SANCHEZ, Juan Antonio
+c41248;daniel-lorenzo.godoy-tuduri@airbus.com;380;380;MANDOTL;cambiar;c41248;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301;GODOY-TUDURI, Daniel Lorenzo
+c18111;jose.g.gonzalez@airbus.com;380;380;MANDOTL;cambiar;c18111;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301;GONZALEZ-SAUGAR, Jose Carlos
+c41347;nuria.romojaro-lopez@airbus.com;350;APT1,APT2;MANDOTL;cambiar;c41347;0814,0813,0855;ROMOJARO-LOPEZ, NURIA
+c16653;luis.huertas@airbus.com;350;APT1,APT2;MANDOTL;cambiar;c16653;0814,0813,0855;HUERTAS-FERNANDEZ, Luis Miguel
+c16841;carmelo.sierra@airbus.com;350;APT3,APT4,APT5;MANDOTL;cambiar;c16841;8052,0842,0855,0832;SIERRA-BARAJAS, CARMELO
+c18099;francisco.fernandez-garcia@airbus.com;350;APT3,APT4,APT5;MANDOTL;cambiar;c18099;8052,0842,0855,0832;FERNANDEZ-GARCIA, Francisco
+c40497;santiago.marin-callejas@airbus.com;350;APT1;MANDOTL;cambiar;c40497;814;MARIN-CALLEJAS, Santiago
+c41955;alejandro.rodriguez-garcia@airbus.com;350;APT1;MANDOTL;cambiar;c41955;814;RODRIGUEZ-GARCIA, Alejandro A
+c41854;mario.sedano-sacristan@airbus.com;350;APT2;MANDOTL;cambiar;c41854;813,0855;SEDANO-SACRISTAN, MARIO
+c18161;eduardo.sanchez-rodriguez@airbus.com;350;APT2;MANDOTL;cambiar;c18161;813,0855;SANCHEZ-RODRIGUEZ, Eduardo
+c40129;alberto.lopez-herraiz@airbus.com;350;APT3;MANDOTL;cambiar;c40129;8052;LOPEZ-HERRAIZ, ALBERTO
+c40263;jorge.daza@airbus.com;350;APT3;MANDOTL;cambiar;c40263;8052;DAZA-DE-DIOS, Jorge
+c18087;borja.blanco-bello@airbus.com;350;APT4;MANDOTL;cambiar;c18087;842,0855;BLANCO-BELLO, Borja
+c41976;ruben.gomez-perez@airbus.com;350;APT4;MANDOTL;cambiar;c41976;842,0855;GOMEZ-PEREZ, Ruben
+c18237;jose-maria.marcos-fernandez@airbus.com;350;APT5;MANDOTL;cambiar;c18237;832;MARCOS-FERNANDEZ, Jose Maria
+c40740;jose.prado@airbus.com;350;APT2;ME;cambiar;c40740;813,0855;PRADO-CABALLERO, Jose Luis
+c18105;miguel-noe.garcia-perez@airbus.com;350;APT4;ME;cambiar;c18105;842,0855;GARCIA-PEREZ, Miguel Noe 
+c42051;daniel-ramiro.canoto-lopez@airbus.com;350;APT4,APT3;ME;cambiar;c42051;842,0855,8052;CANOTO-LOPEZ, Daniel Ramiro 
+c42046;fernando.plaza-estevez@airbus.com;350;APT5,APT1;ME;cambiar;c42046;832,814;PLAZA-ESTEVEZ, Fernando 
+c18101;angel.fernandez-vilches@airbus.com;350;APT5,APT1;ME;cambiar;c18101;832,814;FERNANDEZ-VILCHES, ANGEL
+c18130;francisco.mingo@airbus.com;350;APT5;ME;cambiar;c18130;832;MINGO-GARCIA, Francisco Javier
+c41011;carlos.rodriguez-campos@airbus.com;350,38;380,APT1,APT2,APT3,APT4,APT5;ME;cambiar;c41011;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301,0814,0813,0855,8052,0842,0855,0832;RODRIGUEZ-CAMPOS, CARLOS
+c17638;jose.j.jimenez@airbus.com;350;APT3;ME;cambiar;c17638;8052;JIMENEZ-FERNANDEZ, Jose Maria
+c17712;jorge.gomez-sanchez@airbus.com;380;380;ME;cambiar;c17712;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301;GOMEZ-SANCHEZ, JORGE
+c40162;abel.del-pino-perez@airbus.com;;;ME;cambiar;c40162;;DEL-PINO-PEREZ, Abel
+c17317;antonio.sepulveda@airbus.com;;;ME;cambiar;c17317;;SEPULVEDA-RAMOS, ANTONIO
+c40940;ana.moneo@airbus.com;;;ME;cambiar;c40940;;MONEO-PENACOBA, Ana Reyes
+c41408;aritz.santos-lopez@airbus.com;;;ME;cambiar;c41408;;SANTOS-LOPEZ, ARITZ
+c11833;blas.poveda@airbus.com;;;HO_CDT;cambiar;c11833;;POVEDA-NAVARRETE, Blas Alfonso
+c41049;ismael.granon-villellas@airbus.com;;;HO_CDT;cambiar;c41049;;GRANON-VILLELLAS, Ismael
+c12800;fernando.r.garcia@airbus.com;;;HO_CDT;cambiar;c12800;;GARCIA-ALONSO, FERNANDO
+c41962;juan-ignacio.fesser-velasco@airbus.com;;;HO_CDT;cambiar;c41962;;FESSER-VELASCO, Juan-Ignacio
+airbus;;350,38;380,APT1,APT2,APT3,APT4,APT5;ME;airbus;;0810,0812,0821,0831,0841,0844,0845,0846,0851,0853,0889,8051,9301,9321,9331,8051,9331,9321,9301,0814,0813,0855,8052,0842,0855,0832;ADMINISTRADOR
+ng70021;jorge.tena.external@airbus.com;;;Subcontrata;cambiar;NG70021;;TENA, Jorge (ASSYSTEM IBERIA SL) 
+ng731dd;ruben.trivino.external@airbus.com;;;Subcontrata;cambiar;NG731DD;;TRIVINO, Ruben (ASSYSTEM IBERIA SL) 
+ng62b2c;francisco.galvez.external@airbus.com;;;Subcontrata;cambiar;NG62B2C;;GALVEZ, Francisco (ASSYSTEM IBERIA SL) 
+ng559e8;manuel.molina.external@airbus.com;;;Subcontrata;cambiar;NG559E8;;MOLINA, Manuel (ASSYSTEM IBERIA SL)

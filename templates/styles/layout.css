@@ -1,0 +1,198 @@
+@charset "utf-8";
+/*
+Template Name: Education Board
+Author: <a href="http://www.os-templates.com/">OS Templates</a>
+Author URI: http://www.os-templates.com/
+Licence: Free to use under our free template licence terms
+Licence URI: http://www.os-templates.com/template-terms
+File: Layout CSS
+*/
+
+@import url("navi.css");
+@import url("tables.css");
+
+html{overflow-y:scroll;}
+body{margin:0; padding:0; font-size:13px; font-family:"Calibri"; color:#979797; background-color:#00205b;}
+
+.justify{text-align:justify;}
+.bold{font-weight:bold;}
+.center{text-align:center;}
+.right{text-align:right;}
+.nostart{margin:0; padding:0; list-style-type:none;}
+
+.clear:after{content:"."; display:block; height:0; clear:both; visibility:hidden; line-height:0;}
+.clear{display:inline-block;}
+html[xmlns] .clear{display:block;}
+* html .clear{height:1%;}
+
+a{outline:none; text-decoration:none;}
+
+.fl_left, .imgl{float:left;}
+.fl_center, .imgl{float:center;}
+.fl_right, .imgr{float:right;}
+
+img{margin:0; padding:0; border:none;}
+.imgholder, .imgl, .imgr{padding:4px; border:1px solid #D8D8D8; text-align:center;}
+.imgl{margin:0 15px 15px 0; clear:left;}
+.imgr{margin:0 0 15px 15px; clear:right;}
+
+/* ----------------------------------------------Wrapper------------------------------------- */
+
+div.wrapper{display:block; width:100%; text-align:left;}
+div.wrapper h1, div.wrapper h2, div.wrapper h3, div.wrapper h4, div.wrapper h5, div.wrapper h6{margin:0 0 15px 0; padding:0; font-size:16px; font-weight:normal; line-height:normal; color:#333333; background-color:transparent;}
+.row1, .row2{color:#979797; background-color:#b7c9d3;}
+.row3{color:#979797; background-color:#FFFFFF; border-top:1px solid #0085ad; border-bottom:5px solid #b7c9d3;}
+.row3 a{color:#896C50; background-color:#FFFFFF;}
+.row4{padding:30px 0;}
+
+/*  *******************************************MIO*************************************/
+#hpage_featured{
+    color:#00205b;
+    margin-top: 0;
+    margin-bottom: 0px;
+    margin-right: 100px;
+    margin-left: 75px;
+}
+
+#hpage_featured .boton{
+  text-align: center;
+}
+
+#hpage_featured h1{font-size: 30px; text-align: center; color:#00205b}
+#hpage_featured h2{text-align: center}
+#hpage_featured {font-size: 15px;}
+#hpage_featured p{
+    font-size: 20px;
+    display: block;
+    -webkit-margin-before: 0px;
+    -webkit-margin-after: 0px;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+}
+
+#hpage_featured #adminFORM select{
+    display: block;
+    -webkit-margin-before: 0px;
+    -webkit-margin-after: -8px;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+}
+
+#hpage_featured #adminFORM input{
+  -webkit-margin-after: 10px;
+}
+
+#hpage_featured #adminFORM #submit {
+  font-size: 25;
+}
+
+#hpage_featured select{
+    display: block;
+    -webkit-margin-before: 0px;
+    -webkit-margin-after: -45px;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+}
+
+#hpage_featured input{
+  -webkit-margin-after: -50px;
+}
+#descp {
+  -webkit-margin-after: 100px;
+  width: 300px;
+}
+#hpage_featured div{
+  margin-top: 0;
+  margin-bottom: 5px;
+  -webkit-margin-after: 35px;
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
+#hpage_featured .column {
+    float: left;
+    margin-left: 130px;
+}
+
+#hpage_featured .row{
+  padding-top: 0px;
+  padding-right: 50px;
+  padding-bottom: 0px;
+  padding-left: 50px;
+}
+
+#hpage_featured #myTable{
+  background-color:#FFFFFF;
+}
+
+#formLink{
+  border: none;
+  background: none;
+  color: #00f;
+/* text-decoration: underline;*/
+  cursor: pointer;
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+/* #passFORM form {background-color:#FFFFFF; } */
+/* ----------------------------------------------Generalise------------------------------------- */
+
+#header, #container, #footer, #copyright{display:block; position:relative; width:960px; margin:0 auto;}
+
+/* ----------------------------------------------Header------------------------------------- */
+
+#header{padding:25px 100px 30px 0;}
+#header h1, #header p, #header ul{margin:0; padding:0; list-style:none; line-height:normal;}
+#header h1{font-size:50px; font-variant:small-caps; font-style:normal;}
+#header h1 a{color:#00205b; background-color:#b7c9d3;}
+#header p{font-size:12px;}
+#header p a{color:#89C7FF; background-color:#b7c9d3;}
+#header .fl_left, #header .fl_right{margin-bottom:15px;}
+#header .fl_right{margin-top:13px;}
+#header .fl_right p{margin:5px 50px 0 0;}
+#header .fl_right h1{font-size:20px;margin:5px 10px 0 0; display: inline-block;}
+#header #logOut .boton {font-size:25px; margin:5px 10px 0 0; display: inline-block;}
+#header .boton {font-size:12px; margin:5px 10px 0 0; display: inline-block;}
+#topnav {font-size:18px}
+#topnav li{margin:00 30px 0 0;}
+/* ----------------------------------------------Content------------------------------------- */
+
+#container{padding:30px 0; line-height:1.6em;}
+#container h1, #container h2, #container h3, #container h4, #container h5, #container h6{background-color:#FFFFFF; margin:0 0 15px 0; padding:0 0 10px 0; border-bottom:1px solid #D8D8D8;}
+#container .readmore{display:block; width:100%; text-align:right; line-height:normal;}
+#content{display:block; float:left; width:630px;}
+
+/* ----------------------------------------------Column------------------------------------- */
+
+#column{display:block; float:right; width:300px;}
+#column .holder, #column #featured{display:block; width:300px; margin-bottom:30px;}
+#column .holder h2.title{display:block; width:100%; height:65px; margin:0; padding:15px 0 0 0; font-size:20px; text-transform:none; line-height:normal; border-bottom:1px dotted #999999;}
+#column .holder h2.title img{float:left; margin:-15px 8px 0 0; padding:5px; border:1px solid #999999;}
+#column div.imgholder{display:block; width:290px; margin:0 0 10px 0;}
+#column .holder p.readmore{display:block; width:100%; font-weight:bold; text-align:right; line-height:normal;}
+
+/* ----------------------------------------------Footer------------------------------------- */
+
+#footer{line-height:1.6em; 550px 0 repeat-y;}
+#footer a{color:#979797; background-color:#333333;}
+#footer h2{color:#FFFFFF; background-color:#333333; font-weight:bold; font-style:normal;}
+#footer ul{margin:0; padding:0; list-style:none;}
+#footer address{font-style:normal;}
+#footer .footbox{display:block; float:left; width:200px; margin-right:30px;}
+#footer #social{margin-bottom:20px;}
+#footer #social ul{margin:20px 0 0 0;}
+#footer #social li{display:inline; margin-right:15px;}
+#footer .last{margin:0;}
+
+/* ----------------------------------------------Copyright------------------------------------- */
+
+#copyright{padding:15px 0; border-top:1px solid #979797;}
+#copyright p{margin:0; padding:0;}
+#copyright, #copyright a{color:#979797;}
+
+#button1, #button2{
+  text-align: center;
+  display:inline-block;
+}

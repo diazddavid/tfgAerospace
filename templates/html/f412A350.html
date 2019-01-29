@@ -1,0 +1,391 @@
+{% extends 'html/base.html' %}
+{% load filtrosExtra%}
+{% block body %}
+<!-- <style>
+
+td, th {
+    border: 1px solid #000000;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style> -->
+
+<form method="get" action="/historial/{{f412.id}}" style="display: inline-block;" >
+  <input class="boton" type="submit" value="Historial F412">
+</form>
+
+{% if myUser.admin %}
+<form  method="get" action="/reset/{{f412.id}}" style="display: inline-block;">
+  <input class="boton" type="submit" value="Resetear F412">
+</form>
+
+<form method="get" action="/cambiarRT/{{f412.id}}" style="display: inline-block;">
+  <input class="boton" type="submit" value="Cambiar RT F412">
+</form>
+{% endif %}
+
+{% if mode == "Reparaciones" %}
+  <h1>F412 nº{{f412.myID}}, {% if f412.programa.name == "350"%} {{f412.seccion.name}}{%else%}A380{%endif%}</h1>
+  <h1 style="color:{{f412.Estado.color}}">Este F412 está: {{f412.Estado.name}}</h1>
+{% else %} 
+  <h1>Reparación nº{{f412.myID}}, {% if f412.programa.name == "350"%} {{f412.seccion.name}}{%else%}A380{%endif%}</h1>
+{% endif %}                 
+<table style="background-color:#FFFFFF">
+  <tr>
+    <th>Fecha</th>
+    <th>wk</th>
+    <th>Rank</th>
+    <th>Programa</th>
+    <th>PN</th>
+    <th>Designacion</th>
+    <th>LH/RH</th>
+    <th>Ref</th>
+    <th>Desviacion</th>
+    <th>Origen Acc</th>
+    <th>Comentarios</th>
+    <th>Cod. Causa</th>
+    {% if mode == "Reparaciones" %}
+    <th>Operacion</th>
+    {% else %}
+    <th>H.N.C.</th>
+    {% endif %}
+    <th>SGM</th>
+    <th>Horas</th>
+    <th>Nº Op</th>
+    <th>Descripcion</th>
+    <th>Nº F412</th>
+    </tr>
+  <tr>
+    <!-- Fecha y semana -->
+    <td>{{date}}</td>
+    <td>wk{{week}}</td>
+    <td>{{f412.nAV}}</td>
+    <td>A{{f412.programa.name}}</td>
+    <td>{{f412.PN.name}}</td>
+    <td>{{f412.Componente.name}}</td>
+    <td>S19</td>
+    <td>{{f412.Referencia}}</td>
+    <td>{{f412.Defecto.name}}</td>
+    <td>{{f412.Area.name}}</td>
+    <!-- Comentarios, acordamos poner la descripcion original cuando esté modificada -->
+    {% if f412.descripcionAcortada == "" %}
+        <td></td>
+    {% else %}
+        <td>{{f412.Descripcion}}</td>
+    {% endif %}
+    <td>{{f412.codigoCausa.name}}</td>
+         
+    {% if mode == "Reparaciones" %}
+        {% if f412.operacion != 1 %}
+        <td>{{f412.operacion}}</td> 
+        {% else %}
+        <td></td>
+        {% endif %}
+    {% else %}
+        <td>{{f412.hnc}}</td>
+    {% endif %}
+    
+    <td>{{f412.SGM.number}}</td>  
+    {% if f412.Estado.name == "Activo" and myUser.typeUser.name == "ME" %}
+        <td><input type = "text" id="newHID" style="width:30px;text-align:center" value ={{f412.horasRecurrentes|slice:"0:5"}}></td>
+    {%else%}
+        <td>{{ f412.horasRecurrentes|slice:"0:5" }}</td>
+    {% endif %}
+    <td>{{f412.nOp}}</td>      
+    {% if f412.descripcionAcortada == "" %}
+        <td id="descp{{f412.id}}">{{f412.Descripcion}}</td>
+    {% else %}
+        <td>{{f412.descripcionAcortada}}</td>
+    {% endif %}
+    <td>{{f412.myID}}</td>
+        <td>{{f412.id}}</td>
+    <!---->
+  </tr>
+
+</table><br>
+
+<table style="background-color:#FFFFFF">
+  <tr>
+    <th>Creado Por</th>
+    <th>Ultima modificacion</th>
+  </tr>
+  <tr>
+    <td style="text-align:center"><a href="mailto:{{f412.Usuario.email}}">{{f412.Usuario.email}}</a></td>
+    <td style="text-align:center"><a href="mailto:{{f412.LastChangeUser.email}}">{{f412.LastChangeUser.email}}</a></td>
+  </tr>
+</table>
+
+{% if mode == "Reparaciones" %}
+
+  <table style="background-color:#FFFFFF">
+  {% if myUser.typeUser.name == "ME" %}
+    {% if f412.Estado.name == "Activo" or f412.Estado.name == "Validado" or myUser.admin == True %}
+    <form action="/f412/{{f412.seccion.name}}/{{f412.myID}}" id="myForm" method="post" onsubmit="return validateForm()">
+      <tr>
+        <th>Estado Actual</th>
+        <th>Nuevo Estado</th>
+        <th>CodCausa</th>
+        <th>Operacion</th>
+        <th>Comentario Adicional</th>
+        <th id="titleStatus"> Motivo Rechazo/ Descripción acortada</th>
+        <th>Enviar</th>
+      </tr>
+      <tr>
+        <td>{{f412.Estado.name}}</td>
+        <td><select name = "newStatusForm" id="newStatusForm" onchange="changeStatus()">
+          {% for status in statusList %}
+            {% if status.name != "Activo" %}
+            {% if status.name == "Validado" %}
+              <option value = {{ status.name }} selected> {{ status.name }}</option>
+            {% else %}
+              <option value = {{ status.name }} > {{ status.name }}</option>
+            {% endif %}
+            {% endif %}
+          {% endfor %}
+        </select></td>
+        <td><select name="codCausSelect" id="codCausSelect">
+           {% for cod in codCausList %}
+           {% if cod == f412.codCaus %}
+             <option value="{{cod.name}}" selected>{{cod.name}}</option>
+           {% else %}
+             <option value="{{cod.name}}">{{cod.name}}</option>
+           {% endif %}
+           {% endfor %}
+        </select></td>
+        <td><input type = "text" id="operacion" name="operacion" ></td>
+        <td><input type = "text" id="comment" style="width:400px;" name="comment"></td>
+        <td><input type = "text" id="action" style="width:400px;" name="action" ></td>
+        <td><input type = "submit" value = "Submit"></td>
+        <input type="hidden" id="newH" name="newH">
+        <input type="hidden" id="Level1hid" name="Level1hid">
+        <input type="hidden" id="Level2hid" name="Level2hid">
+        <input type="hidden" id="Level3hid" name="Level3hid">
+      </tr>
+  
+    </form>
+    {% endif %}
+      
+  {% elif f412.Estado.name == "Validado" and myUser.typeUser.name == "Subcontrata" %}
+  <form action="/f412/{{f412.seccion.name}}/{{f412.myID}}" id="myForm" method="post" onsubmit="return validateForm()">
+    <tr>
+      <th>Estado Actual</th>
+      <th>Nuevo Estado</th>
+      <th id="titleStatus"> Motivo Rechazo/ Descripción acortada</th>
+      <th>Enviar</th>
+    </tr>
+    <tr>
+      <td>{{f412.Estado.name}}</td>
+      <td><select name = "newStatusForm" id="newStatusForm" onchange="changeStatus()">
+        <option value ="Rechazado" selected> Rechazado</option>
+        <option value ="Concedido" selected> Condedido</option>                      
+      </select></td>
+      <td><input type = "text" id="action" style="width:800px;" maxlength="27" name="action" ></td>
+      <td><input type = "submit" value = "Submit"></td>
+      <input id="newHh" type="hidden" name="newH">
+      <input type="hidden" id="operacion" name="operacion" value="default" >
+      <input type="hidden" id="Level1hid" name="Level1hid">
+      <input type="hidden" id="Level2hid" name="Level2hid">
+      <input type="hidden" id="Level3hid" name="Level3hid">
+    </tr>
+  
+    </form>
+    
+  {% else %}
+    <tr>
+      <th>Estado</th>
+      {% if f412.Estado.name == "Rechazado" %}
+      <th> Motivo Rechazo</th>
+      {% else %}
+      <th> Comentarios Adicionales</th>
+      {% endif %}
+    </tr>
+    <tr>
+      <td style="text-align:center">{{f412.Estado.name}}</td>
+      <td style="text-align:center">{{f412.accion}}</td>
+    </tr>
+  {% endif %}
+  </table>
+  
+  <table style="background-color:#ffffff">
+    <tr><th>Comentario</th></tr>
+    <tr><td>{{f412|getFirstModComm}}</td></tr>
+  </table>
+      
+  {% if myUser.typeUser.name == "ME" %}
+  
+  {% if f412.Estado.name == "Rechazado" %}
+  <table style="background-color:#ffffff">
+    <tr>
+      <th>Estado</th>
+      <th> Motivo Rechazo</th>
+    </tr>
+    <tr>
+      <td style="text-align:center">{{f412.Estado.name}}</td>
+      <td style="text-align:center">{{f412.accion}}</td>
+    </tr>
+  </table>
+  {% endif %}
+    
+  <table style="background-color:#FFFFFF">
+    <tr id="trToMod">
+    </tr>  
+    <tr id="trToMod2">
+    </tr>
+  </table>
+  {% endif %}
+{% endif %}
+
+<script>
+
+function validateForm() {
+    var variable;
+    var operation = document.forms["myForm"]["operacion"].value;    
+    variable = document.forms["myForm"]["action"].value;
+    var newStatusVar = document.forms["myForm"]["newStatusForm"].value;  
+    
+    
+    if (variable == "") {             
+        if (newStatusVar == "Rechazado"){
+            alert("No se puede rechazar sin dar un motivo");
+            return false;     
+        }
+    }  
+    {% if myUser.typeUser.name == "ME" %}                                 
+    var newH = document.getElementById("newHID").value;
+                                    
+   
+    if (newStatusVar == "Validado" || newStatusVar == "Concedido"){                   
+        if(operation == "" && "{{f412.operacion}}" == "1"){
+            alert("No se puede cambiar el estado a concedido o validado sin indicar operacion");
+            return false;
+        }
+        if (isNaN(newH)){
+            newH = newH.replace(",",".");
+            if (isNaN(newH)){                   
+                alert("El valor introducido no es un número");
+                return false;
+            }
+        }
+        if (newH.replace(",",".") != "{{f412.horasRecurrentes}}".replace(",",".")){
+            var confirmed = confirm("¿Seguro que quiere cambiar el valor de la hora introducida previamente?")
+            if (confirmed){
+                document.forms["myForm"]["newH"].value = newH;
+            }else{
+                return false;
+            }
+        }
+    }
+    if (newStatusVar == "Validado" || newStatusVar == "Concedido"){  
+      var f412Comment = document.getElementById("descp{{f412.id}}").innerHTML;  
+      if (f412Comment.length > 27 && variable == ""){           
+        alert("No se puede validar o conceder un formulario con más de 27 (40 - 13 del reason tree) caracteres de descripción sin asignar una nueva descripcion");
+        return false;
+      }
+      if (variable.length > 27){
+        alert("No se puede validar o conceder un formulario con más de 27 (40 - 13 del reason tree) caracteres de descripción, acortela");
+        return false;      
+      }
+      if(document.getElementById("Level2Id").value == "default"){  
+        alert("Introduzca valores reason tree");
+        return false;  
+      }else{   
+        document.forms["myForm"]["Level2hid"].value = document.getElementById("Level2Id").value;
+      }
+      
+      if(document.getElementById("Level3Id").value == "default"){
+        alert("Introduzca valores reason tree");
+        return false;  
+      }else{
+        document.forms["myForm"]["Level3hid"].value = document.getElementById("Level3Id").value;
+      }
+      
+      if(document.getElementById("Level1Id").value == "default"){
+        alert("Introduzca valores reason tree");
+        return false;     
+      } else{
+        document.forms["myForm"]["Level1hid"].value = document.getElementById("Level1Id").value; 
+      }
+    }
+    {%endif%} 
+  }
+      
+function level1(){
+  var lvl1 = document.getElementById("Level1Id").value;
+  document.getElementById("Level2Id").innerHTML = "<option value ='default'> Por Defecto</option>";
+  {% for rt2 in level2RT %}
+  var fullName = "{{rt2.shortName}}"
+  if(fullName.startsWith(lvl1)){
+    document.getElementById("Level2Id").innerHTML += "<option value='{{rt2.codigo}}'>{{rt2.codigo}} - {{rt2.nombre}}</option>";
+  }        
+  {% endfor %}                           
+}
+  
+function level2(){
+  var lvl2 = document.getElementById("Level2Id").value;
+  document.getElementById("Level3Id").innerHTML = "<option value ='default' > Por Defecto</option>";
+  {% for rt3 in level3RT %}
+  var fullName = "{{rt3.shortName}}"
+  if(fullName.startsWith(lvl2)){
+    document.getElementById("Level3Id").innerHTML += "<option value='{{rt3.codigo}}'>{{rt3.codigo}} - {{rt3.nombre}}</option>";
+  }       
+  {% endfor %}  
+}
+        
+function changeStatus(){
+  var status = document.getElementById("newStatusForm").value;
+                    
+  if(status == "Validado" || status == "Concedido"){
+    document.getElementById("titleStatus").innerHTML = "Descripcion Acortada";                          
+    {% if a380 == False %}
+    document.getElementById("trToMod").innerHTML = ""
+    document.getElementById("trToMod").innerHTML += "<th>Reason-Tree nivel 1</th>" 
+    document.getElementById("trToMod").innerHTML += "<th>Reason-Tree nivel 2</th>" 
+    document.getElementById("trToMod").innerHTML += "<th>Reason-Tree nivel 3</th>"  
+                                                     
+    document.getElementById("trToMod2").innerHTML = ""
+    document.getElementById("trToMod2").innerHTML += "<td><select id='Level1Id' name = 'Level1' form='myForm' onchange='level1()'> <option value = 'default'>Por Defecto</option>"
+    {% for rt in level1RT %}
+                                                    + "<option value = {{ rt.codigo }}> {{rt.codigo}} - {{ rt.nombre }}</option>"
+    {% endfor %}
+                                                    + "</select></td>" 
+    document.getElementById("trToMod2").innerHTML += "<td><select name = 'Level2' id='Level2Id' onchange='level2()'select> <option value = 'default'>Por Defecto</option>" 
+    document.getElementById("trToMod2").innerHTML += "</select></td>"                        
+    document.getElementById("trToMod2").innerHTML += "<td> <select name = 'Level3' id='Level3Id' select> <option value = 'default'>Por Defecto</option>"
+    document.getElementById("trToMod2").innerHTML += "</select></td>" 
+    {% endif %}
+  }
+  if(status == "Rechazado"){
+    document.getElementById("titleStatus").innerHTML = "Motivo Rechazo"; 
+    document.getElementById("trToMod").innerHTML = "";                          
+    document.getElementById("trToMod2").innerHTML = "";
+  }                                    
+}
+        
+  function chargefullCom(id){    
+    if ({{f412.id}} == id){
+      alert("{{f412.Descripcion}}");
+      return false;
+    }
+    return false;        
+  }
+  
+  window.onload = function(){
+    changeStatus();
+    var f412Comment = "{{f412.Descripcion}}";                                              
+    if (f412Comment.length >= 27){
+      document.getElementById("descp{{f412.id}}").innerHTML = "<a style='color:red' href='/' onclick='return chargefullCom({{f412.id}})'>{{f412.Descripcion|slice:'0:27'}}"
+      document.getElementById("descp{{f412.id}}").innerHTML += " (Largo)</a>";              
+      {% if myUser.typeUser.name == "ME" %}
+        document.getElementById("descp{{f412.id}}").innerHTML += " (Acortar)"
+      {% endif %}
+      document.getElementById("descp{{f412.id}}").style.color = "red";
+    }
+  }
+
+</script>
+
+{% endblock body %}

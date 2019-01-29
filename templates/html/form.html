@@ -1,0 +1,42 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+{% if myUser.typeUser.name != "Subcontrata" and myUser.typeUser.name != "Lectura" %}
+
+{% if mode == "Accidentales" %}
+
+    {% if program380 %}
+    <form id="button1" method="get" action="/380/nuevaRep">
+      <input class="boton" type="submit" value="Reparacion A380">
+    </form>
+    {% endif %}
+    
+    {% if program350 %}
+    <form id="button1" method="get" action="/350/nuevaRep">
+      <input class="boton" type="submit" value="Reparacion A350">
+    </form>
+    {% endif %}
+
+{% else %}
+              
+    {% if program380 %}
+    <form id="button1" method="get" action="/380/nuevoF412">
+      <input class="boton" type="submit" value="F412 A380">
+    </form>
+    {% endif %}
+    
+    {% if program350 %}
+    <form id="button1" method="get" action="/350/nuevoF412">
+      <input class="boton" type="submit" value="F412 A350">
+    </form>
+    {% endif %}
+
+{% endif %}
+
+{% block form %}
+{% endblock %}
+
+{% else %}
+    <h1>No tiene permisos para acceder a esta dirección</h1>
+{% endif %}
+{% endblock body %}

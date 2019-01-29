@@ -1,0 +1,381 @@
+<!-- Se podria hacer en vez de a partir de base, a partir de un formulario genĂŠrico de 350/380
+y unos bloques para las funciones especificas de ambos programas -->
+{% extends 'html/form.html' %}
+
+
+{% block form %}
+
+  {% if mode == "Reparaciones" %}
+  <h1 id="titleH">F412 para A{{program.name}}</h1><br>
+  {% else %}      
+  <h1 id="titleH">Reparacion para A{{program.name}}</h1><br>        
+  {% endif %}       
+                            
+  <!-- FuncionarĂĄ cuando enviemos un formulario y se cree un f412 -->
+  {% if newID %}
+    {% if error == "None" %}
+      <h2>Guardado con Numero:{{myID}}</h2>
+    {% else %}
+      <h2>{{error}}</h2>
+    {% endif %}
+  {% endif %}
+  
+  {% if mode == "Accidentales"%}
+    {% if newID %}
+    <h2>Creada Reparacion numero: {{myID}}</h2>
+    {% endif %}             
+  {% endif %}
+  
+  <!-- Formulario para crear f412 del 350 -->
+  {% if mode == "Reparaciones" %}
+    <form action="/350/nuevoF412" method="post" name="myForm" onsubmit="return validateForm()">
+  {% else %}      
+    <form action="/350/nuevaRep" method="post" name="myForm" onsubmit="return validateForm()">                               
+  {% endif %}                                                    
+    {% csrf_token %}
+    <div class="row">
+      <div class="column">
+        <div>N AV<br>
+        <input type = "number" name = "nAV"></br></div>
+
+        <div>APT
+        <select name = "section" id="SectionID" onchange="sectionFunction()">
+        {% if myUser.typeUser.name == "ME" %}
+          {% for section in sectionList %}
+          {% if section in myUser.seccion.all %}
+          <option value = {{ section.name }} selected> {{ section.name }}</option>
+          {% else %}
+          <option value = {{ section.name }}> {{ section.name }}</option>
+          {% endif %}
+          {% endfor %}
+        {% else %}
+          {% for section in myUser.seccion.all %}  
+            <option value = {{ section.name }}> {{ section.name }}</option>
+          {% endfor %}
+        {% endif %}
+        </select> </div><br>
+        
+
+        <div id="piezaIDDiv">Pieza:
+        <select name = "Pieza" id="piezaID" onchange="piezaFunction()" select>
+          <option value = "default">Por Defecto</option>
+          {% for pieza in piezaList %}
+          <option value = {{ pieza.name }}> {{ pieza.name }}</option>
+          {% endfor %}
+        </select> </div><br>
+
+        <div>Componente:
+        <select name = "Component" id="ComponentID" onchange="ComponentFunction()" select   >
+          <option value = "default">Por Defecto</option>
+          {% for component in componentList %}
+          {% if component not in APT5CompList %}
+            <option value = {{ component.name }}> {{ component.name }}</option>
+          {% endif %}                          
+          {% endfor %}
+        </select> </div><br>
+        
+        <div>P/N
+          <select name = "parNumber" id="PNID"><br>
+            <option value = "default">Seleccione Componente</option>
+          </select> <br>
+        </div>
+
+       
+        <div>Area Causante
+        <select name = "Area" id="AreaID">
+          <!-- Esta opcion desaparecerĂĄ al seleccionar APT -->
+          {% for area in areaUserSection %}
+          <option value = {{area.name}}>{{area.name}}</option>
+          {% endfor %}
+        </select></div><br>
+        
+        <div>Desviacion
+        <select name = "Defect" id="desvID">
+          <!-- Esta opcion desaparecerĂĄ al seleccionar APT -->
+          {% for desv in desvUser %}
+          <option value = {{desv.name}}>{{desv.name}}</option>
+          {% endfor %}
+        </select> </div><br>
+        
+        {% if mode == "Accidentales" %}
+        <div>CVAT Nivel 1
+        <select name="rt1" id="rt1" onchange="CVAT1Function()">
+          <option value="default">Por Defecto</option>
+          {% for rt in rt1 %}
+            <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre|slice:'0:40'}}</option>
+          {% endfor %}
+        </select>
+        </div>
+        
+        <div>CVAT Nivel 2
+        <select name="rt2" id="rt2" onchange="CVAT2Function()">
+          <option value="default">Seleccione Nivel 1</option>
+        </select>
+        </div>
+        {% endif %}
+        
+    </div>
+    <div class="column">
+    
+        {% if mode == "Accidentales" %}
+        <div>CVAT Nivel 3
+        <select name="rt3" id="rt3">
+          <option value="default">Seleccione Nivel 2</option>
+          {% for rt in rt1 %}
+          {% endfor %}
+        </select></div>
+        
+        <div>H.N.C.
+          <br><input type = "text" name = "hnc"></br>
+        </div>
+        {% endif %}
+                                                   
+        <div>Referencia<br>
+        <input type = "number" name = "Ref"></br></div>
+
+        <div>SGM a imputar horas
+        <select name = "SGM" id="SGMID">
+          <!-- Esta opcion desaparecerĂĄ al seleccionar APT -->
+          {% if myUser.typeUser.name == "ME"%}
+            {% for sgm in sgmList %}
+              <option value = {{sgm.number}}>{{sgm.number}}</option>
+            {% endfor %}
+          {%else%}
+            {% for sgm in sgmUser %}
+              <option value = {{sgm.number}}>{{sgm.number}}</option>
+            {% endfor %}
+          {%endif%}
+        </select></div><br>
+
+        <div>Horas Por Operario (LT)<br>
+        <input type = "number" name = "numH" onchange="calcHRec()"></br></div>
+        
+        <div>Numero Operarios<br>
+        <select name="nOp" onchange="calcHRec()">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+        </br></div>
+        
+        <div>Horas Recurrentes<br>
+        {% if mode == "Accidentales" %}
+        <input type = "text" name = "horas" value="0" readonly></br></div>
+        {% else %}
+        <input type = "text" name = "hRec" value="0" readonly></br></div>
+        {% endif %}
+        
+        <div>Descripcion<br>
+        <textarea name="textDescp" id="textDescp" rows="5" cols="30"></textarea>
+        <input type="text" hidden name = "Descp" id="descp"></br></div>
+      <input id="submit" type = "submit" value = "Enviar">
+      </div>
+    </div>
+  </form>
+
+
+
+  <p id="DesignationID"></p>
+
+<!-- JAVASCRIPT -->
+
+  <script>
+  
+  function CVAT1Function(){
+    var lvl1 = document.forms["myForm"]["rt1"].value;
+    document.getElementById("rt2").innerHTML = "";   
+    {% for rt in rt2 %}
+      var fullName = "{{rt.shortName}}"
+      if(fullName.startsWith(lvl1)){
+        document.getElementById("rt2").innerHTML += "<option value='{{rt.codigo}}'>{{rt.codigo}} - {{rt.nombre |slice:'0:50'}}</option>"
+      }
+    {% endfor %}                  
+  }
+  
+  function CVAT2Function(){
+    var lvl2 = document.forms["myForm"]["rt2"].value;
+    document.getElementById("rt3").innerHTML = "";                             
+    {% for rt in rt3 %}
+      var fullName = "{{rt.shortName}}"
+      if(fullName.startsWith(lvl2)){
+        document.getElementById("rt3").innerHTML += "<option value='{{rt.codigo}}'>{{rt.codigo}} - {{rt.nombre|slice:'0:40'}}</option>"
+      }
+    {% endfor %}                  
+  }
+  
+  function piezaFunction(){
+      sectionFunction();
+  }
+  
+  function calcHRec(){
+    var nOp = document.forms["myForm"]["nOp"].value;
+    var numH = document.forms["myForm"]["numH"].value;
+    numH = numH.replace(",",".");
+    var HRec = String(nOp*numH);
+    {% if mode == "Reparaciones" %}                     
+        document.forms["myForm"]["hRec"].value = HRec.replace(".",",");    
+    {% else %}
+        document.forms["myForm"]["horas"].value = HRec.replace(".",",");    
+    {% endif %}                      
+  }
+  
+  function componentAPT5(){
+    document.getElementById("PNID").innerHTML = "";
+    var comp = document.getElementById("ComponentID").value;
+    var pieza = document.getElementById("piezaID").value;
+    pieza = pieza.substring(4,pieza.length)        
+                             
+    {% for comp in compAPT5List %}
+      if (comp == "{{comp.name}}"){
+        {% for pn in comp.parNumber.all %}
+          designaName = "{{pn.Designacion.name}}";
+          if (designaName.indexOf(pieza) != -1){
+            document.getElementById("PNID").innerHTML += "<option value ={{pn.name}}>{{pn.name}} - {{pn.id}}</option>";
+          }
+        {% endfor %}        
+      }
+    {% endfor %}                                       
+  }
+  
+  function ComponentFunction(){
+    var section = document.getElementById("SectionID").value;   
+                                         
+    if(section == "APT5"){
+      componentAPT5();
+      return;
+    }             
+                                
+    document.getElementById("PNID").innerHTML = "";
+    var comp = document.getElementById("ComponentID").value;
+    var pieza = document.getElementById("piezaID").value;
+                                       
+    if (pieza.indexOf("V900") != -1){
+        var designation = "V900" + comp;
+    }else{
+        var designation = "V1000" + comp;
+    }
+    
+    {% for parNumber in PNList%}
+    var name = "{{parNumber}}"
+    if(name.startsWith(designation)){
+      newName = name.substring(name.lastIndexOf(".") + 1, name.length);
+                              
+      document.getElementById("PNID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
+    }
+    {% endfor %}  
+  }
+    
+  function APT5Section(){
+    var section = "APT5";
+    var pieza = document.getElementById("piezaID").value;                       
+    if(pieza != "default"){   
+        pieza = pieza.substring(4,pieza.length)         
+        document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>";        
+        {% for compAPT5 in compAPT5List %}  
+          var name = "{{compAPT5.pieza}}";      
+          if(name.indexOf(pieza) != -1){
+            document.getElementById("ComponentID").innerHTML += "<option value = {{ compAPT5.name }}> {{ compAPT5.name }}</option>";
+          }
+        {% endfor %}       
+    }else{
+        document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>";        
+        {% for compAPT5 in compAPT5List %}  
+        document.getElementById("ComponentID").innerHTML += "<option value = {{ compAPT5.name }}> {{ compAPT5.name }}</option>";
+        {% endfor %}       
+    }              
+          
+  }
+    
+  // Funcion que modifica algunos select en funcion del apt
+  function sectionFunction(){
+    // Para cambiar area
+    document.getElementById("AreaID").innerHTML = "<option value = default> Por Defecto </option>";
+    var section = document.getElementById("SectionID").value;                                         
+    if (section == "APT5"){
+      APT5Section();
+    }else{    
+        document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>"
+        {% for component in componentList %}
+        {% if component not in APT5CompList %}
+        document.getElementById("ComponentID").innerHTML += "<option value = {{ component.name }}> {{ component.name }}</option>"
+        {% endif %}                          
+        {% endfor %}     
+    }
+                                                                              
+    {% for area in areaList%}
+    var name = "{{area}}"
+    if(name.startsWith(section)){
+      newName = name.substring(name.lastIndexOf('.') + 1, name.length);
+      document.getElementById("AreaID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
+    }
+    {% endfor %}   
+
+    // Para cambiar desviacion/defecto
+    document.getElementById("desvID").innerHTML = "<option value = default> Por Defecto </option>";
+    {% for desv in desvList%}
+    var name = "{{desv}}"
+    if(name.startsWith(section)){
+      newName = name.substring(name.lastIndexOf('.') + 1, name.length);
+      document.getElementById("desvID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
+    }
+    {% endfor %}
+    
+    // Para cambiar SGM
+    document.getElementById("SGMID").innerHTML = "<option value = default> Por Defecto </option>";
+    {% for sgm in SGMList%}
+    var name = "{{sgm}}"
+    if(name.startsWith(section)){
+      newName = name.substring(name.lastIndexOf('.') + 1, name.length);
+      document.getElementById("SGMID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
+    }
+    {% endfor %}
+    
+  }
+
+function validateForm() {
+    var variablesDef = [];
+    var variablesWhite = [];
+    variablesDef[0] = document.forms["myForm"]["Component"].value;
+    variablesDef[1] = document.forms["myForm"]["Pieza"].value;
+    variablesDef[2] = document.forms["myForm"]["parNumber"].value;
+    variablesDef[3] = document.forms["myForm"]["Area"].value;
+    variablesDef[4] = document.forms["myForm"]["Defect"].value; 
+    variablesDef[5] = document.forms["myForm"]["SGM"].value;
+    variablesWhite[0] = document.forms["myForm"]["Ref"].value;
+    variablesWhite[1] = document.forms["myForm"]["numH"].value;
+    document.forms["myForm"]["Descp"].value = document.getElementById("textDescp").value;            
+    variablesWhite[2] = document.forms["myForm"]["Descp"].value;
+    {% if mode == "Accidentales" %}           
+    variablesDef[6] = document.forms["myForm"]["rt1"].value;
+    variablesDef[7] = document.forms["myForm"]["rt2"].value;
+    variablesDef[8] = document.forms["myForm"]["rt3"].value; 
+    variablesWhite[3] = document.forms["myForm"]["hnc"].value;   
+    {% endif %}                
+    for (i = 0; i < variablesWhite.length; i++) {
+      if (variablesWhite[i] == "") { 
+          alert("No se puede enviar un formulario con campos en blanco");
+          return false;
+      }
+    }
+    for (i = 0; i < variablesDef.length; i++) {
+      if (variablesDef[i] == "default") {
+          alert("No se puede enviar un formulario con valores por defecto");
+          return false;
+      }
+    }
+  }
+      
+  window.onload = function(){  
+    sectionFunction();
+  }
+
+  </script>
+
+{% endblock form %}

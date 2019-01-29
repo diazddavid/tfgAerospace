@@ -1,0 +1,114 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+<h1>F412 nº{{f412.myID}}, {% if f412.programa.name == "350"%} {{f412.seccion.name}}{%else%}A380{%endif%}</h1>
+<h1></h1>           
+                          
+<table style="background-color:#FFFFFF">
+  <tr id="trToMod">
+  </tr>  
+  <tr>
+    <td>Actual</td>
+    <td>{{f412.reasonTree.nivel1.codigo}} - {{f412.reasonTree.nivel1.nombre}}</td>
+    <td>{{f412.reasonTree.nivel2.codigo}} - {{f412.reasonTree.nivel2.nombre}}</td>
+    <td>{{f412.reasonTree.nivel3.codigo}} - {{f412.reasonTree.nivel3.nombre}}</td>
+  </tr>
+  <tr id="trToMod2">
+  </tr>
+</table>
+        
+<form action="/cambiarRT/{{f412.id}}" id="myForm" method="post" onsubmit="return validateForm()">
+      <input type="hidden" id="Level1hid" name="Level1hid">
+      <input type="hidden" id="Level2hid" name="Level2hid">
+      <input type="hidden" id="Level3hid" name="Level3hid">
+      <h1><input style="text-align:center" type = "submit" value = "Submit"></h1>
+</form>                         
+         
+<script>
+
+function validateForm() {
+        
+  {% if myUser.typeUser.name == "ME" %}
+  
+    if(document.getElementById("Level2Id").value == "default"){  
+      alert("Introduzca valores reason tree");
+      return false;  
+    }else{   
+      document.forms["myForm"]["Level2hid"].value = document.getElementById("Level2Id").value;
+    }
+      
+    if(document.getElementById("Level3Id").value == "default"){
+      alert("Introduzca valores reason tree");
+      return false;  
+    }else{
+      document.forms["myForm"]["Level3hid"].value = document.getElementById("Level3Id").value;
+    }
+      
+    if(document.getElementById("Level1Id").value == "default"){
+      alert("Introduzca valores reason tree");
+      return false;     
+    } else{
+      document.forms["myForm"]["Level1hid"].value = document.getElementById("Level1Id").value; 
+    }
+      
+  {% endif %} 
+}
+
+function level1(){
+  var lvl1 = document.getElementById("Level1Id").value;
+  document.getElementById("Level2Id").innerHTML = "";
+  {% for rt2 in level2RT %}
+  var fullName = "{{rt2.shortName}}"
+  if(fullName.startsWith(lvl1)){
+    {% if rt2 == f412.reasonTree.nivel2 %}      
+      document.getElementById("Level2Id").innerHTML += "<option value='{{rt2.codigo}}' selected>{{rt2.codigo}} - {{rt2.nombre}}</option>";
+    {% else %}      
+      document.getElementById("Level2Id").innerHTML += "<option value='{{rt2.codigo}}'>{{rt2.codigo}} - {{rt2.nombre}}</option>";
+    {% endif %}
+  }        
+  {% endfor %}  
+  level2()                         
+}
+  
+function level2(){
+  var lvl2 = document.getElementById("Level2Id").value;
+  document.getElementById("Level3Id").innerHTML = "";
+  {% for rt3 in level3RT %}
+  var fullName = "{{rt3.shortName}}"
+  if(fullName.startsWith(lvl2)){
+    {% if rt3 == f412.reasonTree.nivel3 %}      
+      document.getElementById("Level3Id").innerHTML += "<option value='{{rt3.codigo}}' selected>{{rt3.codigo}} - {{rt3.nombre}}</option>";
+    {% else %}      
+      document.getElementById("Level3Id").innerHTML += "<option value='{{rt3.codigo}}'>{{rt3.codigo}} - {{rt3.nombre}}</option>";
+    {% endif %}
+  }       
+  {% endfor %}  
+}
+
+function changeStatus(){              
+    document.getElementById("trToMod").innerHTML = ""
+    document.getElementById("trToMod").innerHTML += "<th></th><th>Reason-Tree nivel 1</th>" 
+    document.getElementById("trToMod").innerHTML += "<th>Reason-Tree nivel 2</th>" 
+    document.getElementById("trToMod").innerHTML += "<th>Reason-Tree nivel 3</th>"  
+                                                     
+    document.getElementById("trToMod2").innerHTML = ""
+    document.getElementById("trToMod2").innerHTML += "<td>Nuevo</td><td><select id='Level1Id' name = 'Level1' form='myForm' onchange='level1()'>"
+    {% for rt in level1RT %}
+                                                    + "<option value = {{ rt.codigo }}> {{rt.codigo}} - {{ rt.nombre }}</option>"
+    {% endfor %}
+                                                    + "</select></td>";
+    document.getElementById("trToMod2").innerHTML += "<td><select name = 'Level2' id='Level2Id' onchange='level2()'select> <option value = 'default'>Por Defecto</option>" 
+    document.getElementById("trToMod2").innerHTML += "</select></td>"                        
+    document.getElementById("trToMod2").innerHTML += "<td> <select name = 'Level3' id='Level3Id' select> <option value = 'default'>Por Defecto</option>"
+    document.getElementById("trToMod2").innerHTML += "</select></td>"       
+    level1();                                                                   
+}
+  
+window.onload = function(){
+  changeStatus();
+}
+</script>                 
+
+
+{% endblock body %}

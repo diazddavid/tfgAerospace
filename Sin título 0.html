@@ -1,0 +1,507 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon May 14 11:10:12 2018
+
+@author: NG75BA7
+"""
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--
+Template Name: Education Board
+Author: <a href="http://www.os-templates.com/">OS Templates</a>
+Author URI: http://www.os-templates.com/
+Licence: Free to use under our free template licence terms
+Licence URI: http://www.os-templates.com/template-terms
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>Formularios F412</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link rel="stylesheet" href="/css/layout.css" type="text/css" />
+<link rel="shortcut icon" href="/images/favicon.ico" type="image/png" />
+</head>
+
+<!-- <div class="wrapper row1"> PARTE SUPERIOR-->
+<!-- <div class="wrapper row2"> PARTE CENTRAL-->
+<!-- <div class="wrapper row3"> PARTE CENTRAL DEBAJO ROW2 Y EN BLANCO-->
+<!-- <div class="wrapper row4"> PARTE INFERIOR OSCURA-->
+
+<body id="top">
+<div class="wrapper row1">
+  <div id="header" class="clear">
+    <div class="fl_left">
+      <a href="/"><img src = "/images/logo.jpg" style="padding-right:10px;"></a>
+      <h1 style="display:inline-block"><a href="/">Formularios F412</a></h1>  
+    </div>
+    <div class="fl_right">
+    	
+        <form method="post" action="/cerrarSesion" id="logOut">
+          <input class="boton" type="submit" value="Cerrar Sesion"><br>
+        </form>
+		
+    </div>
+    <div id="topnav">
+      <ul>
+        
+          
+          <li><a href="/nuevoF412">Nuevo F412</a></li>
+          
+          <li><a href="/380/activos">F412 Activos</a></li>
+          <!---->
+          <li><a href="/380/validados">F412 Validados</a></li>
+          <!---->
+          <li><a href="/380/concedidos">F412 Concedidos</a></li>
+          <li><a href="/380/rechazados">F412 Rechazados</a></li>
+        
+        
+          <li><a href="/programa/380">A380</a></li>
+          <li><a href="/programa/350">A350</a></li>
+        
+        
+        <li class="last"><a href="/administrador">Admin</a></li>
+        
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+
+  <div class="wrapper row2">
+    <div id="hpage_featured" class="clear">
+
+      <h1></h1>
+      
+      
+        <h1></h1>
+        
+          
+<!-- <style>
+
+td, th {
+    border: 1px solid #000000;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style> -->
+
+<h1 style="color:#ffff00">Este F412 está: Activo</h1>
+
+<table style="background-color:#FFFFFF">
+  <tr>
+    <th>Programa</th>
+    <th>Seccion</th>
+    <th>Componente</th>
+    
+        <th>Designacion</th>
+        <th>Defecto</th>
+    
+    <th>Area</th>
+    <th>Horas</th>
+    <th>SGM</th>
+    <th>Descripcion</th>
+    <th>Fecha</th>
+    <th>Creado por</th>
+    <th>Ultimo usuario en modificar</th>
+    </tr>
+  <tr>
+    <td>380</td>
+    <td>380</td>
+    <td>LARGUERO</td>
+    
+        <td>FS_IZQ</td>
+    
+    <td>Desp._Rigidiz.</td>
+    <td>Desmoldeo</td>
+    <td>0</td>
+    <td>0810</td>
+    
+        <td id="descp148">897</td>
+    
+    
+    <td>11/05/18</td>
+    <td>diazrivasdavid5@gmail.com</td>
+    <td>diazrivasdavid5@gmail.com</td>
+  </tr>
+
+</table><br>
+
+<table style="background-color:#FFFFFF">
+  
+<form action="/f412/380/21" id="myForm" method="post" onsubmit="return validateForm()">
+  <tr>
+    <th>Estado Actual</th>
+    <th>Nuevo Estado</th>
+    <th id="titleStatus"> Motivo Rechazo/ Descripción acortada</th>
+    <th>Enviar</th>
+  </tr>
+  <tr>
+    <td>Activo</td>
+    <td><select name = "newStatusForm" id="newStatusForm" onchange="newStatus()">
+      
+        
+      
+        
+        
+          <option value = Concedido > Concedido</option>
+        
+        
+      
+        
+        
+          <option value = Rechazado > Rechazado</option>
+        
+        
+      
+        
+        
+          <option value = Validado > Validado</option>
+        
+        
+      
+    </select></td>
+    <td><input type = "text" style="width:800px;" maxlength="27" name="action" ></td>
+    <td><input type = "submit" value = "Submit"></td>
+  </tr>
+</form>
+
+</table>
+
+<table style="background-color:#FFFFFF">
+  <tr id="trToMod">
+  </tr>  
+  <tr id="trToMod2">
+  </tr>
+</table>
+
+</form>
+<script>
+
+function validateForm() {
+    var variable;
+    var newStatusVar = document.forms["myForm"]["newStatusForm"].value;
+    variable = document.forms["myForm"]["action"].value;
+    if (variable == "") {
+        if (newStatusVar == "Rechazado"){
+            alert("No se puede rechazar sin dar un motivo");
+            return false;     
+        }
+    }
+    if (newStatusVar == "Validado" || newStatusVar == "Concedido"){   
+      var f412Comment = document.getElementById("descp148").innerHTML;     
+      if (f412Comment.length > 27 && variable == ""){
+        alert("No se puede validar o conceder un formulario con más de 27 (40 - 13 del reason tree) caracteres de descripción sin asignar una nueva descripcion");
+        return false;
+      }
+    }
+  }
+      
+function level1(){
+  var lvl1 = document.getElementById("Level1Id").value;
+  
+  var fullName = "DRC.PLA"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Cualquier tarea adicional como consecuencia de plano + "</option>";
+  }       
+  
+  var fullName = "DRC.MAI"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Cualquier tarea adicional como consecuenca de materiales incorrectos + "</option>";
+  }       
+  
+  var fullName = "LMO.DQN"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + o DQN&#39;s + "</option>";
+  }       
+  
+  var fullName = "MER.OMV"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Operación Mal Valorada + "</option>";
+  }       
+  
+  var fullName = "MER.HVR"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Hojas verdes + "</option>";
+  }       
+  
+  var fullName = "MER.PPS"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Acciones derivadas PPS + "</option>";
+  }       
+  
+  var fullName = "MER.RUT"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Ruta Incorrecta + "</option>";
+  }       
+  
+  var fullName = "MRC.MTO"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Ayuda a Trabajos de MTTO. + "</option>";
+  }       
+  
+  var fullName = "MRC.INT"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Interferencia de operarios en la misma estación. + "</option>";
+  }       
+  
+  var fullName = "MRC.IOP"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Incorrecta organización de Producción. + "</option>";
+  }       
+  
+  var fullName = "MRC.ENQ"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Error Humano sin causar problema de calidad. + "</option>";
+  }       
+  
+  var fullName = "DPM.FHR"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Falta de Herramienta + "</option>";
+  }       
+  
+  var fullName = "DPM.FUT"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Falta de Utillaje + "</option>";
+  }       
+  
+  var fullName = "DPM.AMQ"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Avería en Máquinas + "</option>";
+  }       
+  
+  var fullName = "DPM.AIM"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Avería en Instalaciones + "</option>";
+  }       
+  
+  var fullName = "DPM.PIF"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Problemas Informáticos + "</option>";
+  }       
+  
+  var fullName = "DPM.PUT"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Problemas con utillaje + "</option>";
+  }       
+  
+  var fullName = "DPM.PMT"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Problemas con medios de transporte + "</option>";
+  }       
+  
+  var fullName = "DPM.PDR"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Problemas con dispensador o Rack + "</option>";
+  }       
+  
+  var fullName = "DPM.FCO"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Falta de Cover + "</option>";
+  }       
+  
+  var fullName = "DPM.FEL"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Falta de Elementales + "</option>";
+  }       
+  
+  var fullName = "DPM.DIL"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Avería diligencias + "</option>";
+  }       
+  
+  var fullName = "DPM.ASP"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Avería aspiración + "</option>";
+  }       
+  
+  var fullName = "DPM.NEU"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Avería presión/vacío (neumática) + "</option>";
+  }       
+  
+  var fullName = "DPM.AGL"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Averia AGV + "</option>";
+  }       
+  
+  var fullName = "DPM.ROB"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Avería Robot ATL + "</option>";
+  }       
+  
+  var fullName = "DPM.MOT"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Avería Motor Barril + "</option>";
+  }       
+  
+  var fullName = "DPM.CNC"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Fallo CNC + "</option>";
+  }       
+  
+  var fullName = "DPM.PAT"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + Averia Paternoster + "</option>";
+  }       
+  
+  var fullName = "DSC.FGK"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + FALTA DE GASKETS + "</option>";
+  }       
+  
+  var fullName = "DSC.BOM"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + PROBLEMAS CON MATERIAL AVIONABLE (NO IDs) + "</option>";
+  }       
+  
+  var fullName = "DSC.AUX"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + PROBLEMAS CON MATERIAL AUXILIAR + "</option>";
+  }       
+  
+  var fullName = "DSC.CON"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + PROBLEMAS CON CONSUMIBLES + "</option>";
+  }       
+  
+  var fullName = "PFM.RWK"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + nan + "</option>";
+  }       
+  
+  var fullName = "QUA.RPS"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + REPASOS + "</option>";
+  }       
+  
+  var fullName = "QUA.REM"
+  if(name.startsWith(lvl1)){
+    newName = name.substring(fullName.lastIndexOf('.') + 1, fullName.length);
+    document.getElementById("Level2Id").innerHTML += "<option value = " + newName + ">" + REMEDICIONES/REINSPECCIONES 
+INSPECCIONES/MEDICIONES EXTRAS POR DEFECTOS + "</option>";
+  }       
+                             
+}
+        
+function newStatus(){
+  var status = document.getElementById("newStatusForm").value;
+  if(status == "Validado" || status == "Concedido"){
+    document.getElementById("titleStatus").innerHTML = "Descripcion Acortada";                          
+    document.getElementById("trToMod").innerHTML = ""
+    document.getElementById("trToMod").innerHTML += "<th>Reason-Tree nivel 1</th>" 
+    document.getElementById("trToMod").innerHTML += "<th>Reason-Tree nivel 2</th>" 
+    document.getElementById("trToMod").innerHTML += "<th>Reason-Tree nivel 3</th>"  
+                                                     
+    document.getElementById("trToMod2").innerHTML = ""
+    document.getElementById("trToMod2").innerHTML += "<td> <select id='Level1Id' name = 'Level1' onchange='level1'> <option value = 'default'>Por Defecto</option>"
+    
+                                                    + "<option value = DRC> Disruption (Design root cause)</option>"
+    
+                                                    + "<option value = LMO> Disruption (Late Modification)</option>"
+    
+                                                    + "<option value = MER> DISRUPTION (MANUFACTURING ENGINNEER ROOT CAUSE)</option>"
+    
+                                                    + "<option value = MRC> DISRUPTION (MANUFACTURING ROOT CAUSE)</option>"
+    
+                                                    + "<option value = DWS> DISRUPTION (WHITE SPACE)</option>"
+    
+                                                    + "<option value = DPM> DISRUPTION (PRODUCCIÓN MEANS)</option>"
+    
+                                                    + "<option value = DSC> DISRUPTION (SUPLY CHAIN)</option>"
+    
+                                                    + "<option value = PFM> PERFORMANCE</option>"
+    
+                                                    + "<option value = QUA> QUALITY</option>"
+    
+                                                    + "</select></td>" 
+    document.getElementById("trToMod2").innerHTML += "<td><select name = 'Level2' id'Level2Id' select> <option value = 'default'>Por Defecto</option>" 
+    document.getElementById("trToMod2").innerHTML += "</select></td>"                        
+    document.getElementById("trToMod2").innerHTML += "<td> <select name = 'Level1' select> <option value = 'default'>Por Defecto</option>"
+    document.getElementById("trToMod2").innerHTML += "</select></td>" 
+  }
+  if(status == "Rechazado"){
+    document.getElementById("titleStatus").innerHTML = "Motivo Rechazo";                          
+    document.getElementById("trToMod").innerHTML = ""
+  }                                    
+}
+        
+  window.onload = function(){
+    var f412Comment = document.getElementById("descp148").innerHTML;                                              
+    if (f412Comment.length >= 27){
+      document.getElementById("descp148").innerHTML = f412Comment.substring(1,27) + " (Muy Largo)";              
+      
+        document.getElementById("descp148").innerHTML += " (Acortar)"
+      
+      document.getElementById("descp148").style.color = "red";
+    }
+  }
+
+</script>
+
+
+            
+      
+    </div>
+  </div>
+
+<div class="wrapper">
+  <div id="copyright" class="clear">
+    <p class="fl_left"><a href=""></a></p>
+    <p class="fl_right">Template by <a target="_blank" href="http://www.os-templates.com/" title="Free Website Templates">OS Templates</a></p>
+  </div>
+</div>
+</body>
+
+<script>
+
+if (!String.prototype.startsWith) {
+  String.prototype.startsWith = function(searchString, position) {
+    position = position || 0;
+    return this.indexOf(searchString, position) === position;
+  };
+}
+
+
+</script>
+
+</html>

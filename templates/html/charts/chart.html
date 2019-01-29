@@ -1,0 +1,22 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+<link href="css/bokeh-0.12.0.min.css" rel="stylesheet" type="text/css">
+<link href="css/bokeh-widgets-0.12.0.min.css" rel="stylesheet" type="text/css">
+
+
+     {{ div | safe }}
+
+
+<script type="text/javascript" src="/js/bokeh-0.9.0.min.js"></script>
+<script src="/js/bokeh-0.12.0.min.js"></script>
+<script src="/js/bokeh-widgets-0.12.0.min.js"></script>
+
+{{ script | safe }}
+
+
+</html>
+
+
+{% endblock body %}

@@ -1,0 +1,274 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+{% if myUser.typeUser.name == "ME" or myUser.typeUser.name == "HO_CDT" %}
+  <!-- A la hora de crear usuarios -->
+  {% if myUser.typeUser.name == "HO_CDT" %}
+  <h1>Lista de Usuarios, secciones y programas</h1>
+  {% endif %}
+  
+  {% if myUser.typeUser.name == "ME" %}
+  {% if NameError %}
+    <h1>Usuario en uso, por favor elija otro correo o suario</h1>
+  {% endif %}
+
+  {% if UserCreated %}
+    <h1>Usuario creado correctamente</h1>
+  {% endif %}
+
+  <!-- Botones de actualizar base de datos y exportar e importar f412 a excel -->
+  <form id="button1" method="post" action="/updateDB">
+    <input class="boton" type="submit" value="Actualizar Base de Datos">
+  </form>
+  <form id="button2" method="get" action="/grafico">
+    <input class="boton" type="submit" value="Graficos">
+  </form>
+  <form id="button2" method="get" action="/ExportarF412">
+    <input class="boton" type="submit" value="Exportar F412s a CSV">
+  </form>
+
+  <!-- Formulario para crear usuarios -->
+  <form id="adminFORM" action="/administrador" method="post" name="myForm" onsubmit="return validateForm()">
+    <div class="row">
+      <div class="column">
+        Numero Usuario
+        <div><input type = "text" name = "username"></div>
+      
+        Correo de Usuario
+        <div><input type = "text" name = "email"></div>
+        
+        Nombre Completo
+        <div><input type = "text" name = "fullName" ></div>
+
+        Contraseña
+        <div><input type = "password" name = "passwd"></div>
+
+        Programa
+        <div><select name = "program" id="program1" onchange="programFunction1()">
+          <option value = default>Por defecto</option>
+          {% for program in programList %}
+          <option value = {{ program.name }}> A{{ program.name }}</option>
+          {% endfor %}
+        </select></div>
+        
+      </div>
+      <div class="column">
+      
+        Seccion
+        <div><select name = "section1" multiple id="section1" onchange="sectionFunction()">
+          <option value = default>Seleccione Primero un Programa</option>
+        </select></div>
+      
+        Tipo Usuario
+        <select name = "typeUser">
+          <option value = default>Por defecto</option>
+          {% for type in typeList%}
+          <option value = {{ type.name }}> {{ type.name }}</option>
+          {% endfor %}
+        </select><br>
+       
+        SGM
+        <select name="sgmList" multiple id="sgm">
+            <option value=default>Seleccione Seccion</option> 
+        </select><br>
+        
+        
+        <input type="hidden" name="type" value="newUser" >
+        <input type="submit" value="Crear Usuario">
+       </div>
+    </div>
+  </form>
+
+  <br><br><br>
+  {% endif %}
+  <!-- Tabla con los distintos usuarios -->
+  <table style="background-color:white">
+    <tr>
+      <th>Usuario</th>
+      <th>Correo</th>
+      <th>Nombre Completo</th>
+      <th>Programa</th>
+      <th>Secciones</th>
+      <th>Tipo Usuario</th>
+      <th>SGM</th>
+      {% if myUser.typeUser.name == "ME" %}
+      <th>Nuevo Programa</th>
+      <th>Nueva Seccion</th>
+      <th>Enviar Cambios</th>
+      <th>Cambiar Tipo</th>
+      <th>Enviar Cambios</th>
+      <th>Borrar Usuario</th>
+      {% endif %}
+    </tr>
+    {% for user in userList %}
+    <tr> 
+        <td>{{user.name}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.nombreCompleto}}</td>    
+        <td>{% for program in user.programa.all %}A{{program.name}}<br>{% endfor %}</td>
+        <td>
+        {% for section in user.seccion.all %}
+        {% if section.name == "380"%}
+            A{{section.name}}</br>
+        {% else %}
+            {{section.name}}</br>
+        {% endif %}
+        {% endfor %}
+        </td>
+        <td>
+        {{user.typeUser.name}}
+        </td>
+        <td style="height:50px; overflow:auto">
+        <select id="sgmIDList{{user.id}}">
+        {% for sgm in sgmAll %}
+          {% if user in sgm.user.all %}
+                <option>{{sgm.number}}</option></br>
+          {% endif %}
+        {% endfor %}
+        </select>
+        </td>
+        {% if myUser.typeUser.name == "ME" %}
+        <form action="/administrador" method= "POST" name=modifyUser>
+        <td>
+          <input type="hidden" name="type" value ="modifyUser">
+          <select name="programs" multiple>
+            {% for program in programList %}
+              {% if program in user.programa.all %}
+                <option value={{program.name}} selected>A{{program.name}}</option>
+              {% else %}
+                <option value={{program.name}}>A{{program.name}}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </td>
+        <td>
+          <select multiple name="section">
+            {% for section in sectionObjectList %}
+              {% if section.programa in user.programa.all %}
+                <option value={{section.name}} {% if section == user.seccion %} selected {% endif %}>
+                {% if section.name == "380" %}
+                    A{{section.name}}
+                {% else %}
+                    {{section.name}}
+                {% endif %}
+                </option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </td>
+        <input type="hidden" name="userID" value = {{user.id}} >
+        <td><input type = "submit" value = "Cambiar"></td>
+      </form>
+        <td><form action="/administrador" method="POST">
+          <input type="hidden" name="userID" value = {{user.id}}>
+          <select name="newType">
+              {% for type in typeList %}        
+                  {% if type == user.typeUser %}
+                      <option value={{type.name}} selected>{{type.name}}</option>
+                  {% else %}
+                      <option value={{type.name}}>{{type.name}}</option>
+                  {% endif %}  
+              {% endfor %}
+          </select>
+          <input type="hidden" name="type" value="changeType" >
+        </td>
+        <td><input type = "submit" value = "Cambiar"></form></td> 
+        <td><form action="/administrador" method="POST" onsubmit="return confirm('Confirmar borrar usuario');">
+          <input type="hidden" name="userID" value = {{user.id}}>
+          <input type="hidden" name="type" value="remove">
+          <input type = "submit" value = "Eliminar">
+        </form></td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+
+  </table>
+
+  <script>
+
+    function programFunction1(){
+      document.getElementById("section1").innerHTML = "";
+      var program = document.getElementById("program1").value;
+      {% for section in sectionList%}
+      var name = "{{section}}"
+      if(name.startsWith(program)){
+        newName = name.substring(program.length, name.length);
+        document.getElementById("section1").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
+      }
+      {% endfor %}
+      if(program=="default"){
+        document.getElementById("section1").innerHTML = "<option value = default>Seleccione Primero un Programa</option>";                
+        document.getElementById("sgm").innerHTML = "<option value=default>Seleccione Seccion</option> ";
+      }else{
+        sectionFunction();
+      }
+    }
+    
+    function sectionFunction(){
+      document.getElementById("sgm").innerHTML = "";
+      var sections = document.getElementById("section1");
+      {% for sgm in SGMList %}
+      var name = "{{sgm}}";                                 
+      var j = 0;
+      for(var i=0; i < sections.length; i++){
+        if(sections.options[i].selected){
+          var sectionName = sections.options[i].value;
+          j = j+1;
+          if(name.startsWith(sectionName)){
+            var newName = name.substring(sectionName.length + 1, name.length);
+            document.getElementById("sgm").innerHTML += "<option value = {{sgm}}>"+ newName  +"</option>";
+          }
+        }
+      }
+      if (j == 0){
+        var program = document.getElementById("program1").value;                                     
+        if(program == "350" && name.startsWith(/APT[1-9]/)){
+          var newName = name.substring(4, name.length);
+          document.getElementById("sgm").innerHTML += "<option value = " + newName + ">" + newName + "</option>";      
+        }else if(program == "380" && name.startsWith("380")){
+          var newName = name.substring(4, name.length);
+          document.getElementById("sgm").innerHTML += "<option value = " + newName + ">"+ newName  +"</option>";
+        }
+      }
+             
+      {% endfor %}      
+    }
+      
+
+    function validateForm() {
+      var variables = [];
+      variables[0] = document.forms["myForm"]["email"].value;
+      variables[1] = document.forms["myForm"]["passwd"].value;
+      variables[2] = document.forms["myForm"]["program"].value;
+      variables[3] = document.forms["myForm"]["section"].value;
+      variables[4] = document.forms["myForm"]["permission"].value;
+      for (i = 0; i < variables.length; i++) {
+        if (variables[i] == "default") {
+          alert("No se puede enviar un formulario con valores por defecto");
+          return false;
+        }
+        if (variables[i].length == 0){
+          alert("No se puede enviar un formulario con valores vacios")
+          return false;
+        }
+      }
+    }
+        
+    window.onload = function(){
+      {% for user in userList %}
+        if(document.getElementById("sgmIDList{{user.id}}").options.length == 0){
+          document.getElementById("sgmIDList{{user.id}}").innerHTML = "<option>Sin SGM</option>"
+        }  
+      {% endfor %}
+    }
+
+  </script>
+
+{% else %}
+
+<h1>No tiene permisos para acceder a esta página</h1>
+
+{% endif %}
+
+{% endblock body %}

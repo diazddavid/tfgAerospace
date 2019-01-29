@@ -1,0 +1,4 @@
+﻿{% if WholeSection %}Estado;{% endif %}Avion;Operacion;SGM;NIVEL 1;NIVEL 2;NIVEL 3;Descripcion;CVAT;Cod. Causa;Referencia;Nº Op;LEADTIME;tiempo(h);Fecha;Comentarios;
+{% for f412 in f412List %}{% if WholeSection %}{{f412.Estado.name}};{% endif %}{{f412.nAV}};{{f412.operacion}};'{{f412.SGM.number}};{{f412.reasonTree.nivel1.codigo}};{{f412.reasonTree.nivel2.codigo}};{{f412.reasonTree.nivel3.codigo}};{{f412.descripcionAcortada|slice:"13:"}};{{f412.descripcionAcortada}};{{f412.codCaus.name}} ;{{f412.Referencia}};{{f412.nOp}};{{f412.horas}};{{f412.horasRecurrentes}};{{ f412.Fecha|date:"d/m/Y"}};{{f412.Descripcion}};
+{% endfor %}
+                                                                                                                                                                      	                                                

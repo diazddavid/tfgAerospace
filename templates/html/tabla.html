@@ -1,0 +1,328 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+<h1 style="text-align: center">
+{% if userSection == "380"%}
+    A{{userSection}}
+{% else %}
+    {{userSection}}
+{% endif %}
+
+{% if userSection != "" %}
+    {{Status}}
+{% else %}
+    {% if myUser.typeUser.name == "TL" %}
+        A{{program}}{% if program == "350" %} {{myUser.seccion.name}} {% endif %}
+    {% else %}
+        A{{program}}
+    {% endif %}
+{% endif %}
+
+{% if Status == "" %}
+Historial
+{% endif %}
+</h1>
+
+{% if Status != "" %}
+
+    {% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "ME" %}
+    {% if userSection != "A350 Todos" %}
+    <form style="display: inline-block" action="/{{userSection}}/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
+    {% else %}
+    <form style="display: inline-block" action="/350/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
+    {% endif %}                                             
+      <h2 style="text-align:left; display: inline-block;margin-right:10px; font-size: 25px">Filtrar fecha:</h2> 
+      Desde: <input type="text" name="fromDate" value={% if currentDate != "" %}"{{currentDate}}"{% else %}"{{date}}" {% endif %} style="margin-right:10px" onClick="this.select();">
+      Hasta: <input type="text" name="toDate" value={% if currentDate != "" %}"{{currentDate1}}"{% else %}"{{date}}" {% endif %} onClick="this.select();">
+      <input class="boton" type="submit" value="Ir">
+    </form>
+
+{% endif %}
+
+{% if userSection != "A350 Todos" %}
+<form style="display: inline-block" action="/{{userSection}}/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
+{% else %}
+<form style="display: inline-block" action="/350/{{Status}}/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
+{% endif %}
+  <input type="hidden" name="fromDate" value="{{yesterday}}">
+  <input type="hidden" name="toDate" value="{{yesterday}}">
+  <input class="boton" type="submit" value="Dia Anterior">
+</form>         </br>      
+{% endif %}
+
+<!-- Botones de actualizar base de datos y exportar e importar f412 a excel -->
+{% if isProgram == False %} 
+    {% if myUser.typeUser.name == "ME" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "Subcontrata" %}    
+        <button type="input" value="/380/{{Status}}" onClick="checkBtn(event)">A380</button>
+        <button type="input" value="/350/{{Status}}" onClick="checkBtn(event)">A350</button>
+        <button type="input" value="/APT1/{{Status}}" onClick="checkBtn(event)">APT1</button>
+        <button type="input" value="/APT2/{{Status}}" onClick="checkBtn(event)">APT2</button>
+        <button type="input" value="/APT3/{{Status}}" onClick="checkBtn(event)">APT3</button>
+        <button type="input" value="/APT4/{{Status}}" onClick="checkBtn(event)">APT4</button>
+        <button type="input" value="/APT5/{{Status}}" onClick="checkBtn(event)">APT5</button>
+        </br></br>  
+    {% else %}
+        {% if myUser.seccion.all.count != 1 %}
+        {% for section in myUser.seccion.all %}
+            {% if section.name != "380" %}
+                <button type="input" value="/{{section.name}}/{{Status}}" onClick="checkBtn(event)">{{section.name}}</button> 
+            {% endif %}
+        {% endfor %}
+        {% endif %}
+        
+    {% endif %}
+{% endif %}
+
+<!-- <div style="overflow:scroll; height: 110px">                   -->             
+<table id="myTable" style="border:black 2px solid; {% if isProgram %}background-color:#cccccc{% endif %}">
+  <thead class="fixedHeader">
+  <tr style="text-align:center">
+    <th>Fecha</th>
+    {% if isProgram == True%}
+      {% if mode == "Reparaciones" %}
+      <th>Estado</th>
+      {% endif %}
+      {% if program == "350" %}
+      {% if myUser.typeUser.name != "TL" %}
+      <th style="padding: 0px 10px 15px 0px">
+        <select name = "section" id="SectionID" onchange="sectionFunction()">
+          <option value = "default">Todos</option>
+          {% for section in sectionList %}
+            {% if section.name == userSection %}
+              <option value = {{ section.name }} selected> {{ section.name }}</option>
+            {% else %}
+              <option value = {{ section.name }}> {{ section.name }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </th>
+      {% endif %}
+      {% endif %}
+    {% endif %}
+    {% if program == "380" %}
+      <th>Defecto</th>
+    {% else %}
+      <th>Desviacion</th>
+      <th>Nº Av</th>
+    {% endif %}
+    <th>Componente</th>
+    {% if program == "380" %}
+      <th>Designacion</th>
+    {% else %}
+      <th>Pieza</th>
+    {% endif %}
+    <th>PN</th>
+    <th>Referencia</th>
+    <th>Area</th>
+    <th>Horas{% if mode == "Reparaciones" %}</br>Pedidas{% endif %}</th>
+    {% if Status == "Activo" or Status == "Concedido" %}
+    <th>Horas</br>Concedidas</th>
+    {% endif %}
+    <th>SGM</th>
+    <th id="descp">Descripcion</th>
+    <!--<form id="acceptForm" method="POST" action="/{{userSection}}/multipleAcept">
+      <input type="hidden" name="next" value="{{myPath}}">
+    {% if myUser.typeUser.name == "ME" and activePage %}
+        <th><button form="acceptForm" type="submit">Pre-Aceptar</button></th>
+    {%elif preAcceptPage %}
+        {% if myUser.typeUser.name == "Subcontrata" or myUser.admin %}
+        <th><input type="submit" value="Aceptar"></th>
+        {% endif %}
+    {% endif %}Valido si queremos permitid que se acepten varios a la vez-->
+    <th>Nº F412</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for f412 in F412list %}
+  <tr>
+      <td>{{f412.Fecha|date:"Y/m/d"}}</td>  
+      
+      {% if isProgram == True%}
+        {% if mode == "Reparaciones" %}
+        <td style="color:{{f412.Estado.color}}">{{f412.Estado.name}}</td>
+        {% endif %}                         
+        {% if myUser.typeUser.name != "TL"%}
+        {% if program == "350" %}
+          <td>{{f412.seccion.name}}</td>
+        {% endif %}
+        {% endif %}
+      {% endif %}
+      
+      <td>{{f412.Defecto.name}}</td>
+      {% if program == "350" %}
+        <td>{{f412.nAV}}</td>
+      {% endif %}
+      
+      <td>{{f412.Componente.name}}</td>
+      {% if program == "380" %}
+        <td>{{f412.Designacion.name}}</td>
+      {% else %}
+        <td>{{f412.Pieza.name}}</td>
+      {% endif %}
+      
+      <td>{{f412.PN.name}}</td>
+      <td>{{f412.Referencia}}</td>
+      <td>{{f412.Area.name}}</td>
+      
+      {% if mode == "Reparaciones" %}      
+        {% if f412.horasAntRec == "" %}
+          {% if f412.horasAntiguas == ""%}
+            {% if f412.horasRecurrentes == "" %}
+              <td>{{f412.horas|slice:"0:6"}}</td> 
+            {% else %}
+              <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
+            {% endif %}
+          {% else %}
+            <td>{{f412.horasAntiguas|slice:"0:6"}}</td>
+          {% endif %}
+        {% else %}
+          <td>{{f412.horasAntRec|slice:"0:6"}}</td> 
+        {% endif %}
+      {% else %}
+        <td>{{f412.horas|slice:"0:6"}}</td>
+      {% endif %}
+      
+      {% if Status == "Activo" or Status == "Concedido" %}
+          {% if f412.horasRecurrentes == "" %}
+            <td>{{f412.horas|slice:"0:6"}}</td> 
+          {% else %}
+            <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
+          {% endif %}
+      {% endif %}
+      
+      <td>{{f412.SGM.number}}</td>
+   
+      {% if mode == "Reparaciones" %}
+        {% if f412.descripcionAcortada == "" %}
+          <td id="descp{{f412.id}}" onload="changeColor()">{{f412.Descripcion}}</td>
+        {% else %}
+          <td>{{f412.descripcionAcortada}}</td>
+        {% endif %}
+      {% else %}
+        <td>{{f412.Descripcion}}</td>  
+      {% endif %}
+      <!--{% if myUser.typeUser.name == "ME" and activePage %} 
+          <td><input type="checkbox" name="preAccept{{f412.myID}}" form="acceptForm" value={{f412.myID}}></td>
+      {% elif preAcceptPage %}
+          {% if myUser.typeUser.name == "Subcontrata" or myUser.admin %}
+          <td><input type="checkbox" name="accept{{f412.myID}}" value={{f412.myID}}></td>
+          {% endif %}
+      {% endif %} Valido si queremos permitid que se acepten varios a la vez -->
+      
+      {% if mode == "Reparaciones" %}
+      <td><a href="/f412/{{f412.seccion.name}}/{{f412.myID}}">{{f412.myID}}</a><br></td>
+      {% else %}
+      <td><a href="/rep/{{f412.seccion.name}}/{{f412.myID}}">{{f412.myID}}</a><br></td>
+      {% endif %}                         
+  </tr>
+  {% endfor %}
+  <!--</form>  Valido si queremos permitid que se acepten varios a la vez-->
+  </tbody>
+</table>
+
+
+<script>
+
+function validDate(date){
+  var year = date.substring(0, date.indexOf("/"));
+  var aux = date.substring(date.indexOf("/") + 1, date.length);         
+  var month = aux.substring(0, aux.indexOf("/"));
+  var day = aux.substring(aux.indexOf("/") + 1, aux.length);  
+  if(isNaN(year) || isNaN(month) || isNaN(day)){
+    alert("El formato de la fecha no es adecuado")
+    return false;
+  }
+  if(year.length != 4 || month.length != 2 || day.length != 2){
+      alert("El formato de la fecha no es el adecuado")
+      return false;
+  }
+  if (parseInt(month)>12){
+      alert("El formato de la fecha no es el adecuado")
+      return false;
+  }
+  if(month == "1" || month == "3" ||month == "5" || month == "7" || month == "8" || month == "10" || month == "12"){
+    if(parseInt(day) > 31){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }else if(month == "2"){
+    if(parseInt(day) > 29){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }else{
+    if(parseInt(day) > 30){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }
+  return true;
+}
+
+function validateForm() {
+  var datesVariable = [];
+  datesVariable[0] = document.forms["myForm"]["fromDate"].value;
+  datesVariable[1] = document.forms["myForm"]["toDate"].value;
+  for (i = 0; i < datesVariable.length; i++) {
+    if (!validDate(datesVariable[i])){
+      return false;        
+    }
+  }
+  return true;
+}
+
+  function sectionFunction() {
+    var section = document.getElementById("SectionID").value;
+    {% if mode == "Reparaciones" %}
+      var rep = "";
+    {% else %}
+      var rep = "/rep";
+    {% endif %}                                         
+    if(section == "default"){
+      location.replace(rep + "/programa/350")
+    }else if (section == "APT1") {
+      location.replace(rep + "/programa/seccion/APT1")
+    }else if (section == "APT2") {
+      location.replace(rep + "/programa/seccion/APT2")
+    }else if (section == "APT3") {
+      location.replace(rep + "/programa/seccion/APT3")
+    }else if (section == "APT4") {
+      location.replace(rep + "/programa/seccion/APT4")
+    }else if (section == "APT5") {
+      location.replace(rep + "/programa/seccion/APT5")
+    }
+  }
+    
+  function checkBtn(event){
+    var newUrl = event.target.value;
+    url1 = newUrl.substring(0, newUrl.lastIndexOf("/") + 1);
+    url2 = newUrl.substring(newUrl.lastIndexOf("/") + 1, newUrl.length);
+    newUrl = url1 + url2.toLowerCase();  
+    location.replace(newUrl);            
+  }
+
+  function chargefullCom(id){     
+    {% for f412 in F412list %}
+      if ({{f412.id}} == id){
+        alert("{{f412.Descripcion}}");
+        return false;
+      }
+    {% endfor %}
+    return false;        
+  }
+  
+  window.onload = function(){
+    {% for f412 in F412list %}
+      var f412Comment = "{{f412.Descripcion}}";                                              
+      if (f412Comment.length >= 27){
+        document.getElementById("descp{{f412.id}}").innerHTML = "<a style='color:red' href='/' onclick='return chargefullCom({{f412.id}})'>{{f412.Descripcion|slice:'0:27'}}"
+        document.getElementById("descp{{f412.id}}").innerHTML += " (Largo)</a>";     
+        document.getElementById("descp{{f412.id}}").style.color = "red";
+      }
+    {% endfor %}
+  }
+      
+      
+</script>
+{% endblock body %}

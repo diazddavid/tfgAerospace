@@ -1,0 +1,153 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+{% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "ME" %}
+
+
+{% if currentDay != "" %}
+    <h1>Está consultando el día {{currentDay}}</h1>
+{% endif %}                                            
+    {% csrf_token %}
+<form style="display: inline-block" action="/filtroFechaRep" method="post" name="myForm" onsubmit="return validateForm()">
+  <h2 style="text-align:left; display: inline-block;margin-right:10px; font-size: 25px">Filtrar fecha:</h2> 
+  Desde: <input type="text" name="fromDate" value={% if currentDate != "" %}"{{currentDate}}"{% else %}"{{date}}" {% endif %} style="margin-right:10px" onClick="this.select();">
+  Hasta: <input type="text" name="toDate" value={% if currentDate != "" %}"{{currentDate1}}"{% else %}"{{date}}" {% endif %} onClick="this.select();">
+  <input class="boton" type="submit" value="Ir">
+</form>    
+<form id="button1" method="post" style="margin-left:60px" action="/filtroFechaRep">
+  <input type="hidden" name="fromDate" value="{{yesterday}}">
+  <input type="hidden" name="toDate" value="{{yesterday}}">                                         
+  <input class="boton" type="submit" value="Dia Anterior">
+</form>
+{% if tomorrow != "" %}
+<form id="button1" method="post" style="margin-left:60px" action="/filtroFechaRep">
+  <input type="hidden" name="fromDate" value="{{tomorrow}}">
+  <input type="hidden" name="toDate" value="{{tomorrow}}">
+  <input class="boton" type="submit" value="Dia Siguiente">
+</form>
+{% endif %}
+           
+{% endif %}  
+  
+{% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "Subcontrata" or myUser.typeUser.name == "ME" %}        
+<table>
+  
+    <tr>
+      <th colspan="2"><h1>A380</h1></th>
+    </tr>
+    <tr>
+      <th style="text-align:center">Nº Pedidas</th>
+      <th>Horas</th>
+    </tr>
+    <tr>
+      {% if filtro %}
+        <td style="text-align:center"><form style="text-align: center;" method="POST"  action = "rep/380/">
+          <input type="hidden" name="fromDate" value="{{currentDate}}">
+          <input type="hidden" name="toDate" value="{{currentDate1}}">
+          <input id="formLink" type="submit" value="{{380num}}"/>
+        </form></td>
+      {% else %}  
+          <td style="text-align:center"><a href="rep/380">{{380num}}</a></td>
+      {% endif %}                          
+          <td style="font-weight:bold; text-align:center">{{380hour}}</td>          
+    </tr>
+   </table>
+   
+   
+   <table>
+    <tr>
+      <th colspan="3"><h1>A350</h1></th>
+    </tr>
+    <tr>
+      <th style="text-align:center">APT</th>
+      <th>Nº Pedidas</th>
+      <th style="text-align:center">Horas</th>
+    </tr>
+    
+    {% for APT in repAPT %}
+    <tr>
+      <td style="text-align:center">{{APT.name}}</td>
+      {% if filtro %}
+        <td style="text-align:center"><form style="text-align: center;" method="POST"  action = "rep/{{APT.name}}">
+          <input type="hidden" name="fromDate" value="{{currentDate}}">
+          <input type="hidden" name="toDate" value="{{currentDate1}}">
+          <input id="formLink" type="submit" value="{{APT.num}}"/>
+        </form></td>
+      {% else %}  
+        <td style="text-align:center"><a href="/rep/programa/seccion/{{APT.name}}">{{APT.num}}</td>
+      {% endif %}                                   
+      <td style="font-weight:bold; text-align:center">{{APT.hour}}</td>
+    </tr> 
+    {% endfor %}
+    
+    <tr>
+      <td style="text-align:center">Total</td>
+      {% if filtro %}
+        <td style="text-align:center"><form style="text-align: center;" method="POST"  action = "rep/350">
+          <input type="hidden" name="fromDate" value="{{currentDate}}">
+              <input type="hidden" name="toDate" value="{{currentDate1}}">
+              <input id="formLink" type="submit" value="{{350num}}"/>
+            </form></td>
+          {% else %}  
+            <td style="text-align:center"><a href="rep/350">{{350num}}</td>
+          {% endif %}                                   
+          <td style="font-weight:bold; text-align:center">{{350hour}}</td>
+        {% endif %}
+    </tr> 
+    
+</table>
+
+<script>
+
+function validDate(date){
+  var year = date.substring(0, date.indexOf("/"));
+  var aux = date.substring(date.indexOf("/") + 1, date.length);         
+  var month = aux.substring(0, aux.indexOf("/"));
+  var day = aux.substring(aux.indexOf("/") + 1, aux.length);  
+  if(isNaN(year) || isNaN(month) || isNaN(day)){
+    alert("El formato de la fecha no es adecuado")
+    return false;
+  }
+  if(year.length != 4 || month.length != 2 || day.length != 2){
+      alert("El formato de la fecha no es el adecuado")
+      return false;
+  }
+  if (parseInt(month)>12){
+      alert("El formato de la fecha no es el adecuado")
+      return false;
+  }
+  if(month == "1" || month == "3" ||month == "5" || month == "7" || month == "8" || month == "10" || month == "12"){
+    if(parseInt(day) > 31){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }else if(month == "2"){
+    if(parseInt(day) > 29){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }else{
+    if(parseInt(day) > 30){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }
+  return true;
+}
+
+function validateForm() {
+  var datesVariable = [];
+  datesVariable[0] = document.forms["myForm"]["fromDate"].value;
+  datesVariable[1] = document.forms["myForm"]["toDate"].value;
+  for (i = 0; i < datesVariable.length; i++) {
+    if (!validDate(datesVariable[i])){
+      return false;        
+    }
+  }
+  return true;
+}
+
+</script>
+
+{% endblock %}

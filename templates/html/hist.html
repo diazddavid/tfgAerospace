@@ -1,0 +1,25 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+<h1>F412 {{f412.seccion.name}} número {{f412.myID}}</h1>
+
+{% for mod in histMod %}
+<div style="text-align:center" class="box">
+<p>Modificación nº: {{mod.numero}}</p>
+<h2>Hecha por: <a href="mailto: {{mod.usuario.email}}">{{mod.usuario.email}}</a></h2>
+<h2>A fecha: {{mod.fecha|date:"Y/m/d"}}</h2>
+<h2 style="color:{{mod.estadoViejo.color}}">Pasa de estado: {{mod.estadoViejo.name}}</h2>
+<h2 style="color:{{mod.estadoNuevo.color}}">A estado: {{mod.estadoNuevo.name}}</h2>
+<h2><div style="font-size:20px;color:blue;display:inline-block">Comentario:</div> {{mod.comentarios}}</h2>
+    
+{% if mod.estadoNuevo.name != "Concedido" and mod.estadoNuevo.name != "Rechazado"%}
+&darr;
+{% endif %}
+{% endfor %}
+
+{% if histMod.count == 0 %}
+<h1>{{MSGerror}}</h1>
+{% endif %}
+
+{% endblock body %}

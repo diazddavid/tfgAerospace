@@ -1,0 +1,210 @@
+<!-- Funcionamiento similar a 350, mirar dudas alli -->
+{% extends 'html/form.html' %}
+
+{% block form %}
+  
+  {% if mode == "Reparaciones" %}
+  <h1 id="titleH">F412 para A{{program.name}}</h1><br>
+  {% else %}      
+  <h1 id="titleH">Reparacion para A{{program.name}}</h1><br>        
+  {% endif %}    
+  
+  {% if newID %}
+    {% if error == "None" %}
+      <h2>Guardado con Número:{{myID}}</h2>
+    {% else %}
+      <h2>{{error}}</h2>
+    {% endif %}
+  {% endif %}
+  
+  {% if mode == "Accidentales"%}
+    {% if newID %}
+    <h2>Creada Reparacion numero: {{myID}}</h2>
+    {% endif %}             
+  {% endif %}
+  
+  {% if mode == "Reparaciones" %}
+  <form action="/380/nuevoF412" method="post" name="myForm" onsubmit="return validateForm()"></p>
+  {% else %}
+  <form action="/380/nuevaRep" method="post" name="myForm" onsubmit="return validateForm()"></p>
+  {% endif %}                                                                                        
+    <div class="row">
+      <div class="column">
+        <div>Seccion
+          <select name = "section" id="section">
+            <!-- <option value = "default">Por Defecto</option> -->
+            {% for section in sectionList %}
+            <option value = {{ section.name }}> A{{ section.name }}</option>
+            {% endfor %}
+          </select> <br>
+        </div>
+
+        <div>Componente
+          <select name = "Component" select id="ComponentID" onchange="ComponentFunction()">
+            <option value = "default">Por Defecto</option>
+            {% for component in componentList %}
+            <option value = {{ component.name }}> {{ component.name }}</option>
+            {% endfor %}
+          </select> <br>
+        </div>
+
+        <div>Designacion
+          <select name = "Designation" id="DesignationID" onchange="DesignationFunction()"><br>
+            <option value = "default">Seleccione antes un componente</option>
+          </select> <br>
+        </div>
+
+        <div>P/N
+          <select name = "parNumber" id="PNID"><br>
+            <option value = "default">Seleccione Designacion</option>
+          </select> <br>
+        </div>
+
+        <div>Area Causante
+          <select name = "Area">
+            <option value = "default">Por Defecto</option>
+            {% for area in areaList %}
+            <option value = {{ area.name }}> {{ area.name }}</option>
+            {% endfor %}
+          </select> <br>
+        </div>
+
+        <div>Defecto
+          <select name = "Defect">
+            <option value = "default">Por Defecto</option>
+            {% for defect in defectList %}
+            {% if defect.name != "En_Descripcion"%}
+              <option value = {{ defect.name }}> {{ defect.name }}</option>
+            {% endif %}                              
+            {% endfor %}
+          </select> <br>
+        </div>
+
+      </div>
+      <div class="column">
+        {% if mode == "Accidentales" %}
+        
+        <div>CVAT
+          <select name="rt1">
+            {% for rt in rt1 %}
+              <option value = "{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div>H.N.C.<br>
+          <input type = "text" name = "hnc"><br>
+        </div>
+        {% endif %}
+        
+        <div>Fecha<br>
+          <input type = "text" name = "date" value = {{ date }} readonly><br>
+        </div>
+
+        <div>Referencia<br>
+          <input type = "number"  name = "Ref"><br>
+        </div>
+
+        <div>SGM Solicitante
+          <select name = "SGM">
+            <option value = "default">Por Defecto</option>
+            {% for SGM in SGMList %}
+            <option value = {{ SGM.number }}> {{ SGM.number }}</option>
+            {% endfor %}
+          </select> <br>
+        </div>
+
+        <div>Horas<br>
+        {% if mode == "Accidentales" %}
+        <input type = "number" name = "horas"></br></div>
+        {% else %}
+        <input type = "number" name = "numH"></br></div>
+        {% endif %}
+        
+        <div>Descripcion<br>
+        <textarea id="textDescp" rows="5" cols="30"></textarea>
+        <input type="text" hidden name = "Descp" id="descp"></br></div>
+
+        <input id="submit" type = "submit" value = "Enviar">
+      </div>
+    </div>
+  </form>
+
+  <p id="DesignationID"></p>
+
+  <script>
+  
+  function calcHRec(){
+    var nOp = document.forms["myForm"]["nOp"].value;
+    var numH = document.forms["myForm"]["numH"].value;
+    document.forms["myForm"]["hRec"].value = nOp*numH;                         
+  }
+  
+  function ComponentFunction() {
+    document.getElementById("DesignationID").innerHTML = "<option value = default> Por Defecto </option>";
+    var component = document.getElementById("ComponentID").value;
+    {% for designa in designaList%}
+    var name = "{{designa}}"
+    // LINEAS AnADIDAS PARA CONTROLAR PROBLEMA DEL COMIENZA CON, PUES S_19 Y S_19.1
+    // COMIENZAN IGUAL Y COGIA EN S_19 LOS DE S_19.1, ESTO HACE QUE NO FUNCIONEN
+    // DESIGNACIONES QUE NO TENGAN PUNTOS, AHORA NINGUNA LOS TIENE
+    var nameNoComp = name.substring(component.length + 1, name.length);
+    var n = (nameNoComp).split('.').length;
+    if(name.startsWith(component) && n==1){
+      newName = name.substring(name.lastIndexOf('.') + 1, name.length);
+      document.getElementById("DesignationID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
+    }
+    {% endfor %}
+  }
+
+  function DesignationFunction(){
+    document.getElementById("PNID").innerHTML = "";
+    var designation = document.getElementById("DesignationID").value;
+    {% for parNumber in PNList%}
+    var name = "{{parNumber}}"
+    if(name.startsWith(designation)){
+      newName = name.substring(name.lastIndexOf(".") + 1, name.length);
+      document.getElementById("PNID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
+    }
+    {% endfor %}
+  }
+
+  function validateForm() {
+    var variablesDef = [];
+    var variablesWhite = [];
+    variablesDef[0] = document.forms["myForm"]["Component"].value;
+    variablesDef[1] = document.forms["myForm"]["Designation"].value;
+    variablesDef[2] = document.forms["myForm"]["parNumber"].value;
+    variablesDef[3] = document.forms["myForm"]["Area"].value;
+    variablesDef[4] = document.forms["myForm"]["Defect"].value; 
+    variablesDef[5] = document.forms["myForm"]["SGM"].value;
+    variablesWhite[0] = document.forms["myForm"]["Ref"].value;
+                  
+    {% if mode == "Accidentales" %}                  
+    variablesWhite[1] = document.forms["myForm"]["horas"].value;
+    {% else %}
+    variablesWhite[1] = document.forms["myForm"]["numH"].value;
+    {% endif %}
+    
+    document.forms["myForm"]["Descp"].value = document.getElementById("textDescp").value;                 
+    variablesWhite[2] = document.forms["myForm"]["Descp"].value;
+    {% if mode == "Reparaciones" %}
+    variablesWhite[3] = document.forms["myForm"]["hnc"].value;
+    {% endif %}                  
+    for (i = 0; i < variablesWhite.length; i++) {
+      if (variablesWhite[i] == "") {
+          alert("No se puede enviar un formulario con campos en blanco");
+          return false;
+      }
+    }
+    for (i = 0; i < variablesDef.length; i++) {
+      if (variablesDef[i] == "default") {
+          alert("No se puede enviar un formulario con valores por defecto");
+          return false;
+      }
+    }
+  }
+
+  </script>
+
+{% endblock form %}

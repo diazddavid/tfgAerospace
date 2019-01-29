@@ -1,0 +1,165 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+<h1>Exportar F412 a csv</h1>            
+<table>
+    <tr style="text-align:left">
+        <th><h1><a style="color:#000000" href="/ExportarF412/380">A380</a></h1></th>
+        <th><h1><a style="color:#000000" href="/ExportarF412/APT1">A350 APT1</a></h1></th>
+    </tr>
+    <tr style="text-align:left">
+        <td id="td1" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/380/Activo">Activos</a></td>
+        <td id="td5" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT1/Activo">Activos</a></td>                  
+    </tr>
+    <tr style="text-align:left">
+        <td id="td2" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/380/Validado">Validados</a></td>
+        <td id="td6" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT1/Validado">Validados</a></td>                  
+    </tr>
+    <tr style="text-align:left">
+        <td id="td3" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/380/Concedido">Concedidos</a></td>
+        <td id="td7" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT1/Concedido">Concedidos</a></td>                  
+    </tr>
+    <tr style="text-align:left">
+        <td id="td4" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/380/Rechazado">Rechazados</a></td>
+        <td id="td8" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT1/Rechazado">Rechazados</a></td>                  
+    </tr>
+    
+    <tr style="text-align:left">
+        <th><h1><a style="color:#000000" href="/ExportarF412/APT2">A350 APT2</a></h1></th>
+        <th><h1><a style="color:#000000" href="/ExportarF412/APT3">A350 APT3</a></h1></th>
+    </tr>
+    <tr style="text-align:left">
+        <td id="td9" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT2/Activo">Activos</a></td>  
+        <td id="td10" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT3/Activo">Activos</a></td>                  
+    </tr>
+    <tr style="text-align:left">
+        <td id="td11" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT2/Validado">Validados</a></td>   
+        <td id="td12" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT3/Validado">Validados</a></td>                  
+    </tr>
+    <tr style="text-align:left">
+        <td id="td13" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT2/Concedido">Concedidos</a></td>  
+        <td id="td14" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT3/Concedido">Concedidos</a></td>                  
+    </tr>
+    <tr style="text-align:left">
+        <td id="td15" style="padding-left:225px"><input type="checkbox" onclick="checkFunction()" id="cb15" value="APT2Rej">
+        <a style="color:#000000" href="/ExportarF412/APT2/Rechazado">Rechazados</a></td>   
+        <td id="td16" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT3/Rechazado">Rechazados</a></td>                  
+    </tr>
+    
+    <tr style="text-align:left">
+        <th><h1><a style="color:#000000" href="/ExportarF412/APT4">A350 APT4</a></h1></th>
+        <th><h1><a style="color:#000000" href="/ExportarF412/APT5">A350 APT5</a></h1></th>
+    </tr>
+    <tr style="text-align:left">
+        <td id="td17" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT4/Activo">Activos</a></td>  
+        <td id="td18" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT5/Activo">Activos</a></td>                  
+    </tr>
+    <tr style="text-align:left">
+        <td id="td19" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT4/Validado">Validados</a></td>   
+        <td id="td20" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT5/Validado">Validados</a></td>                  
+    </tr>
+    
+     <tr style="text-align:left">
+        <td id="td21" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT4/Concedido">Concedidos</a></td>  
+        <td id="td22" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT5/Concedido">Concedidos</a></td>                  
+    </tr>
+    
+     <tr style="text-align:left">
+        <td id="td23" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT4/Rechazado">Rechazados</a></td>   
+        <td id="td24" style="padding-left:225px"><a style="color:#000000" href="/ExportarF412/APT5/Rechazado">Rechazados</a></td>                  
+    </tr>
+    
+</table>
+
+<table>
+    <tr>
+        <th><h1><a style="color:#000000" href="/ExportarF412/350">A350</a></h1></th>
+    </tr>
+    
+</table>
+
+
+<h1>
+<form id="button1" method="post" action="/ExportarF412" onsubmit="return validateForm()">
+  <input type="hidden" name="toExport" id="toExport" value="">                              
+  <input class="boton" type="submit" value="Exportar">
+</form></h1>
+
+<script>
+
+/*
+var checkCode = [];
+
+function hideChecks(check380, showAll){
+  for(i = 1; i < 25 ; i++){
+    name = "td" + i.toString();
+    if (showAll==true){       
+      text = document.getElementById(name).innerHTML;
+      if(text.indexOf(checkCode[i]) == -1){                                    
+        document.getElementById(name).innerHTML = checkCode[i] + text; 
+      }
+    }else if(check380==true){
+      if (i > 4){
+          document.getElementById(name).style = "display:none;opacity:0";  
+          text = document.getElementById(name).innerHTML;
+          text = text.substring(checkCode.length, text.length);
+          document.getElementById(name).innerHTML = text;                                        
+      }                                 
+    }else{    
+      if ( i < 5){            
+        document.getElementById(name).style = "display:none;opacity:0";   
+        text = document.getElementById(name).innerHTML;
+        text = text.substring(checkCode.length, text.length);
+        document.getElementById(name).innerHTML = text;         
+      }
+    }          
+  }          
+}
+
+function checkFunction(){      
+  var check380;
+  var showAll = true;      
+  for(i = 1; i < 25 ; i++){
+    name = "cb" + i.toString();                
+    if (document.getElementById(name).checked == true ){  
+      if (i <= 4){     
+        showAll = false;      
+        check380 = true;     
+        break;
+      }else{
+        showAll = false;      
+        check380 = false;  
+        break;
+      }                                      
+    }                            
+  }hideChecks(check380, showAll); 
+}
+
+function validateForm(){
+  var toExport="";   
+  for(i = 1; i < 25 ; i++){
+    name = "cb" + i.toString();                
+    if (document.getElementById(name).checked == true ){  
+      toExport = toExport + document.getElementById(name).value + ";";                                      
+    }                            
+  }
+ 
+  toExport = toExport.substring(0, toExport.length - 1)
+  document.getElementById("toExport").value= toExport;         
+  return true;                         
+}*/
+
+window.onload = function(){
+  for(i = 1; i < 25 ; i++){
+    name = "td" + i.toString();                
+    text = document.getElementById(name).innerHTML
+    text = text.substring(1, text.indexOf("<a"))
+    checkCode[i] = text
+                           
+  }
+}
+
+</script>
+
+{% endblock %}

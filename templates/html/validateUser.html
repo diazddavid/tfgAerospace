@@ -1,0 +1,23 @@
+<html>
+<body>
+
+  {% if NameError %}
+    <h1>Usuario incorrecto</h1>
+  {% endif %}
+
+  {% if notNameError %}
+    <h1>Usuario correcto</h1>
+  {% endif %}
+
+  <form action="/autenticar" method="post" name="myForm" onsubmit="return validateForm()">
+    Correo de Usuario
+    <input type = "text" name = "email"><br>
+
+    Contraseña
+    <input type = "text" name = "passwd"><br>
+
+    <input type = "submit" valu = "Submit">
+  </form>
+
+</body>
+</html>

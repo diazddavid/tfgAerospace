@@ -1,0 +1,26 @@
+@charset "utf-8";
+/*
+Template Name: Education Board
+Author: <a href="http://www.os-templates.com/">OS Templates</a>
+Author URI: http://www.os-templates.com/
+Licence: Free to use under our free template licence terms
+Licence URI: http://www.os-templates.com/template-terms
+File: Navigation CSS
+*/
+
+#topnav{display:block; clear:both; width:1100px; margin:0; padding:15px 0; text-align:center;}
+#topnav, #topnav a{text-transform:uppercase; color:#FFFFFF; background-color:#00205b;}
+#topnav a:hover, #topnav li.active a{color:#6399ae; background-color:#00205b;}
+#topnav ul, #topnav li{margin:0; padding:0; list-style:none;}
+#topnav li{display:inline; margin-right:80px;}
+#topnav li.last{margin:0;}
+
+/* ----------------------------------------------Pagination------------------------------------- */
+
+.pagination{display:block; width:100%; clear:both; text-align:center;}
+.pagination ul{margin:0; padding:0; list-style:none;}
+.pagination li{display:inline;}
+.pagination .next{margin:0;}
+.pagination a{display:inline-block; margin:0 2px 0 0; padding:2px 5px 3px 5px; border:1px solid #D8D9DE;}
+.pagination .current, .pagination .splitter{margin:0 2px 0 0; padding:6px;}
+.wrapper .pagination a:hover, .pagination .current, .pagination .splitter{color:#FFFFFF; background-color:#00205b;}

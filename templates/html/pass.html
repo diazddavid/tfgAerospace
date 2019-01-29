@@ -1,0 +1,39 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+<form id="passFORM" action="/cambiarCon" method="post" style="text-align: center" onsubmit="return validateForm()">
+
+      Nombre de Usuario
+      <input type = "text" name = "name"><br><br>
+
+      Contraseña Actual
+      <input type = "password" name = "currentPasswd"><br><br>
+
+      Nueva Contraseña
+      <input type = "password" name = "newPasswd"><br><br>
+
+
+      Repita Nueva Contraseñas
+      <input type = "password" name = "newPasswd2"><br><br>
+
+      <input type = "submit" value = "Cambiar"><br><br>
+</form>
+
+<script>
+
+function validateForm() {
+  pass1 = document.forms["myForm"]["newPasswd"].value;
+  pass2 = document.forms["myForm"]["newPasswd2"].value;
+  if (pass1 != pass2) {
+      alert("Las contraseñas no coinciden");
+      return false;
+  }
+  if (pass1 == "" || pass2 == ""){
+    alert("Por favor escriba una contraseña")
+    return false;
+  }
+}
+
+</script>
+{% endblock %}
