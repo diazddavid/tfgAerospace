@@ -1,0 +1,170 @@
+{% extends 'html/mensual/baseMensual.html' %}
+
+{% load filtrosExtra %}
+
+{% block bodyMensual %}
+
+<h1>Añadir horas {{codCausName}} para A{{program}}</h1>
+
+{% if program == "350"%}
+  <form id="button2" method="get" action="/changeHour/380/{{codCausName}}">
+    <input class="boton" type="submit" value="Cambiar A380">
+  </form>
+{% else %}
+  <form id="button2" method="get" action="/changeHour/350/{{codCausName}}">
+    <input class="boton" type="submit" value="Cambiar A350">
+  </form>
+{% endif %}
+
+
+{% if codCausName == "ALB" %}
+  <form id="button2" method="get" action="/changeHour/{{program}}/RL8">
+    <input class="boton" type="submit" value="Cambiar RL8">
+  </form>
+  <form id="button2" method="get" action="/changeHour/{{program}}/M60">
+    <input class="boton" type="submit" value="Cambiar M60">
+  </form>
+{% elif codCausName == "M60" %}
+  <form id="button2" method="get" action="/changeHour/{{program}}/RL8">
+    <input class="boton" type="submit" value="Cambiar RL8">
+  </form>
+  <form id="button2" method="get" action="/changeHour/{{program}}/ALB">
+    <input class="boton" type="submit" value="Cambiar ALB">
+  </form>
+{% else %}
+  <form id="button2" method="get" action="/changeHour/{{program}}/M60">
+    <input class="boton" type="submit" value="Cambiar M60">
+  </form>
+  <form id="button2" method="get" action="/changeHour/{{program}}/ALB">
+    <input class="boton" type="submit" value="Cambiar ALB">
+  </form>
+{% endif %}
+
+<br>
+<br>
+  <h1 style="font-size:18px;">{{errorMessage2}}</h1>
+
+  <form id="planesFormId" action="/changeHour/{{program}}/{{codCausName}}" method="post" name="myForm" onsubmit="return validateForm()" style="text-align:center">
+   <div class="row">
+     <div class="column">
+     
+        Año
+        <select name="year" select id="year" style="text-align:center">
+          {% for year in yearList %}
+            {% if year == defYear %}
+              <option value="{{year}}" selected> {{year}}</option>
+            {% else %}
+              <option value="{{year}}"> {{year}}</option>
+            {% endif %}
+          {% endfor %}
+        <select><br>
+                                                                             
+        {% if program == "350" %}
+          {% getNumberHours component defYear defMonth program codCausName as 350Number %}  
+          Horas {{codCausName}}
+          <div><input type="text" style="text-align:center" name="350Number" value="{{350Number}}"></div></br>
+                                                                               
+        </div>
+        <div class="column" style="margin-left: 40px">
+              
+          Mes
+          <select name="month" select id="month" style="text-align:center">
+            {% for month in monthList %}
+              {% if month == defMonth %}
+                <option value="{{month}}" selected> {{month}}</option>
+              {% else %}                           
+                <option value="{{month}}"> {{month}}</option>
+              {% endif %}
+            {% endfor %}  
+          <select></br>
+          
+                                                                                        
+        {% endif %}                                                                             
+
+    {% for component in componentList %}   
+    
+      {% getNumberHours component defYear defMonth program codCausName as componentNumber %}
+      {{component}}
+      <div><input type="text" style="text-align:center" name="{{component}}Number" value="{{componentNumber}}"></div></br>
+     
+      {% if component == "COSTILLA" %}
+  
+    </div>
+    <div class="column">
+    
+      Mes
+      <select name="month" select id="month" style="text-align:center">
+        {% for month in monthList %}
+          {% if month == defMonth %}
+          sadadasd
+            <option value="{{month}}" selected> {{month}}</option>
+          {% else %}                           
+            <option value="{{month}}"> {{month}}</option>
+          {% endif %}
+        {% endfor %}
+      <select></br>
+    
+      {% endif %}
+        
+    {% endfor %}        
+ 
+      </br></br><input id="submit" type = "submit" value = "Enviar">
+      </div>
+    </div>
+  </form>
+
+  <div class="column" style="margin-left:40px">
+  </br>
+    <div>
+      <form id="button2" method="get" action="/changeMonthHour/{{program}}/{{codCausName}}" onsubmit="return changeMonthYear()">
+        <input type="submit" value="Cambiar Mes y Año">
+      </form>
+    </div> 
+  </div>                             
+    
+<script>
+
+function validateForm(){
+  monthDef = document.forms["myForm"]["month"].value;   
+  if (monthDef > 12){
+    alert("El mes no puede ser superior a 12");
+    return false;
+  }             
+}
+
+function changeMonthYear(){
+  var form = document.createElement("form");
+  form.setAttribute("method", "POST");
+
+  monthDef = document.forms["myForm"]["month"].value;   
+  if (monthDef > 12){
+    alert("El mes no puede ser superior a 12");
+    return false;
+  }               
+            
+  var month = document.createElement("input");
+  month.setAttribute("type", "hidden");
+  month.setAttribute("name", "month");                       
+  month.setAttribute("value", monthDef);                                                     
+      
+  form.appendChild(month);
+                      
+  yearDef = document.forms["myForm"]["year"].value;          
+  var year = document.createElement("input");
+  year.setAttribute("type", "hidden");
+  year.setAttribute("name", "year");                       
+  year.setAttribute("value", yearDef);                                                     
+      
+  form.appendChild(year);
+  form.setAttribute("action", "/changeMonthHour/{{program}}/{{codCausName}}");
+  document.body.appendChild(form);      
+  form.submit();  
+             
+  return false;
+}
+ 
+</script>
+          
+{% endblock bodyMensual %}
+
+

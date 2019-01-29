@@ -1,0 +1,47 @@
+{% extends 'html/modify/modifyBase.html' %}
+
+{% block modifyBody %}
+
+<h1>{{modifyModel}} Evolución Part Number : {{pnToModify.id}}</h1>
+<h1>{{infoNewPN}}</h1>
+  <br><br>
+  <h2 style="text-align:left; font-size:20px">Crear PN</h2>
+  
+  <form id="adminFORM" action="/newEV/{{pnToModify.id}}" method="post" name="myForm">
+                                      
+    Nombre PN
+      <div><input type = "text" name = "newPN"></div>
+    
+    <input id="submit" type = "submit" value="Crear Ev">    
+  </form>
+
+  <br><br><br>
+  
+  <table style="background-color:white">
+    <tr>
+      <th>Nombre</th>
+      <th>Visible</th>
+      <th>Estado</th>
+    </tr>
+    {% for pnEv in pnEvList %}
+    <tr> 
+      <td style="text-align:center" >{{pnEv.name}}</td>
+      <td>
+        <form style="text-align:center" action="/changeVisible/{{pnToModify.id}}/{{pnEv.id}}" method="get">
+          <input type="submit" value="{% if pnEv.shouldShow == True %}Visible{% else %}No visible{% endif %}">    
+        </form>                         
+      </td>
+      <td style="text-align:center" >{% if pnEv.currentPN == False %}
+        <form style="text-align:center" action="/activate/{{pnToModify.id}}/{{pnEv.id}}" method="get">
+          <input type="submit" value="Activar">    
+        </form>  
+        {% else %}
+          Activo
+        {% endif %}                       
+      </td>
+    </tr>
+    {% endfor %}
+
+  </table>
+  
+{% endblock modifyBody %}
