@@ -28,7 +28,6 @@ def getBasicContext(myContext, request):
     myContext["mode"] = "Reparaciones"
     myContext['myPath'] = request.path
     myContext["codCausList"] = codCaus.objects.all()
-    myContext["request"] = request
     try:
         myContext['myUser'] = myUser.objects.get(user = request.user)
     except:
@@ -179,7 +178,6 @@ def serveAdminPage(request, mode):
     template = get_template("html/adminPage.html")
     myContext = Context()
     myContext = getBasicContext(myContext, request)
-    myContext["sendMail"] = sendMail.objects.get(id = 1).shouldSend
     if request.method == "POST":
         typeForm = request.POST['type']
         if typeForm == "newUser":

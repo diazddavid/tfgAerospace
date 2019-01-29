@@ -1,6 +1,3 @@
-{% load filtrosExtra %}
-{% if WholeProgram %}Estado;{% endif %}Fecha;Programa;Area Causante;Area;Componente;Designacion;P/N;Ref.;Defecto;Horas;SGM;Descripcion;N F412;
-{% for f412 in f412List %}{% if WholeProgram %}{{f412.Estado.name}};{% endif %}{{ f412.Fecha|date:"Y/m/d" }};A{{ f412.programa.name}};{{f412.codigoCausa.name}};{{f412.Area.name}}; {{ f412.Componente.alias }}; {{ f412.Designacion.alias }}; {{ f412.PN.name }}; {{ f412.Referencia }}; {{ f412.Defecto.name }};{{ f412.horas | changeDot }}; {{ f412.SGM.number }}; {{ f412.Descripcion }}; {{ f412.myID }};
-{% endfor %}
-{% for f412 in repList %}{% if WholeProgram %}{{f412.Estado.name}};{% endif %}{{ f412.Fecha|date:"Y/m/d" }};A{{ f412.programa.name}};{{f412.codigoCausa.name}};{{f412.Area.name}}; {{ f412.Componente.alias }}; {{ f412.Designacion.alias }}; {{ f412.PN.name }}; {{ f412.Referencia }}; {{ f412.Defecto.name }};{{ f412.horas | changeDot }}; {{ f412.SGM.number }}; {{ f412.Descripcion }}; {{ f412.myID }};
+{% if WholeProgram %}Estado;{% endif %}Fecha;Programa;Componente;Designación;P/N;Ref.;Defecto;Area;Horas;SGM;Descripcion;NºF412;
+{% for f412 in f412List %}{% if WholeProgram %}{{f412.Estado.name}};{% endif %}{{ f412.Fecha|date:"Y/m/d" }};A{{ f412.programa.name}}; {{ f412.Componente.alias }}; {{ f412.Designacion.alias }}; {{ f412.PN.name }}; {{ f412.Referencia }}; {{ f412.Defecto.name }}; {{ f412.Area.alias }}; {{ f412.horas }}; {{ f412.SGM.number }}; {{ f412.Descripcion }}; {{ f412.myID }};
 {% endfor %}

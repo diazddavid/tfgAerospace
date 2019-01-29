@@ -15,6 +15,7 @@ def dateToComment(date):
         date = date - datetime.timedelta(days=1)
     return date.strftime("%y%m%d")
     
+
 #FUncion por si en algun momento es necesaria depuracion
 def F412ToString(f412):
     toReturn = "Programa: " + f412.Programa.name + "\n"

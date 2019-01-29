@@ -16,7 +16,6 @@
   
     <tr>
       <th>Tipo Defecto</th>
-      <th>Horas</th>
       <th>Accion</th>
       <th>PPS - código</th>
       <th>Fecha de<br> apertura del<br> PPS</th>
@@ -26,12 +25,11 @@
     </tr>
     
     {% for parDefc in result.topDefc.all|orderQuery:"number" %}    
-    {% getParteroDefc parDefc as parDefcMBef %}
+
         <tr>
-          <td>{{parDefc.defecto.name}} </td>
-          <td>{{parDefc.horas|floatformat:3}}</td>    
-          <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}">{% if parDefc.accion == "" %}{{parDefcMBef.accion}}{% else %}{{parDefc.accion}}{% endif %}</div></td>
-          <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}">{% if parDefc.ppsCod == "" %}{{parDefcMBef.ppsCod}}{% else %}{{parDefc.ppsCod}}{% endif %}</div></td>
+          <td>{{parDefc.defecto.name}}</td>
+          <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}">{{parDefc.accion}}</div></td>
+          <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}">{{parDefc.ppsCod}}</div></td>
           <td><div contenteditable id="date1{{pareto}}{{parDefc.defecto.name}}">{% if modificadaFechaAp %}
           {{parDefc.fechaApertura|date:"Y/m/d"}}{% endif %}</div></td>
           <td><div contenteditable id="date2{{pareto}}{{parDefc.defecto.name}}">{% if modificadaFechaCie %}
@@ -58,7 +56,6 @@
   {% if result2 != "" %}
     <tr>
       <th>Tipo Defecto</th>
-      <th>Horas</th>
       <th>Accion</th>
       <th>PPS - código</th>
       <th>Fecha de<br> apertura del<br> PPS</th>
@@ -68,19 +65,17 @@
     </tr>
     
     {% for parDefc in result2.topDefc.all|orderQuery:"number" %}    
-    {% getParteroDefc parDefc as parDefcMBef%} 
       
         <tr>
           <td>{{parDefc.defecto.name}}</td>
-          <td>{{parDefc.horas|floatformat:3}}</td>   
-          <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}Lay">{% if parDefc.accion == "" %}{{parDefcMBef.accion}}{% else %}{{parDefc.accion}}{% endif %}</div></td>
-          <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}Lay">{% if parDefc.ppsCod == "" %}{{parDefcMBef.ppsCod}}{% else %}{{parDefc.ppsCod}}{% endif %}</div></td>
+          <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}Lay">{{parDefc.accion}}</div></td>
+          <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}Lay">{{parDefc.ppsCod}}</div></td>
           <td><div contenteditable id="date1{{pareto}}{{parDefc.defecto.name}}Lay">{% if modificadaFechaAp %}
           {{parDefc.fechaApertura|date:"Y/m/d"}}{% endif %}</div></td>
           <td><div contenteditable id="date2{{pareto}}{{parDefc.defecto.name}}Lay">{% if modificadaFechaCie %}
           {{parDefc.fechaCierre|date:"Y/m/d"}}{% endif %}</div></td>
           <!--<td><div contenteditable></div></td>
-          <td><div contenteditable></div></td> -->          
+          <td><div contenteditable></div></td> -->                               
         </tr>
     
     
@@ -112,7 +107,6 @@
   
       <tr>
         <th>Tipo Defecto</th>
-        <th>Horas</th>
         <th>Accion</th>
         <th>PPS - código</th>
         <th>Fecha de<br> apertura del<br> PPS</th>
@@ -122,19 +116,17 @@
       </tr>
     
       {% for parDefc in result3.topDefc.all|orderQuery:"number" %}    
-      {% getParteroDefc parDefc as parDefcMBef%}
+      
           <tr>
             <td>{{parDefc.defecto.name}}</td>
-            <td>{{parDefc.horas|floatformat:3}}</td>  
-            <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}">{% if parDefc.accion == "" %}{{parDefcMBef.accion}}{% else %}{{parDefc.accion}}{% endif %}</div></td>
-            <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}">{% if parDefc.ppsCod == "" %}{{parDefcMBef.ppsCod}}{% else %}{{parDefc.ppsCod}}{% endif %}</div></td>
+            <td><div contenteditable id="action{{pareto}}{{parDefc.defecto.name}}">{{parDefc.accion}}</div></td>
+            <td><div contenteditable id="PPS{{pareto}}{{parDefc.defecto.name}}">{{parDefc.ppsCod}}</div></td>
             <td><div contenteditable id="date1{{pareto}}{{parDefc.defecto.name}}">{% if modificadaFechaAp %}
             {{parDefc.fechaApertura|date:"Y/m/d"}}{% endif %}</div></td>
             <td><div contenteditable id="date2{{pareto}}{{parDefc.defecto.name}}">{% if modificadaFechaCie %}
             {{parDefc.fechaCierre|date:"Y/m/d"}}{% endif %}</div></td>
             <!--<td><div contenteditable></div></td>
-            <td><div contenteditable></div></td> -->  
-          <td>{{result3.id}}</td>                             
+            <td><div contenteditable></div></td> -->                               
           </tr>
     
       {% endfor %}
@@ -169,7 +161,6 @@ function functionDisplay(number){
  }
    
 function functionPrev(number){
-        
   {% for pareto in paretoList %}
   
   if (number == "{{forloop.counter}}" ){
@@ -315,11 +306,12 @@ function getForm(){
   {% getPareto pareto month year isLay as result2 %}
   
     {% for parDefc in result2.topDefc.all|orderQuery:"number" %}
-      var actionTableLay = document.getElementById("action{{pareto}}{{parDefc.defecto.name}}Lay").innerHTML;                                                  
+  
+      var actionTableLay = document.getElementById("action{{pareto}}{{parDefc.defecto.name}}Lay").innerHTML;                
       var actionLay = document.createElement("input");
       actionLay.setAttribute("type", "hidden");
       actionLay.setAttribute("name", "action{{pareto}}{{parDefc.defecto.name}}Lay");                       
-      actionLay.setAttribute("value", actionTableLay);                                                         
+      actionLay.setAttribute("value", actionTable);                                                         
   
       form.appendChild(actionLay);
   
@@ -327,7 +319,7 @@ function getForm(){
       var PPSCodLay = document.createElement("input");
       PPSCodLay.setAttribute("type", "hidden");
       PPSCodLay.setAttribute("name", "PPSCod{{pareto}}{{parDefc.defecto.name}}Lay");                       
-      PPSCodLay.setAttribute("value", PPSTableLay);                                                     
+      PPSCodLay.setAttribute("value", PPSTable);                                                     
       
       form.appendChild(PPSCodLay);
   
@@ -343,7 +335,7 @@ function getForm(){
       var dateInitLay = document.createElement("input");
       dateInitLay.setAttribute("type", "hidden");
       dateInitLay.setAttribute("name", "dateInit{{pareto}}{{parDefc.defecto.name}}Lay");                       
-      dateInitLay.setAttribute("value", date1TableLay);                                                     
+      dateInitLay.setAttribute("value", date1Table);                                                     
       
       form.appendChild(dateInitLay);
       
@@ -437,7 +429,7 @@ function servePDF() {
   form = getForm()
   form.setAttribute("action", "/exportPDFPareto");
   document.body.appendChild(form);      
-  /*form.submit(); */                   
+  form.submit();                    
 }
  
 

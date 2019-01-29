@@ -47,9 +47,7 @@
           <select name = "Area">
             <option value = "default">Por Defecto</option>
             {% for area in areaList %}
-            {% if area.name != "EN_DESCRIPCION" %}    
-                <option value = {{ area.name }}> {{ area.name }}</option>
-            {% endif %}
+            <option value = {{ area.name }}> {{ area.name }}</option>
             {% endfor %}
           </select> <br>
         </div>
@@ -89,7 +87,7 @@
         {% endif %}
       
         <div>Fecha<br>
-          <input type = "text" name = "date" value = {{ date }} {% if mode == "Reparaciones" %}readonly {% endif %} ><br>
+          <input type = "text" name = "date" value = {{ date }} readonly><br>
         </div>
 
         <div>Referencia<br>
@@ -170,8 +168,6 @@
     variablesWhite[1] = document.forms["myForm"]["{% if mode == "Reparaciones" %}numH{% else %}horas{% endif %}"].value;
     document.forms["myForm"]["Descp"].value = document.getElementById("textDescp").value;                 
     variablesWhite[2] = document.forms["myForm"]["Descp"].value;
-    var repDate = document.forms["myForm"]["date"].value;      
-                                
     for (i = 0; i < variablesWhite.length; i++) {
       if (variablesWhite[i] == "") {
           alert("No se puede enviar un formulario con campos en blanco");
@@ -184,44 +180,7 @@
           return false;
       }
     }
-    return validDate(repDate)
   }
-      
-function validDate(date){
-  var year = date.substring(0, date.indexOf("/"));
-  var aux = date.substring(date.indexOf("/") + 1, date.length);         
-  var month = aux.substring(0, aux.indexOf("/"));
-  var day = aux.substring(aux.indexOf("/") + 1, aux.length);  
-  if(isNaN(year) || isNaN(month) || isNaN(day)){
-    alert("El formato de la fecha no es adecuado")
-    return false;
-  }
-  if(year.length != 4 || month.length != 2 || day.length != 2){
-      alert("El formato de la fecha no es el adecuado")
-      return false;
-  }
-  if (parseInt(month)>12){
-      alert("El formato de la fecha no es el adecuado")
-      return false;
-  }
-  if(month == "1" || month == "3" ||month == "5" || month == "7" || month == "8" || month == "10" || month == "12"){
-    if(parseInt(day) > 31){
-      alert("El formato de la fecha no es el adecuado");
-      return false;
-    }
-  }else if(month == "2"){
-    if(parseInt(day) > 29){
-      alert("El formato de la fecha no es el adecuado");
-      return false;
-    }
-  }else{
-    if(parseInt(day) > 30){
-      alert("El formato de la fecha no es el adecuado");
-      return false;
-    }
-  }
-  return true;
-}
 
   </script>
 

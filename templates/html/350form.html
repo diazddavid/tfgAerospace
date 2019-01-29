@@ -2,6 +2,7 @@
 y unos bloques para las funciones especificas de ambos programas -->
 {% extends 'html/form.html' %}
 
+
 {% block form %}                        
   <!-- FuncionarĂĄ cuando enviemos un formulario y se cree un f412 -->
   {% if newID %}
@@ -19,57 +20,43 @@ y unos bloques para las funciones especificas de ambos programas -->
     <div class="row">
       <div class="column">
         <div>N AV<br>
-        <input type = "number" name = "nAV" value="{{nAVForm}}"></br></div>
+        <input type = "number" name = "nAV"></br></div>
 
         <div>APT
         <select name = "section" id="SectionID" onchange="sectionFunction()">
         {% if myUser.typeUser.name == "ME" %}
           {% for section in sectionList %}
-            {% if section.name == sectionForm %}
-              <option value = {{ section.name }} selected> {{ section.name }}</option>
-            {% else %}                  
-              <option value = {{ section.name }}> {{ section.name }}</option>
-            {% endif %}
+          {% if section in myUser.seccion.all %}
+          <option value = {{ section.name }} selected> {{ section.name }}</option>
+          {% else %}
+          <option value = {{ section.name }}> {{ section.name }}</option>
+          {% endif %}
           {% endfor %}
         {% else %}
-          {% for section in myUser.seccion.all %}
-            {% if section.name != "380" %}
-              {% if section.name == sectionForm %}
-                <option value = {{ section.name }} selected> {{ section.name }}</option>
-              {% else %}                  
-                <option value = {{ section.name }}> {{ section.name }}</option>
-              {% endif %}
-            {% endif %} 
+          {% for section in myUser.seccion.all %}  
+            <option value = {{ section.name }}> {{ section.name }}</option>
           {% endfor %}
         {% endif %}
-        </select><br> </div>
+        </select> </div><br>
         
 
         <div id="piezaIDDiv">Pieza:
         <select name = "Pieza" id="piezaID" onchange="piezaFunction()" select>
           <option value = "default">Por Defecto</option>
           {% for pieza in piezaList %}
-            {% if pieza.name == piezaForm %}
-              <option value = {{ pieza.name }} selected> {{ pieza.name }}</option>
-            {% else %}                     
-              <option value = {{ pieza.name }}> {{ pieza.name }}</option>         
-            {% endif %}
+          <option value = {{ pieza.name }}> {{ pieza.name }}</option>
           {% endfor %}
         </select> </div><br>
 
         <div>Componente:
         <select name = "Component" id="ComponentID" onchange="ComponentFunction()" select   >
           <option value = "default">Por Defecto</option>
-<!--          {% for component in componentList %}
-            {% if component not in APT5CompList %}
-              {% if component.name == componentForm %}
-                <option value = {{ component.name }} selected> {{ component.name }}</option>
-              {% else %}                                
-                <option value = {{ component.name }}> {{ component.name }} {{ component.id}}</option>
-              {% endif %}                                
-            {% endif %}                          
-          {% endfor %}-->
-        </select> </div><br> 
+          {% for component in componentList %}
+          {% if component not in APT5CompList %}
+            <option value = {{ component.name }}> {{ component.name }}</option>
+          {% endif %}                          
+          {% endfor %}
+        </select> </div><br>
         
         <div>P/N
           <select name = "parNumber" id="PNID"><br>
@@ -80,41 +67,31 @@ y unos bloques para las funciones especificas de ambos programas -->
        
         <div>Area Causante
         <select name = "Area" id="AreaID">
+          <!-- Esta opcion desaparecerĂĄ al seleccionar APT -->
           {% for area in areaUserSection %}
-            {% if area.name == areaForm %}
-              <option selected value = {{area.name}}>{{area.name}}</option>
-            {% else %}                              
-              <option value = {{area.name}}>{{area.name}}</option>
-            {% endif %}      
+          <option value = {{area.name}}>{{area.name}}</option>
           {% endfor %}
         </select></div><br>
         
         <div>Desviacion
         <select name = "Defect" id="desvID">
+          <!-- Esta opcion desaparecerĂĄ al seleccionar APT -->
           {% for desv in desvUser %}
-            {% if desv.name == desvForm %}
-              <option selected value = {{desv.name}}>{{desv.name}}</option>
-            {% else %}                                       
-              <option selected value = {{desv.name}}>{{desv.name}}</option>
-            {% endif %}                                       
+          <option value = {{desv.name}}>{{desv.name}}</option>
           {% endfor %}
         </select> </div><br>
 
     {% if mode == "Accidentales" %}
     
         <div>H.N.C<br>
-        <input type = "text" name = "hnc" value="{{hncForm}}"><br></div>
+        <input type = "text" name = "hnc"><br></div>
      
     
         <div> Nivel 1 Reason Tree
           <select name = "rt1" id = "rt1" onchange="rt2Function()">
             <option value="default">Por defecto</option>
             {% for rt in rt1 %}
-              {% if rt.codigo == rt1Form %}
-                <option value="{{rt.codigo}}" selected>{{rt.codigo}} - {{rt.nombre}}</option>
-              {% else %}
-                <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
-              {% endif %}                               
+            <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
             {% endfor %}                           
           </select>
         </div>
@@ -127,48 +104,41 @@ y unos bloques para las funciones especificas de ambos programas -->
         {% if mode == "Accidentales" %}
     
           <div>Nivel 2 Reason Tree
-            <select name = "rt2" id="rt2" onchange="rt3Function()">
-              <option value="default">Seleccione primero nivel 1</option>
-            </select>
+          <select name = "rt2" id="rt2" onchange="rt3Function()">
+            <option value="default">Seleccione primero nivel 1</option>
+          </select>
           </div>  
           
           <div>Nivel 3 Reason Tree
-            <select name = "rt3" id="rt3"">
-              <option value="default">Seleccione primero nivel 2</option>
-            </select>
+          <select name = "rt3" id="rt3"">
+            <option value="default">Seleccione primero nivel 2</option>
+          </select>
           </div>
         
         {% endif %}    
     
         <div>Fecha<br>
-        <input type = "text" name = "date" value={{ date }} {% if mode == "Reparaciones" %}readonly{% endif %}></br></div>
+        <input type = "text" name = "date" value = {{ date }} readonly></br></div>
                                                    
         <div>Referencia<br>
-        <input type = "number" name = "Ref" value="{{refForm}}"></br></div>
+        <input type = "number" name = "Ref"></br></div>
 
         <div>SGM Solicitantes
         <select name = "SGM" id="SGMID">
+          <!-- Esta opcion desaparecerĂĄ al seleccionar APT -->
           {% if myUser.typeUser.name == "ME"%}
             {% for sgm in sgmList %}
-              {% if sgm.number == sgmForm %}
-                <option selected value = {{sgm.number}}>{{sgm.number}}</option>
-              {% else %}
-                <option value = {{sgm.number}}>{{sgm.number}}</option>
-              {% endif %}                                
+              <option value = {{sgm.number}}>{{sgm.number}}</option>
             {% endfor %}
           {%else%}
             {% for sgm in sgmUser %}
-              {% if sgm.number == sgmForm %}
-                <option selected value = {{sgm.number}}>{{sgm.number}}</option>
-              {% else %}
-                <option value = {{sgm.number}}>{{sgm.number}}</option>
-              {% endif %}   
+              <option value = {{sgm.number}}>{{sgm.number}}</option>
             {% endfor %}
           {%endif%}
         </select></div><br>
 
         <div>Horas Por Operario (LT)<br>
-        <input type = "number" name = "numH" value="{{numHform}}" onchange="calcHRec()"></br></div>
+        <input type = "number" name = "numH" onchange="calcHRec()"></br></div>
         
         <div>Numero Operarios<br>
         <select name="nOp" onchange="calcHRec()">
@@ -190,14 +160,9 @@ y unos bloques para las funciones especificas de ambos programas -->
         value="0" readonly></br></div>
         
         <div>Descripcion<br>
-        <textarea name="textDescp" id="textDescp" rows="5" cols="30">{{descpForm}}</textarea>
+        <textarea name="textDescp" id="textDescp" rows="5" cols="30"></textarea>
         <input type="text" hidden name = "Descp" id="descp"></br></div>
-        
-        {% if mode == "Accidentales" %}
-          <input type="text" hidden name = "changeForm" id="changeForm"></br>
-          <input class="boton"  type="submit" value="Enviar Mantener Campos" onclick="notChangeForm()"> 
-        {% endif %}                                                                           
-        <input id="submit" type = "submit" value="Enviar" {% if mode == "Accidentales" %} onclick="changeForm()"{% endif %}>
+      <input id="submit" type = "submit" value = "Enviar">
       </div>
     </div>
   </form>
@@ -209,14 +174,6 @@ y unos bloques para las funciones especificas de ambos programas -->
 <!-- JAVASCRIPT -->
 
   <script>
-  
-  function notChangeForm(){
-    document.forms["myForm"]["changeForm"].value = "False"      
-  }
-  
-  function changeForm(){
-    document.forms["myForm"]["changeForm"].value = "True"      
-  }
   
   function piezaFunction(){
       sectionFunction();
@@ -241,7 +198,7 @@ y unos bloques para las funciones especificas de ambos programas -->
         {% for pn in comp.parNumber.all %}
           designaName = "{{pn.Designacion.name}}";
           if (designaName.indexOf(pieza) != -1){
-            document.getElementById("PNID").innerHTML += "<option {% if pn.name == pnForm %}selected{% endif %} value ={{pn.name}}>{{pn.name}}</option>";
+            document.getElementById("PNID").innerHTML += "<option value ={{pn.name}}>{{pn.name}}</option>";
           }
         {% endfor %}        
       }
@@ -306,11 +263,9 @@ y unos bloques para las funciones especificas de ambos programas -->
     }else{    
         document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>"
         {% for component in componentList %}
-          {% if component not in APT5CompList %}
-            {% if component.shouldShow == True %}
-              document.getElementById("ComponentID").innerHTML += "<option value = {{ component.name }}> {{ component.name }}</option>"
-            {% endif %}   
-          {% endif %}                          
+        {% if component not in APT5CompList %}
+        document.getElementById("ComponentID").innerHTML += "<option value = {{ component.name }}> {{ component.name }}</option>"
+        {% endif %}                          
         {% endfor %}     
     }
                                                                               
@@ -345,7 +300,6 @@ y unos bloques para las funciones especificas de ambos programas -->
   }
 
 function validateForm() {
-    
     var variablesDef = [];
     var variablesWhite = [];
     variablesDef[0] = document.forms["myForm"]["Component"].value;
@@ -358,8 +312,6 @@ function validateForm() {
     variablesWhite[1] = document.forms["myForm"]["numH"].value;
     document.forms["myForm"]["Descp"].value = document.getElementById("textDescp").value;            
     variablesWhite[2] = document.forms["myForm"]["Descp"].value;
-    var repDate = document.forms["myForm"]["date"].value;               
-                  
     for (i = 0; i < variablesWhite.length; i++) {
       if (variablesWhite[i] == "") { 
           alert("No se puede enviar un formulario con campos en blanco");
@@ -372,53 +324,7 @@ function validateForm() {
           return false;
       }
     }
-      
-    if (validDate(repDate) == false){
-      return false;     
-    }
-    
-    {% if sendMail == True %}
-      sendmail(document.forms["myForm"]["section"].value);
-    {% endif %}
-    return true;
-        
-  }  
-      
-function validDate(date){
-  var year = date.substring(0, date.indexOf("/"));
-  var aux = date.substring(date.indexOf("/") + 1, date.length);         
-  var month = aux.substring(0, aux.indexOf("/"));
-  var day = aux.substring(aux.indexOf("/") + 1, aux.length);  
-  if(isNaN(year) || isNaN(month) || isNaN(day)){
-    alert("El formato de la fecha no es adecuado")
-    return false;
-  }
-  if(year.length != 4 || month.length != 2 || day.length != 2){
-      alert("El formato de la fecha no es el adecuado")
-      return false;
-  }
-  if (parseInt(month)>12){
-      alert("El formato de la fecha no es el adecuado")
-      return false;
-  }
-  if(month == "1" || month == "3" ||month == "5" || month == "7" || month == "8" || month == "10" || month == "12"){
-    if(parseInt(day) > 31){
-      alert("El formato de la fecha no es el adecuado");
-      return false;
-    }
-  }else if(month == "2"){
-    if(parseInt(day) > 29){
-      alert("El formato de la fecha no es el adecuado");
-      return false;
-    }
-  }else{
-    if(parseInt(day) > 30){
-      alert("El formato de la fecha no es el adecuado");
-      return false;
-    }
-  }
-  return true;
-}
+  }   
       
 function rt2Function(){
     document.getElementById("rt2").innerHTML = "<option value='default'>Por defecto</option>"    
@@ -426,7 +332,7 @@ function rt2Function(){
     {% for rt in rt2 %} 
       var rtName = "{{rt.shortName}}" 
       if (rtName.startsWith(rt1Chosen)){
-        document.getElementById("rt2").innerHTML += "<option {% if rt.codigo == rt2Form %}selected{% endif %} value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
+        document.getElementById("rt2").innerHTML += "<option value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
       }
     {% endfor%}    
          
@@ -438,29 +344,11 @@ function rt3Function(){
     {% for rt in rt3 %} 
       var rtName = "{{rt.shortName}}" 
       if (rtName.startsWith(rt2Chosen)){
-        document.getElementById("rt3").innerHTML += "<option {% if rt.codigo == rt3Form %}selected{% endif %} value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
+        document.getElementById("rt3").innerHTML += "<option value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
       }
     {% endfor%}    
          
 }      
-      
-function sendmail(sectionName){
-    body = "Nuevo F412 creado, para seccion " + sectionName
-    subject = "Notificacion F412"
-    
-    if("APT3" == sectionName){
-        toSend = "{{mailListAPT3}}"
-        mailTo = "mailto:" + toSend + "?subject=" + subject + "&amp;body=" + body + ""
-        window.location.href(mailTo)
-    }
-      
-    if("APT4" == sectionName){
-        toSend = "{{mailListAPT4}}"
-        mailTo = "mailto:" + toSend + "?subject=" + subject + "&amp;body=" + body + ""
-        window.location.href(mailTo)       
-    }
-   
-}   
       
 window.onload = function(){  
   sectionFunction();

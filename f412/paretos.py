@@ -7,8 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.figure import Figure
-import matplotlib
-#from numpy import arange, array, ones
+from numpy import arange, array, ones
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import io
 
@@ -20,17 +19,16 @@ from django.http import HttpResponseRedirect
 
 import pandas as pd
 
-#from django.http import FileResponse
+from django.http import FileResponse
 from reportlab.pdfgen import canvas as canvasPDF
-#from django.views.generic import View
-#from django.conf import settings
+from django.views.generic import View
+from django.conf import settings
 from reportlab.lib.pagesizes import A4, landscape
 
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
 
-#from datetime import date
-
+from datetime import date
 
 layupList = ["Autoclave", "Conformado", "Corte", "Desmoldeo", "Encintado", "Lay-Up"]
 indList = ["Recanteado", "Reparaciones" , "Ultrasonidos"]
@@ -78,6 +76,7 @@ def updateParetosYear(year):
     xl = pd.ExcelFile(file)
     # Load a sheet into a DataFrame by name: df1
     day = "05" #Dia intermedio para cogerlo luego filtrando entre 1 y 1 del mes siguiente
+    total = []
     for sheet in xl.sheet_names:
         month = sheet
         date = parseDate(year + "/" + month + "/" + day)
@@ -87,17 +86,11 @@ def updateParetosYear(year):
                 if pd.isnull(df.iat[i,0]) == False:
                     compName = df.iat[i,0]
                     comp = Componente.objects.filter(alias = compName)
-                    comp2 = Componente.objects.filter(name = compName)
                     if comp.count() == 1:
                         comp = comp[0]
-                    elif comp2.count() == 1:
-                        comp = comp2[0]
+                        total.append(comp)
                     else:
-                        print("Continua Componente NO ENCONTRADO " + compName)
-                        continue     
-                else:
-                    print("no entra componente")
-                    
+                        continue        
                 if pd.isnull(df.iat[i,1]) == False:
                     defc = Defecto.objects.filter(name = df.iat[i,1])
                     defc2 = Defecto.objects.filter(alias = df.iat[i,1])
@@ -106,11 +99,7 @@ def updateParetosYear(year):
                     elif defc2.count() == 1:
                         defc = defc2[0]
                     else:
-                        print("Continua defecto NO ENCONTRADo " + df.iat[i,1])
-                        continue
-                else:
-                    print("no entra designacion") 
-                    
+                        continue 
                 if pd.isnull(df.iat[i,2]) == False:
                     areaName = df.iat[i,2]
                     areaName.replace(" ", "")
@@ -118,19 +107,14 @@ def updateParetosYear(year):
                     if area.count() == 1:
                         area = area[0]
                     else:
-                        print("Continua AREA NO ENCONTRADA " + areaName)
-                        continue    
-                else:
-                    print("no entra area")  
+                        continue     
                 if pd.isnull(df.iat[i,3]) == False:
                     hours = df.iat[i,3]
                 else:
-                    print("no entra horas")
                     continue   
                 if pd.isnull(df.iat[i,4]) == False:
                     myID = df.iat[i,4]
                 else:
-                    print("no entra id")
                     continue
                 
                 try:
@@ -140,7 +124,6 @@ def updateParetosYear(year):
                     newf412Ant.save()
         except IndexError:
             indexError = True
-
     return indexError
  
 def getF412List(orList, toFill, pareto, date1, date2):
@@ -284,22 +267,18 @@ def getDataEv(names, month, pareto, typeGraph):
     toReturn = []
     xticks = []
     lenDefc = []
-    matMonthList = []
-    
     for row in data:
         monthList = MONTH[:len(row)]
         rowAux = row
-        
         while 0 in rowAux:
             index0 = rowAux.index(0)
             toRemove = monthList[index0]
             monthList.remove(toRemove)
             rowAux.remove(0)
-        matMonthList.append(monthList)
         xticks = xticks + monthList
         lenDefc.append(len(rowAux))
         toReturn = toReturn + rowAux
-        
+    
     return toReturn, xticks, lenDefc
 #    return dataToReturn, monthStart, xticks
 
@@ -319,25 +298,24 @@ def parseData380(xticks, dict380):
    
     return data
  
-#def fillData(dataToFill, xticksMat, xticksRef):
-#    i = 0
-#    dataToReturn = []
-#    
-#    for row in dataToFill:
-#        if len(xticksMat[i]) != len(xticksRef):
-#            j = 0
-#            for element in xticksRef:
-#                try:
-#                    if element != xticksMat[i][j]:
-#                        row.insert(j, 0)
-#                    else:
-#                        j += 1
-#                except:       
-#                    row.append(0)
-#        dataToReturn.append(row)
-#        i += 1    
-#    
-#    return dataToReturn
+def fillData(dataToFill, xticksMat, xticksRef):
+    i = 0
+    dataToReturn = []
+    for row in dataToFill:
+        if len(xticksMat[i]) != len(xticksRef):
+            j = 0
+            for element in xticksRef:
+                try:
+                    if element != xticksMat[i][j]:
+                        row.insert(j, 0)
+                    else:
+                        j += 1
+                except:       
+                    row.append(0)
+        dataToReturn.append(row)
+        i += 1    
+        
+    return dataToReturn
  
 def findPos(monthRefArray, month):
     pos = len(monthRefArray) -1
@@ -347,6 +325,35 @@ def findPos(monthRefArray, month):
     except:
         return 0
     return pos + 1
+
+#def checkMonths(monthRefArray, monthToCheck):
+#    for month in monthToCheck:
+#        if month in monthRefArray:
+#            continue
+#        else:
+#            if len(monthRefArray) -1 < MONTH.index(month) and len(monthRefArray) > 0 :
+#                if MONTH.index(monthRefArray[len(monthRefArray) - 1]) > MONTH.index(month):
+#                    monthRefArray.insert(findPos(monthRefArray, month), month)
+#                    continue
+#            monthRefArray.insert(MONTH.index(month), month)
+            
+#def getxRef(xticks, lenMat):
+#
+#    xRefMat = [[],[],[],[],[]]
+#    lenRef = []
+#    for i in range(0,len(xticks)):
+#        aux = xticks[i]
+#        for j in range(0, len(lenMat[i])):
+#            lenJ = lenMat[i][j]
+#            currentParMonth = aux[:lenJ]
+#            checkMonths(xRefMat[j], currentParMonth)
+#            aux = aux[lenJ:]    
+#    
+#    xRef = []
+#    for row in xRefMat:
+#        xRef = xRef + row
+#        lenRef.append(len(row))
+#    return xRef, lenRef
 
 def separateMonth(months, lenghts):
     totalLen = 0
@@ -386,23 +393,8 @@ def getxRef(xticks, lenMat):
     for row in maxXticks:
         toReturn = toReturn + row
         lenToReturn.append(len(row))
-    
-    return toReturn, lenToReturn   
-
-def getDefcXticks(xticksRef, lenMatRef, xticks380Def):
-    j = 0
-    i = 0
-    defcToReturn = []
-
-    for month in xticksRef:
-        if j >= lenMatRef[i]:
-            i = i + 1
-            j = 0
-        defcToReturn.append(xticks380Def[i])
-        
-        j = j + 1
-        
-    return defcToReturn
+   
+    return toReturn, lenToReturn      
 
 def updateParetos(request, month):
     ylabel = "Coste €"
@@ -422,7 +414,6 @@ def updateParetos(request, month):
         ylabel = "Coste €"
         monthDate = getDate(YEAR, month)
         pareto = "S_19"
-        
         for pareto in pareto380List:
             
             f412List = getF412List(F412_ALL, F412Empty, pareto, YEAR_DATE, monthDate)
@@ -437,9 +428,10 @@ def updateParetos(request, month):
             hoursDict = sumDictHours(hoursDict, hoursDict2)
             hoursDict = sumDictHours(hoursDict, hoursDict3)
 
+
             data, xticksNames = hoursToData(hoursDict, YEAR)
             
-            dict380[pareto] = hoursDict 
+            dict380[pareto] = hoursDict
             dict380["total"] = sumDictHours(hoursDict, dict380["total"])
             
             title = "PARETO costes de Desviaciones  generadas  sobre " + pareto + " \n"
@@ -480,7 +472,7 @@ def updateParetos(request, month):
             
                     
             saveTop5(xticksNames, data, pareto, month, False)
-            saveTop5(xticksNamesLay, dataLay, pareto, month, True)
+#            saveTop5(xticksNamesLay, dataLay, pareto, month, True)
         
             
             saveGraphTop5(data, title, xlabel, ylabel, xticksNames, dots, name)
@@ -527,7 +519,6 @@ def updateParetos(request, month):
         for row in data380Copy:
             for k in range(0, len(row)):
                 row[k] = row[k] * costeHora.objects.get(year = YEAR).precio
-                   
         title = "PARETO costes de Desviaciones  generadas sobre A380 y Nº Concesiones del TOP 5 de Desviaciones\n"
         title += "(Coste € / (Horas de Reparación/F412) que ha generado la desviación)"
         xlabel = "A380"
@@ -542,127 +533,44 @@ def updateParetos(request, month):
             for k in range(0, len(row)):
                 row[k] = row[k] * costeHora.objects.get(year = YEAR).precio
         titleLay = title.replace("\n", " por LAY-UP\n")
-        fileNameLay = fileName.replace(".png", "Lay.png")         
-                                  
+        fileNameLay = fileName.replace(".png", "Lay.png")                                           
+        maxXticks = []
+        xticksMat = []
+        dataMat = []
+        lenDefcMat = []
         fileNameEv = fileName.replace("Top5", "Ev") 
         titleEv = title.replace("PARETO", "EVOLUCION")    
-#
-        dataMat, maxXticks, maxlenDefc = getDataEv380(xticks380, month)
-
+        
+        for pareto in pareto380List:
+            dataEv, xticksNamesEv, lenDefc = getDataEv(xticks380, month, pareto, "")
+            xticksMat.append(xticksNamesEv)
+            dataMat.append(dataEv)
+            lenDefcMat.append(lenDefc)
+        
+        maxXticks, maxlenDefc = getxRef(xticksMat, lenDefcMat)
+        dataMat = fillData(dataMat, xticksMat , maxXticks)
+        
+        maxXticksLay = []
+        xticksMatLay = []
+        dataMatLay = []
+        lenDefcMatLay = []
         fileNameEvLay = fileNameLay.replace("Top5", "Ev") 
         titleEvLay = title.replace("PARETO", "EVOLUCION")      
-
-        dataMatLay, maxXticksLay, maxlenDefcLay = getDataEv380(xticks380Lay, month)
+        for pareto in pareto380List:
+            dataEvLay, xticksNamesEvLay, lenDefcLay = getDataEv(xticks380Lay, month, pareto, "")
+            xticksMatLay.append(xticksNamesEvLay)
+            dataMatLay.append(dataEvLay)
+            lenDefcMatLay.append(lenDefcLay)
         
+        maxXticksLay, maxlenDefcLay = getxRef(xticksMatLay, lenDefcMatLay)
+        dataMatLay = fillData(dataMatLay, xticksMatLay, maxXticksLay)
         saveGraph380(data380Copy, title, xlabel, ylabel, xticks380, dots, fileName) 
         saveGraph380(data380LayCopy, titleLay, xlabel, ylabel, xticks380Lay, dots, fileNameLay)      
+
         saveGraph380Ev(dataMat, titleEv, ylabel, xticks380, maxXticks, fileNameEv, maxlenDefc)    
         saveGraph380Ev(dataMatLay, titleEvLay, ylabel, xticks380Lay, maxXticksLay, fileNameEvLay, maxlenDefcLay)    
             
     return HttpResponseRedirect("/paretos")
-
-def cleanMaxXticks(dataMat, maxXticks, defcList):
-
-    toRemovePrev = []
-    month = defcList[0]
-    
-    for row in dataMat:
-        index = 0
-        toRemovePrevRow = []
-        
-        for data in row:
-            if data < 0.1:
-                toRemovePrevRow.append(index)
-            index = index + 1
-        
-        toRemovePrev.append(toRemovePrevRow)
-        
-    toDeleteList = []
-    for index in toRemovePrev[0]:
-        toDelete = True
-        for row in toRemovePrev:
-            if index not in row:
-                toDelete = False
-                break
-        if toDelete:
-            toDeleteList.append(index)
-     
-    toSubs = 0
-    toRemoveDef = []
-    for index in toDeleteList:
-        toRemoveDef.append(index - toSubs)
-        toSubs = toSubs + 1
-    
-    for index in toRemoveDef:
-        
-        del maxXticks[index]
-        
-        for row in dataMat:
-            
-            del row[index]
-            
-        newIndex = toDeleteList[toRemoveDef.index(index)]
-        indexLenList = round(newIndex/month) - 1
-        defcList[indexLenList] = defcList[indexLenList] - 1
-            
-    return dataMat, maxXticks, defcList                
-
-
-def getMaxXticks(month):
-    toReturn = []
-    toReturnLen = []
-    for i in range(0,5):
-        for j in range(0, month):
-            toReturn.append(MONTH[j])
-        
-        toReturnLen.append(month)
-        
-    return toReturn, toReturnLen; ""
-
-def getDataEv380(xticks380, currentMonth):
-    
-    maxXticks, lenMonthDefc = getMaxXticks(currentMonth)
-    
-    dataMat = []
-    
-    for pareto in pareto380List:
-        dataMatRow = []
-        defcCounter = 0
-        monthCounter = 1
-        for month in maxXticks:
-            defect = xticks380[defcCounter]
-            monthNumber = MONTH.index(month) + 1
-            monthDate = getDate(YEAR, monthNumber)
-            if monthNumber == 1:
-                prevMonthDate = YEAR_DATE
-            else:
-                prevMonthDate = getDate(YEAR, monthNumber - 1)
-            
-            
-            f412List = getF412List(F412_ALL, F412Empty, pareto, prevMonthDate, monthDate)
-            f412List2 = getF412List(f412AntALL, f412AntEmpty, pareto, prevMonthDate, monthDate)
-            repList = getF412List(repALL, repEmpty, pareto, prevMonthDate, monthDate)
-
-            hoursDict = getHoursDict(f412List)      
-            hoursDict2 = getHoursDict(f412List2) 
-            hoursDict3 = getHoursDict(repList)
-            
-            hoursDict = sumDictHours(hoursDict, hoursDict2)
-            hoursDict = sumDictHours(hoursDict, hoursDict3)
-            
-            dataMatRow.append(hoursDict[defect] * costeHora.objects.get(year = YEAR).precio)
-            
-            if monthCounter == lenMonthDefc[defcCounter]:
-                defcCounter = defcCounter + 1 
-                monthCounter = 1
-            else:
-                monthCounter = monthCounter + 1 
-        
-        dataMat.append(dataMatRow)
-    
-    dataMat, maxXticks, maxlenDefc = cleanMaxXticks(dataMat, maxXticks, lenMonthDefc)
-    
-    return dataMat, maxXticks, maxlenDefc
 
 def createParDefc(i, defcObj, month):
     paretoDef = paretoDefecto(number = i, defecto = defcObj, fechaApertura = YEAR_DATE, fechaCierre = YEAR_DATE)
@@ -671,8 +579,6 @@ def createParDefc(i, defcObj, month):
     return paretoDef
 
 def saveTop5(top5List, data, pareto, month, isLay):
-    cost = costeHora.objects.get(year = YEAR).precio
-                                
     exist = True
     try:
         paretoTab = paretoTabla.objects.filter(isLay = isLay).filter(year = YEAR).filter(mes = month).get(pareto = pareto)
@@ -684,33 +590,24 @@ def saveTop5(top5List, data, pareto, month, isLay):
     if exist:
         
         top5Aux = top5List.copy()
-        toRemove = []
-
         for defcPar in paretoTab.topDefc.all():
-            
             try:
                 newNumber = top5Aux.index(defcPar.defecto.name)
-                defcPar.horas = data[newNumber] / cost
                 defcPar.number = newNumber
                 defcPar.save()
-                toRemove.append(defcPar.defecto.name)
+                top5Aux.remove(defcPar.defecto.name)
             except ValueError:
                 paretoTab.topDefc.remove(defcPar)
-        
-        for par in toRemove:
-            top5Aux.remove(par)
-        
+           
         for defcPar in top5Aux:
             if data[top5List.index(defcPar)] != 0.0:
-                queryDefcPar = paretoDefecto.objects.annotate(num_parTab=Count('paretoTablaList')).filter(num_parTab=0).filter(defecto__name = defcPar)
+                queryDefcPar = paretoDefecto.objects.annotate(num_parTab=Count('paretotabla')).filter(num_parTab=0).filter(defecto__name = defcPar)
                 if queryDefcPar.count() != 0:
                     defcParObj = queryDefcPar[0]
                     defcParObj.number = top5List.index(defcPar)
-                    defcParObj.horas = data[top5List.index(defcPar)] / cost
                     defcParObj.save()
                 else:
                     defcParObj = createParDefc(top5List.index(defcPar), Defecto.objects.get(name = defcPar), month)
-                    defcParObj.horas = data[top5List.index(defcPar)] / cost
                     defcParObj.save()
                 paretoTab.topDefc.add(defcParObj)
                 paretoTab.save()   
@@ -957,35 +854,22 @@ def saveGraph380Ev(data, title, ylabel, xticksNames, xticksNamesEv, fileName, le
     return
 
 def saveTable(pareto, month, data, isLay):
-    params = {'axes.labelsize':90, 'axes.titlesize':40, 'text.fontsize':25}
-    matplotlib.rcParams.update(params)
-    print("guardo: " + pareto)
-    
     if isLay:
         toAdd = "Lay"
     else:
         toAdd = ""
     nameTable = "templates/images/pareto/" + str(month) + "/" + pareto.lower() + toAdd + "table.png"
-    columns = ("Tipo de Defecto", "Horas", "Acción", "PPS - código", "Fecha de\n apertura del\nPPS", "Fecha de Cierre\ndel PPS")
+    columns = ("Tipo de Defecto", "Acción", "PPS - código", "Fecha de\n apertura del\nPPS", "Fecha de Cierre\ndel PPS")
 
-    fig=Figure(figsize=(40,30))
+    fig=Figure(figsize=(16,14))
     ax=fig.add_subplot(111)
     
     colColours = []
     for n in range(0, len(columns)):
         colColours.append('black')
     
-#    rowHeights = [10,10,10,10,10]
+    table = ax.table(cellText=data, colLabels=columns, colColours=colColours, loc="upper center", cellLoc='center' )
     
-    table = ax.table(cellText=data, colLabels=columns, fontsize = 60, colColours=colColours, loc="upper center", cellLoc='center' )
-    table.auto_set_font_size(value = False) 
-    table.auto_set_column_width(-1)
-    table.auto_set_column_width(0)
-    table.auto_set_column_width(1)
-    table.auto_set_column_width(2)
-    table.auto_set_column_width(3)
-    table.auto_set_column_width(4)
-    table.auto_set_column_width(5)
     ax.axis("off")
     
     cellDict = table.get_celld()
@@ -1005,42 +889,6 @@ def saveTable(pareto, month, data, isLay):
     
     return ""
 
-def parseString(stringToParse):
-    auxStr = stringToParse
-    spacePositions = []
-    toInsert = []
-    maxLen = 60
-    
-    while True:
-        pos = auxStr.find(" ")
-        if pos != -1:
-            lastPos = len(spacePositions)
-            if lastPos != 0:
-                posToInsert = pos + spacePositions[lastPos - 1] + 1
-            else:
-                posToInsert = pos
-            spacePositions.append(posToInsert)
-            pos = pos + 1
-            auxStr = auxStr[pos:]
-        else:
-            break
-    
-    numN = int(len(stringToParse) / maxLen)
-    
-    auxStr = stringToParse
-    
-    for counter in range(1,numN + 1):
-        maxValue = counter*maxLen
-        toInsert.append(min(spacePositions, key= lambda x:abs(x-maxValue)))
-        
-    newStr = ""
-    for index in range(0,len(stringToParse)):
-        newStr = newStr + stringToParse[index]
-        if index in toInsert:
-            newStr = newStr + "\n"
-    
-    return newStr
-
 @csrf_exempt
 def updateDataParTable(request, year, month, isLay, listToSearch):
     if isLay:
@@ -1058,7 +906,7 @@ def updateDataParTable(request, year, month, isLay, listToSearch):
             dateStart = "dateInit" + sufix
             dateEnd = "dateEnd" + sufix
             
-            action = request.POST[actionName]            
+            action = request.POST[actionName]
             ppsCod = request.POST[ppsName]
             dateStart = request.POST[dateStart]
             dateEnd = request.POST[dateEnd]
@@ -1094,13 +942,12 @@ def updateDataParTable(request, year, month, isLay, listToSearch):
                 dateEndTab = dateToString(defc.fechaCierre)
                     
             defc.save()
-            row = [defc.defecto.name, round(defc.horas, 3) ,parseString(defc.accion), defc.ppsCod, dateStartTab, dateEndTab]
+            row = [defc.defecto.name, defc.accion, defc.ppsCod, dateStartTab, dateEndTab]
             data.append(row)
-            
+        
+        print("Tabla " + pareto + " GUARDADA")
         if len(data) != 0:
             saveTable(pareto, month, data, isLay)
-            
-#   print(request.POST["FORZAR ERROR"])
     
     return ""
 
@@ -1184,7 +1031,7 @@ def drawTable(pdf, width, height, month, isLay, listToDraw):
         
         pdf.setFontSize(size = 25)
         try:
-            pdf.drawImage(table, -40, -40, widhtGraph*2, heightGraph*2, preserveAspectRatio=False   ) 
+            pdf.drawImage(table, -40, -40, widhtGraph*2, heightGraph*2, preserveAspectRatio=True) 
         except:
             pdf.drawImage("templates/images/pareto/notFound/Tabla.png", xCenter, xCenter, widhtGraph, heightGraph, preserveAspectRatio=False) 
         pdf.drawString(xCenter, strUp, typePareto +  pareto)
@@ -1201,8 +1048,8 @@ def saveTablePar(request):
     if request.method == "POST":
         year = request.POST["year"]
         month = request.POST["month"]
-        updateDataParTable(request, year, month, False, pareto380List)
         updateDataParTable(request, year, month, True, pareto380List)
+        updateDataParTable(request, year, month, False, pareto380List)
         updateDataParTable(request, year, month, False, indList)
     
     return HttpResponseRedirect("paretos/")
@@ -1210,15 +1057,15 @@ def saveTablePar(request):
 @csrf_exempt
 def exportPDFPar(request):
     month = datetime.datetime.now().month
-    return HttpResponseRedirect("/exportarParetos/" + str(month))
+    return exportPDFParMonth(request, month)
 
 @csrf_exempt
 def exportPDFParMonth(request, month):                   
     if request.method == "POST":
         year = request.POST["year"]
         month = request.POST["month"]
-        updateDataParTable(request, year, month, False, pareto380List)
         updateDataParTable(request, year, month, True, pareto380List)
+        updateDataParTable(request, year, month, False, pareto380List)
         updateDataParTable(request, year, month, False, indList)
     
     response = HttpResponse(content_type = "application/pdf")
@@ -1243,8 +1090,8 @@ def exportPDFTableMonth(request, month):
     if request.method == "POST":
         year = request.POST["year"]
         month = request.POST["month"]
-        updateDataParTable(request, year, month, False, pareto380List)
         updateDataParTable(request, year, month, True, pareto380List)
+        updateDataParTable(request, year, month, False, pareto380List)
         updateDataParTable(request, year, month, False, indList)
     
     response = HttpResponse(content_type = "application/pdf")

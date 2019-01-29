@@ -20,7 +20,7 @@ tr:nth-child(even) {
   <input class="boton" type="submit" value="Historial">
 </form>
 
-  {% if myUser.typeUser.name == "ME" %}
+  {% if myUser.admin %}
     <form id="button3" method="get" style="display: inline-block;" action="/reset/{{f412.id}}"  >
       <input class="boton" type="submit" value="Resetear">
     </form>
@@ -33,12 +33,7 @@ tr:nth-child(even) {
 <h1 style="color:{{f412.Estado.color}}; display:block">Este F412 está: {{f412.Estado.name}}</h1>
 
 {% else %}
-  {% if myUser.typeUser.name == "ME" %}
-    <form method="get" action="/repEdit/{{f412.id}}" style="display: inline-block;">
-      <input class="boton" type="submit" value="Editar Reparación">
-    </form>
-  {% endif %} 
-  
+
 <h1 style="display:block">Reparación</h1>
                  
 {% endif %}
@@ -142,7 +137,7 @@ tr:nth-child(even) {
       {% endif %}
 
     {% else %}
-      <td>{{f412.hnc}}</td>
+      <td>{{f412.id}}</td>
     {% endif %}
     
     

@@ -11,8 +11,8 @@
     {% csrf_token %}
 <form style="display: inline-block" action="/filtroFechaRep" method="post" name="myForm" onsubmit="return validateForm()">
   <h2 style="text-align:left; display: inline-block;margin-right:10px; font-size: 25px">Filtrar fecha:</h2> 
-  Desde: <input type="text" name="fromDate" value={% if currentDate != "" %}"{{currentDate}}"{% else %}"{{date}}" {% endif %} style="margin-right:10px">
-  Hasta: <input type="text" name="toDate" value={% if currentDate != "" %}"{{currentDate1}}"{% else %}"{{date}}" {% endif %}>
+  Desde: <input type="text" name="fromDate" value={% if currentDate != "" %}"{{currentDate}}"{% else %}"{{date}}" {% endif %} style="margin-right:10px" onClick="this.select();">
+  Hasta: <input type="text" name="toDate" value={% if currentDate != "" %}"{{currentDate1}}"{% else %}"{{date}}" {% endif %} onClick="this.select();">
   <input class="boton" type="submit" value="Ir">
 </form>    
 <form id="button1" method="post" style="margin-left:60px" action="/filtroFechaRep">
