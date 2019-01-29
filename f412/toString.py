@@ -1,5 +1,4 @@
 import datetime
-from datetime import date
 from f412.models import *
 
 def dateToString(date):
@@ -8,6 +7,13 @@ def dateToString(date):
     except:
         date = parseDate(date)
         return date.strftime("%Y/%m/%d")
+
+def dateToComment(date):
+    if date.weekday() == 0:
+        date = date - datetime.timedelta(days=3)
+    else:
+        date = date - datetime.timedelta(days=1)
+    return date.strftime("%y%m%d")
     
 #FUncion por si en algun momento es necesaria depuracion
 def F412ToString(f412):

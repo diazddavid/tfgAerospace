@@ -1,0 +1,109 @@
+{% extends 'html/base.html' %}
+
+{% load filtrosExtra %}
+
+{% block body %}
+
+<h1>Página Principal Informe Mensual</h1>
+
+<div class="row" style="text-align:center">
+  <div class="column" style="text-align:center">  
+    
+    </br>
+    </br>
+    <div style="text-align:center; left-margin:200px">
+      <form id="button2" method="get" action="/changeHour/350/ALB">
+        <input class="boton" type="submit" value="Cambiar Horas">
+      </form>
+    </div>
+
+    </br>
+    </br>
+    <div style="text-align:center; left-margin:200px">
+      <form id="button2" method="get" action="/avionesMensual/350">
+        <input class="boton" type="submit" value="Cambiar/Actualizar Aviones">
+      </form>
+    </div>
+    
+    </br>
+    </br>
+    <div style="text-align:center; left-margin:200px">
+      <form id="button2" name="myForm" method="post" action="/updateHours">
+        <select name="yearToUpdate" select id="yearToUpdate" onchange="changeMonth()" style="display: inline-block;">
+          {% for year in yearList %}
+            {% if year == currentYear %}
+              <option value="{{year}}" selected> {{year}}</option>
+            {% else %}
+              <option value="{{year}}" > {{year}}</option>
+            {% endif %}
+          {% endfor %}
+        <select>
+              
+        <select name="monthToUpdate" select id="monthToUpdate" style="display: inline-block;">
+          <option value="Todos"> Todos</option>
+          {% for month in yearMonthList %}
+            <option value="{{month}}"> {{month}}</option>
+          {% endfor %}
+        <select></br>
+    
+        <input class="boton" type="submit" value="Actualizar Horas">
+      </form>
+    </div>
+    
+  </div> 
+  
+  <div class="column" style="text-align:center">
+  
+    </br>
+    </br>
+    <div style="text-align:center; left-margin:200px">
+      <form id="button2" method="get" action="">
+        <input class="boton" type="submit" value="Gráficos A380">
+      </form>
+    </div>
+    
+    </br>
+    </br>
+    <div style="text-align:center; left-margin:200px">
+      <form id="button2" method="get" action="">
+        <input class="boton" type="submit" value="Gráficos A350">
+      </form>
+    </div> 
+    
+    </br>
+    </br>
+    <div style="text-align:center; left-margin:200px">
+      <form id="button2" method="get" action="">
+        <input class="boton" type="submit" value="Obtener PDF">
+      </form>
+    </div>
+
+  </div> 
+
+</div>                         
+ 
+</div>     
+
+<script>
+
+function changeMonth(){
+        
+  year = document.forms["myForm"]["yearToUpdate"].value       
+
+  document.getElementById("monthToUpdate").innerHTML = "<option value=" + "Todos" + "> Todos</option>"
+                       
+  if (year != "{{currentYear}}"){
+    {% for month in monthList %}           
+      document.getElementById("monthToUpdate").innerHTML += "<option value=" + "{{month}}" + "> {{month}}</option>"
+    {% endfor %}       
+  }else{
+    {% for month in yearMonthList %}           
+      document.getElementById("monthToUpdate").innerHTML += "<option value=" + "{{month}}" + "> {{month}}</option>"
+    {% endfor %}        
+  }
+
+}
+
+</script>
+
+{% endblock body %}

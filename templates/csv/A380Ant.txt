@@ -1,0 +1,3 @@
+{% if WholeProgram %}Estado;{% endif %}Fecha;Programa;Componente;Designaciรณn;P/N;Ref.;Defecto;Area;Horas;SGM;Descripcion;NยบF412;id;
+{% for f412 in f412List %}{% if WholeProgram %}{{f412.Estado.name}};{% endif %}{{ f412.Fecha|date:"Y/m/d" }};A{{ f412.programa.name}}; {{ f412.Componente.alias }}; {{ f412.Designacion.alias }}; {{ f412.PN.name }}; {{ f412.Referencia }}; {{ f412.Defecto.name }}; {{ f412.Area.alias }}; {{ f412.horas }}; {{ f412.SGM.number }}; {{ f412.Descripcion }}; {{ f412.myID }};{{ f412.id }};
+{% endfor %}

@@ -13,7 +13,7 @@
           method="post" name="myForm" onsubmit="return validateForm()"></p>
     <div class="row">
       <div class="column">
-        <div>Seccion
+        <div>Seccion 
           <select name = "section">
             <!-- <option value = "default">Por Defecto</option> -->
             {% for section in sectionList %}
@@ -47,7 +47,9 @@
           <select name = "Area">
             <option value = "default">Por Defecto</option>
             {% for area in areaList %}
-            <option value = {{ area.name }}> {{ area.name }}</option>
+            {% if area.name != "EN_DESCRIPCION" %}    
+                <option value = {{ area.name }}> {{ area.name }}</option>
+            {% endif %}
             {% endfor %}
           </select> <br>
         </div>
@@ -56,16 +58,38 @@
           <select name = "Defect">
             <option value = "default">Por Defecto</option>
             {% for defect in defectList %}
-            <option value = {{ defect.name }}> {{ defect.name }} {% if myUser.admin %} - {{defect.id}} {% endif %}</option>
+            <option value = {{ defect.name }}> {{ defect.name }} </option>
             {% endfor %}
           </select> <br>
         </div>
-
+      
+        {% if mode == "Accidentales" %}
+        
+        <div>CAVT
+          <select name = "rt1">
+            {% for rt in rt1 %}
+            {% if rt.codigo != "Others" %}
+            <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
+            {% endif %}                          
+            {% endfor %}
+            <option value="Others"> Others</option> 
+          </select>
+        </div>
+        
+        {% endif %}
+        
       </div>
       <div class="column">
-
+        {% if mode == "Accidentales" %}
+        
+        <div>H.N.C.<br>
+          <input type = "text" name = "hnc"><br>
+        </div>
+        
+        {% endif %}
+      
         <div>Fecha<br>
-          <input type = "text" name = "date" value = {{ date }} readonly><br>
+          <input type = "text" name = "date" value = {{ date }} {% if mode == "Reparaciones" %}readonly {% endif %} ><br>
         </div>
 
         <div>Referencia<br>
@@ -80,14 +104,15 @@
             {% endfor %}
           </select> <br>
         </div>
-
+        
         <div>Horas<br>
-        <input type = "number" name = "numH"></br></div>
+        <input type = "number" name = {% if mode == "Reparaciones" %}"numH"{% else %}"horas"{% endif %}></br></div>
         
         <div>Descripcion<br>
         <textarea id="textDescp" rows="5" cols="30"></textarea>
         <input type="text" hidden name = "Descp" id="descp"></br></div>
-
+        
+        
         <input id="submit" type = "submit" value = "Enviar">
       </div>
     </div>
@@ -142,9 +167,11 @@
     variablesDef[4] = document.forms["myForm"]["Defect"].value; 
     variablesDef[5] = document.forms["myForm"]["SGM"].value;
     variablesWhite[0] = document.forms["myForm"]["Ref"].value;
-    variablesWhite[1] = document.forms["myForm"]["numH"].value;
+    variablesWhite[1] = document.forms["myForm"]["{% if mode == "Reparaciones" %}numH{% else %}horas{% endif %}"].value;
     document.forms["myForm"]["Descp"].value = document.getElementById("textDescp").value;                 
     variablesWhite[2] = document.forms["myForm"]["Descp"].value;
+    var repDate = document.forms["myForm"]["date"].value;      
+                                
     for (i = 0; i < variablesWhite.length; i++) {
       if (variablesWhite[i] == "") {
           alert("No se puede enviar un formulario con campos en blanco");
@@ -157,7 +184,44 @@
           return false;
       }
     }
+    return validDate(repDate)
   }
+      
+function validDate(date){
+  var year = date.substring(0, date.indexOf("/"));
+  var aux = date.substring(date.indexOf("/") + 1, date.length);         
+  var month = aux.substring(0, aux.indexOf("/"));
+  var day = aux.substring(aux.indexOf("/") + 1, aux.length);  
+  if(isNaN(year) || isNaN(month) || isNaN(day)){
+    alert("El formato de la fecha no es adecuado")
+    return false;
+  }
+  if(year.length != 4 || month.length != 2 || day.length != 2){
+      alert("El formato de la fecha no es el adecuado")
+      return false;
+  }
+  if (parseInt(month)>12){
+      alert("El formato de la fecha no es el adecuado")
+      return false;
+  }
+  if(month == "1" || month == "3" ||month == "5" || month == "7" || month == "8" || month == "10" || month == "12"){
+    if(parseInt(day) > 31){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }else if(month == "2"){
+    if(parseInt(day) > 29){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }else{
+    if(parseInt(day) > 30){
+      alert("El formato de la fecha no es el adecuado");
+      return false;
+    }
+  }
+  return true;
+}
 
   </script>
 

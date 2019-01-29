@@ -5,10 +5,15 @@
 <form id="passFORM" action="/cambiarCon" method="post" style="text-align: center" onsubmit="return validateForm()">
 
       Nombre de Usuario
-      <input type = "text" name = "name"><br><br>
+      {% if isFromAdmin %}
+        <input type = "text" name="name" value={{userToEdit.NA}}><br><br>
+        <input type="text" hidden name="currentPasswd" value={{userToEdit.passwd}}>                                               
+      {% else %}
+        <input type = "text" name = "name"><br><br>
 
       Contraseña Actual
       <input type = "password" name = "currentPasswd"><br><br>
+      {% endif %}
 
       Nueva Contraseña
       <input type = "password" name = "newPasswd"><br><br>

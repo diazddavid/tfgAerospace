@@ -4,30 +4,36 @@
 
 {% block body %}
 
-<form id="button11" method="get" action="/paretos">
-  <input class="boton" type="submit" value="Paretos A380">
+<form style="display: inline-block;" id="button11" method="get" action="{% if mode == "Accidentales"%}/rep{% endif %}/paretos">
+  <input style="display: inline-block;" class="boton" type="submit" value="Paretos A380">
 </form>
-<form id="button12" method="get" action="/paretos/layup">
-  <input class="boton" type="submit" value="Paretos Lay-Up">
+<form style="display: inline-block;" id="button12" method="get" action="{% if mode == "Accidentales"%}/rep{% endif %}/paretos/layup">
+  <input style="display: inline-block;" class="boton" type="submit" value="Paretos Lay-Up">
 </form>
-<form id="button13" method="get" action="/paretos/ind">
-  <input class="boton" type="submit" value="Paretos Area Industrial">
+<form style="display: inline-block;" id="button13" method="get" action="{% if mode == "Accidentales"%}/rep{% endif %}/paretos/ind">
+  <input class="boton" type="submit" style="display: inline-block;" value="Paretos Area Industrial">
 </form>
+
+<form style="display: inline-block;" id="button23" method="get" action="/{{mes}}/exportPDFPareto" >
+  <input class="boton" type="submit" style="display: inline-block;" value="PDF {{mesNombre}}">
+</form>
+
+<form style="display: inline-block;" id="button23" method="get" action="/{{mes}}/exportPDFTableMonth" >
+  <input class="boton" type="submit" value="Tablas {{mesNombre}}">
+</form></br></br>
 
 {% if myUser.admin %}
-<form id="button21" style="margin-left:50px" method="get" action="/updateParetos/{{mes}}">
-  <input class="boton" type="submit" value="Actualizar Paretos Mes">
+<form style="display: inline-block;" id="button21" style="margin-left:50px" method="get" action="/updateParetos/{{mes}}">
+  <input class="boton" type="submit" style="display: inline-block;" value="Actualizar Paretos {{mesNombre}}">
 </form>
-<form id="button22" method="get" action="/exportarParetos/{{mes}}">
-  <input class="boton" type="submit" value="Añadir Tabla Mes Actual">
-</form>
-<form id="button23" method="get" action="/exportPDFPareto" >
-  <input class="boton" type="submit" value="PDF Mes Actual">
+<form style="display: inline-block;" id="button22" method="get" action="/exportarParetos/{{mes}}">
+  <input class="boton" type="submit" style="display: inline-block;" value="Añadir Tabla {{mesNombre}}">
 </form>
 
-<form id="button24" method="get" action="/updateParetos/todos">
-  <input class="boton" type="submit" value="Actualizar Todos Paretos">
+<form style="display: inline-block;" id="button24" method="get" action="/updateParetos/todos">
+  <input class="boton" type="submit" style="display: inline-block;" value="Actualizar Todos Paretos">
 </form>
+
 {% endif %}
 
 {% block pareto %}

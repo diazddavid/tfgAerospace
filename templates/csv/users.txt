@@ -1,0 +1,3 @@
+Usuario;Correo;Nombre;Programa;Seccion;Tipo;Ha respondido;Quiere Correo;
+{% for user in userList %}{{user.name}};{{user.email}};{{user.nombreCompleto}};{% for program in user.programa.all %}{{program.name}}{% if user.programa.count > 1 %}/{% endif %}{% endfor %};{% for seccion in user.seccion.all %}{{seccion.name}}{% if user.seccion.count > 1 %}/{% endif %}{% endfor %};{{user.typeUser.name}};{{user.hasChosen}};{{user.quiereCorreo}};
+{% endfor %}

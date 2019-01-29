@@ -1,6 +1,9 @@
 from django.db import models
 import django.contrib.auth.models as modelsAuth
 
+class sendMail(models.Model):
+    shouldSend = models.BooleanField(default = True) 
+
 class Programa(models.Model):
     name = models.CharField(max_length = 128)
 
@@ -16,6 +19,7 @@ class Componente(models.Model):
     name = models.CharField(max_length = 128)
     alias = models.CharField(max_length = 128, default = "")
     programa = models.ForeignKey(Programa, default = 1)
+    shouldShow = models.BooleanField(default = True)
 
 class Designacion(models.Model):
     name = models.CharField(max_length = 128)
@@ -25,7 +29,7 @@ class Designacion(models.Model):
 class PN(models.Model):
     name = models.CharField(max_length = 128)
     programa = models.ForeignKey(Programa, default = 1)
-    Designacion = models.OneToOneField(Designacion, unique=True)
+    Designacion = models.OneToOneField(Designacion, unique=True, related_name="PN")
 
 class ComponenteAPT5(models.Model):
     name = models.CharField(max_length = 128, default = "")
@@ -63,6 +67,9 @@ class myUser(models.Model):
     NA = models.CharField(max_length = 64, default = "")
     nombreCompleto = models.CharField(max_length = 128, default = "")
     seccion = models.ManyToManyField(Seccion, default = 1)
+    quiereCorreo = models.BooleanField(default = False)
+    hasChosen = models.BooleanField(default = False)
+    isSuperUser = models.BooleanField(default = False)
     
 class SGM(models.Model):
     number = models.CharField(max_length = 128)
@@ -79,6 +86,7 @@ class reasonTreeField(models.Model):
     codigo = models.CharField(max_length = 3, default = "")
     superior = models.ForeignKey("self", default = 1)
     shortName = models.CharField(max_length = 7, default = "")
+    currentlyInUse = models.BooleanField(default = False)
     
 class reasonTree(models.Model):
     nivel1 = models.ForeignKey(reasonTreeField, related_name = 'lvl1' , default=1)
@@ -86,10 +94,14 @@ class reasonTree(models.Model):
     nivel3 = models.ForeignKey(reasonTreeField, related_name = 'lvl3' , default=1)
     shortName = models.CharField(max_length = 13, default = "")
     program = models.ForeignKey(Programa, default = 14)
+    currentlyInUse = models.BooleanField(default = False)
     
 class codCaus(models.Model):
     name = models.CharField(max_length = 64)
-
+    
+class areaCaus(models.Model):
+    name = models.CharField(max_length = 64)
+    code = models.CharField(max_length = 10)
 
 class Reparacion(models.Model):
     programa = models.ForeignKey(Programa, default = 1)
@@ -120,6 +132,8 @@ class Reparacion(models.Model):
     codigoCausa = models.ForeignKey(codCaus, default = 1)
 
     myID = models.IntegerField(default = 1)
+    
+    rtMod = models.BooleanField(default = True)
     
 
 class F412(models.Model):
@@ -159,6 +173,9 @@ class F412(models.Model):
     codigoCausa = models.ForeignKey(codCaus, default = 1, null = True)
 
     myID = models.IntegerField(default = 1)
+    areaCaus = models.ForeignKey(areaCaus, default = 1)
+    hnc = models.CharField(max_length = 40, default = "", null = True)
+    nDefecto = models.CharField(max_length = 40, default = "", null = True)
     
 class avion(models.Model):
     numero = models.IntegerField(default = 1)
@@ -203,16 +220,34 @@ class paretoDefecto(models.Model):
     modificadaFechaAp = models.BooleanField(default = False)
     modificadaFechaCie = models.BooleanField(default = False)
     number = models.IntegerField(default = 1)
+    horas = models.FloatField(default = 0.0)
     
 class paretoTabla(models.Model):
     isLay = models.BooleanField(default = False)
 #    topDefc = models.ManyToManyField(paretoDefecto, related_name='topList', through='OrderPareto')
-    topDefc = models.ManyToManyField(paretoDefecto)
+    topDefc = models.ManyToManyField(paretoDefecto, related_name="paretoTablaList")
     year = models.IntegerField(default = 2018)
     mes = models.IntegerField(default = 1)
     pareto = models.CharField(default = "", max_length = 128)
     
-#class OrderPareto(models.Model):
-#    number = models.IntegerField(default = 1)
-#    parDefecto = models.ForeignKey(paretoDefecto, related_name = 'pareto1', default = 1)
-#    tabla = models.ForeignKey(paretoTabla, default = 1)
+"""
+INFORME MENSUAL
+"""
+
+class planesCount(models.Model):
+    program = models.ForeignKey(Programa, default = 1)
+    component = models.ForeignKey(Componente, default=1)
+    year = models.IntegerField(default = 1)
+    mes = models.IntegerField(default = 1)
+    numPlanes = models.FloatField(default = 0.0)
+    
+class oldHour(models.Model):
+    program = models.ForeignKey(Programa, default = 1)
+    component = models.ForeignKey(Componente, default=1)
+    year = models.IntegerField(default = 1)
+    month = models.IntegerField(default = 1)
+    hours = models.FloatField(default = 0.0)
+    codCaus = models.ForeignKey(codCaus, default = 1)
+    
+class appYears(models.Model):
+    year = models.IntegerField(primary_key = True)    

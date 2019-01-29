@@ -25,9 +25,10 @@ def userContext(myContext):
 #Contexto necesario para base
 def getBasicContext(myContext, request):
     myContext['user'] = request.user
-    myContext["mode"] = "Accidentales"
+    myContext["mode"] = "Reparaciones"
     myContext['myPath'] = request.path
     myContext["codCausList"] = codCaus.objects.all()
+    myContext["request"] = request
     try:
         myContext['myUser'] = myUser.objects.get(user = request.user)
     except:
@@ -178,6 +179,7 @@ def serveAdminPage(request, mode):
     template = get_template("html/adminPage.html")
     myContext = Context()
     myContext = getBasicContext(myContext, request)
+    myContext["sendMail"] = sendMail.objects.get(id = 1).shouldSend
     if request.method == "POST":
         typeForm = request.POST['type']
         if typeForm == "newUser":
@@ -226,3 +228,14 @@ def changePassword(request):
             myContext['aux'] = "Contraseña cambiada con exito"
     template = get_template("html/pass.html")
     return HttpResponse(template.render(myContext))
+
+@csrf_exempt
+def changePasswordAdmin(request, userID):
+    myContext = Context()
+    myContext = getBasicContext(myContext, request)
+    
+    myContext['isFromAdmin'] = True
+    myContext['userToEdit'] = myUser.objects.get(id = userID)
+    template = get_template("html/pass.html")
+    return HttpResponse(template.render(myContext))             
+    

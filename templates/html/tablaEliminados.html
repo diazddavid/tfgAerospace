@@ -1,0 +1,69 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+<h1 style="text-align: center">
+    Eliminados
+</h1>
+
+</br>
+
+<!-- <div style="overflow:scroll; height: 110px">                   -->             
+<table id="myTable" style="border:black 2px solid; {% if isProgram %}background-color:#cccccc{% endif %}">
+  <thead class="fixedHeader">
+  <tr style="text-align:center">
+    <th>Fecha</th>
+    <th>Seccion</th>
+    <th>Defecto / Desviación</th>
+    <th>Nº Av</th>
+    <th>Componente</th>
+    <th>Designacion / Pieza</th>
+    <th>PN</th>
+    <th>Referencia</th>
+    <th>Area</th>
+    <th>Horas</br>Pedidas</th>
+    <th>SGM</th>
+    <th id="descp">Descripcion</th>
+    <th>Nº F412</th>
+  </tr>
+  </thead>
+  
+  <tbody>
+  {% for f412 in F412list %}
+  <tr>
+      <td>{{f412.Fecha|date:"Y/m/d"}}</td>  
+      <td>{% if f412.seccion.name == "380" %}A{% endif %}{{f412.seccion.name}}</td>
+      <td>{{f412.Defecto.name}}</td>
+      <td>{{f412.nAV}}</td>
+      
+      <td>{{f412.Componente.name}}</td>
+      {% if program == "380" %}
+        <td>{{f412.Designacion.name}}</td>
+      {% else %}
+        <td>{{f412.Pieza.name}}</td>
+      {% endif %}
+      
+      <td>{{f412.PN.name}}</td>
+      <td>{{f412.Referencia}}</td>
+      <td>{{f412.Area.name}}</td>
+      
+
+      {% if f412.horasRecurrentes == "" %}
+        <td>{{f412.horas|slice:"0:6"}}</td> 
+      {% else %}
+        <td>{{f412.horasRecurrentes|slice:"0:6"}}</td> 
+      {% endif %}
+      
+      <td>{{f412.SGM.number}}</td>
+      <td>{{f412.Descripcion}}</td>
+
+      <td><a href="/f412Eliminado/{{f412.id}}">{{f412.myID}}</a><br></td>
+                      
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+
+
+{% endblock body %}

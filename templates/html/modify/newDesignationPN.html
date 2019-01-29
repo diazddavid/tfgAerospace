@@ -1,0 +1,54 @@
+{% extends 'html/modify/modifyBase.html' %}
+
+{% block modifyBody %}
+
+<h1>{{modifyModel}} Designacion y Par Number</h1>
+<h1>{{statusModify}}</h1>
+    
+{% if modeModify != "new" %}<form name="myForm" style="text-align:center" action="/Designation/{{designationToModify.id}}" method="post" >
+{% else %}<form name="myForm" style="text-align:center" action="/newDesignation" method="post" >{% endif %}
+
+    Nombre Designacion:</br>
+    <input name="designationName" value="{{designationToModify.name}}"></input>  </br></br>
+                                     
+    Componente:</br>
+    <select style="display:block;margin: 0 auto;" name="designationComponent" id="designationComponent" onchange="selectProgram()">
+      {% for component in componentList %}
+        <option value={{ component.name }}> {{ component.name }}</option>
+      {% endfor %}
+    </select></br>
+    
+            
+    Nombre Par Number:</br>
+    <input name="pnName" value="{{designationToModify.name}}"></input>  </br></br>
+                                     
+    Programa:</br>
+    <select style="display:block;margin: 0 auto;" name="pnProgram" id="pnProgram">
+      {% for program in programList %}
+        <option value={{ program.name }}> {{ program.name }}</option>
+      {% endfor %}
+    </select></br>                          
+               
+    </br> 
+    <input id="submit" type = "submit" value="Crear">
+    
+</form>    
+
+<script>
+
+function selectProgram(){
+
+    component = document.forms["myForm"]["designationComponent"].value; 
+    
+    {% for component in componentList %}                  
+    if(component=="{{component.name}}"){
+      document.getElementById("pnProgram").innerHTML = "<option value ={{component.programa.name}}>A{{component.programa.name}}</option>";
+    }            
+    {% endfor %}
+   
+}
+  
+
+</script>
+
+{% endblock modifyBody %}

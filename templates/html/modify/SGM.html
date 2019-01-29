@@ -1,0 +1,31 @@
+{% extends 'html/modify/modifyBase.html' %}
+
+{% block modifyBody %}
+
+<h1>{{modifyModel}} SGM{% if modeModify != "new" %}: {{SGMToModify.name}}{% endif %}</h1>
+<h1>{{statusModify}}</h1>
+    
+{% if modeModify != "new" %}<form style="text-align:center" action="/SGM/{{SGMToModify.id}}" method="post" >
+{% else %}<form style="text-align:center" action="/newSGM" method="post" >{% endif %}
+    
+    Número:</br>
+    <input name="SGMnumber" value="{{SGMToModify.number}}"></input>  </br></br>
+    
+    Seccion:</br>                                  
+    <select style="display:block;margin: 0 auto;" name="SGMSection" id="SGMSection" multiple>
+      {% for section in sectionList %}
+        {% if section in SGMToModify.seccion.all %}
+          <option value={{ section.name }} selected>{% if section.name == "380" %}A{% endif %}{{ section.name }}</option>
+        {% else %}
+          <option value={{ section.name }}>{% if section.name == "380" %}A{% endif %}{{ section.name }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+
+               
+    </br> 
+    <input id="submit" type = "submit" value = {% if modeModify == "new" %}"Crear"{% else %}"Cambiar"{% endif %}>
+    
+</form>    
+
+{% endblock modifyBody %}

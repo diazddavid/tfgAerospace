@@ -1,0 +1,19 @@
+{% extends 'html/modify/modifyBase.html' %}
+
+{% block modifyBody %}
+
+<h1>{{modifyModel}} Pieza {{statusToModify.name}}</h1>
+<h1>{{statusModify}}</h1>
+    
+{% if modeModify != "new" %}<form style="text-align:center" action="/Status/{{statusToModify.id}}" method="post" >
+{% else %}<form style="text-align:center" action="/newStatus" method="post" >{% endif %}
+    
+    Nuevo Nombre:</br>
+    <input name="statusName" value="{{statusToModify.name}}"></input>  </br>(Por favor, no introduzca letra a antes del nombre)
+    
+    </br> 
+    <input id="submit" type = "submit" value = {% if modeModify == "new" %}"Crear"{% else %}"Cambiar"{% endif %}>
+    
+</form>    
+
+{% endblock modifyBody %}

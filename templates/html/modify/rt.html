@@ -1,0 +1,62 @@
+{% extends 'html/modify/modifyBase.html' %}
+
+{% block modifyBody %}
+
+<h1>{{modifyModel}} Reason Tree{% if modeModify != "new" %}: {{RTToModify.nombre}}{% endif %}</h1>
+<h1>{{statusModify}}</h1>
+    
+{% if modeModify != "new" %}<form style="text-align:center" name="myForm" action="/RT/{{RTToModify.id}}" method="post" >
+{% else %}<form style="text-align:center" name="myForm" action="/newRT" method="post" >{% endif %}
+
+
+    Nombre:</br>
+    <input name="RTName" value="{{RTToModify.nombre}}"></input>  </br></br>
+    
+    Código:</br>
+    <input name="RTCod" maxlength="3" value="{{RTToModify.codigo}}"></input>  </br></br>                                
+                                
+    Nivel:</br>
+    <select style="display:block;margin: 0 auto;" name="RTLevel" id="RTLevel" onchange="filterRT()">
+      <option value="1" {% if 1 == RTToModify.nivel %} selected {% endif %}> 1</option>
+      <option value="2" {% if 2 == RTToModify.nivel %} selected {% endif %}> 2</option>
+      <option value="3" {% if 3 == RTToModify.nivel %} selected {% endif %}> 3</option>                        
+    </select></br>
+    
+    RT Superior:</br>
+    <select style="display:block;margin: 0 auto;" name="superiorRT" id="superioRT">
+      {% if RTToModify.superior != RTToModify %}
+      {% for rt in RTList %}
+        {% if rt.nivel == RTToModify.superior.nivel %}
+          {% if rt == RTToModify.superior %}
+            <option value={{ rt.id }} selected> {{ rt.nombre }}</option>
+          {% else %}
+            <option value={{ rt.id }} > {{ rt.nombre }}</option>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+      {% endif %}
+    </select></br>
+                              
+
+    </br> 
+    <input id="submit" type = "submit" value = {% if modeModify == "new" %}"Crear"{% else %}"Cambiar"{% endif %}>
+    
+</form>    
+
+<script>
+
+function filterRT(){
+             
+    level = document.forms["myForm"]["RTLevel"].value; 
+    document.getElementById("superioRT").innerHTML = "";
+    {% for rt in RTList %}     
+    if(level==Number("{{rt.nivel}}")+1){
+      document.getElementById("superioRT").innerHTML += "<option value ={{rt.id}}>{{rt.nombre}}</option>";
+    }            
+    {% endfor %}
+        
+}
+
+</script>
+
+{% endblock modifyBody %}

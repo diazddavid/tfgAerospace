@@ -11,8 +11,8 @@
 
 <form style="display: inline-block" action="/filtroFecha" method="post" name="myForm" onsubmit="return validateForm()">
   <h2 style="text-align:left; display: inline-block;margin-right:10px; font-size: 25px">Filtrar fecha:</h2> 
-  Desde: <input type="text" name="fromDate" value={% if currentDate != "" %}"{{currentDate}}"{% else %}"{{date}}" {% endif %} style="margin-right:10px" onClick="this.select();">
-  Hasta: <input type="text" name="toDate" value={% if currentDate != "" %}"{{currentDate1}}"{% else %}"{{date}}" {% endif %} onClick="this.select();">
+  Desde: <input type="text" name="fromDate" value={% if currentDate != "" %}"{{currentDate}}"{% else %}"{{date}}" {% endif %} style="margin-right:10px">
+  Hasta: <input type="text" name="toDate" value={% if currentDate != "" %}"{{currentDate1}}"{% else %}"{{date}}" {% endif %} >
   <input class="boton" type="submit" value="Ir">
 </form>    
 <form id="button1" method="post" style="margin-left:60px" action="/filtroFecha">
@@ -455,6 +455,84 @@
             <td><a href="APT5/rechazados">{{reject350APT5}}</td>
           {% endif %}                                      
           <td style="font-weight:bold; text-align:center; color:#e4002b">{{reject350APT5Horas}}</td>
+          <td></td>
+        {% endif %}
+    </tr>
+    
+    <tr>
+        {% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "ME" or myUser.typeUser.name == "Subcontrata" or showAPT9 %}
+          <th colspan="4"><h1>A350 APT9</h1></th>
+        {% endif %}
+    </tr>
+    <tr>
+        {% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "ME" or myUser.typeUser.name == "Subcontrata" or showAPT9 %}
+          <th style="text-align:center">Estado</th>
+          <th>Nº</th>
+          <th style="text-align:center">Horas Pedidas</th>
+          <th style="text-align:center">Horas Condedidas</th>
+        {% endif %}
+    </tr>
+    <tr>
+        {% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "ME" or myUser.typeUser.name == "Subcontrata" or showAPT9 %}
+          <td style="text-align:center">F412 ACTIVOS:</td>
+          {% if filtro %}
+            <td><form style="text-align: center;" method="POST"  action = "APT9/activos/filtroFecha">
+              <input type="hidden" name="fromDate" value="{{currentDate}}">
+              <input type="hidden" name="toDate" value="{{currentDate1}}">
+              <input id="formLink" type="submit" value="{{act350APT9}}"/>
+            </form></td>
+          {% else %}  
+            <td><a href="APT9/activos">{{act350APT9}}</td>
+          {% endif %}                                   
+          <td style="font-weight:bold; text-align:center; color:#ffff00">{{act350APT9Horas}}</td>
+          <td></td>
+        {% endif %}
+    </tr>
+    <tr>
+        {% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "ME" or myUser.typeUser.name == "Subcontrata" or showAPT9 %}
+          <td style="text-align:center">F412 VALIDADOS</td>
+          {% if filtro %}
+            <td><form style="text-align: center;" method="POST"  action = "APT9/validados/filtroFecha">
+              <input type="hidden" name="fromDate" value="{{currentDate}}">
+              <input type="hidden" name="toDate" value="{{currentDate1}}">
+              <input id="formLink" type="submit" value="{{val350APT9}}"/>
+            </form></td>
+          {% else %}  
+            <td><a href="APT9/validados">{{val350APT9}}</td>
+          {% endif %}                                     
+          <td style="font-weight:bold; text-align:center; color:#fe5000" >{{val350APT9Horas}}</td>
+          <td style="font-weight:bold; text-align:center; color:#fe5000" >{{val350APT9HorasConcedidas}}</td>
+        {% endif %}
+    </tr>
+    <tr>
+        {% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "ME" or myUser.typeUser.name == "Subcontrata" or showAPT9 %}
+          <td style="text-align:center">F412 CONCEDIDOS</td>
+          {% if filtro %}
+            <td><form style="text-align: center;" method="POST"  action = "APT9/concedidos/filtroFecha">
+              <input type="hidden" name="fromDate" value="{{currentDate}}">
+              <input type="hidden" name="toDate" value="{{currentDate1}}">
+              <input id="formLink" type="submit" value="{{gran350APT9}}"/>
+            </form></td>
+          {% else %}  
+            <td><a href="APT9/concedidos">{{gran350APT9}}</td>
+          {% endif %}                                      
+          <td style="font-weight:bold; text-align:center; color:#29a329">{{gran350APT9Horas}}</td>
+          <td style="font-weight:bold; text-align:center; color:#29a329">{{gran350APT9HorasConcedidas}}</td>
+        {% endif %}
+    </tr>
+    <tr>
+        {% if myUser.typeUser.name == "Lectura" or myUser.typeUser.name == "HO_CDT" or myUser.typeUser.name == "ME" or myUser.typeUser.name == "Subcontrata" or showAPT9 %}
+          <td style="text-align:center">F412 RECHAZADOS</td>
+          {% if filtro %}
+            <td><form style="text-align: center;" method="POST"  action = "APT9/rechazados/filtroFecha">
+              <input type="hidden" name="fromDate" value="{{currentDate}}">
+              <input type="hidden" name="toDate" value="{{currentDate1}}">
+              <input id="formLink" type="submit" value="{{reject350APT9}}"/>
+            </form></td>
+          {% else %}  
+            <td><a href="APT9/rechazados">{{reject350APT9}}</td>
+          {% endif %}                                      
+          <td style="font-weight:bold; text-align:center; color:#e4002b">{{reject350APT9Horas}}</td>
           <td></td>
         {% endif %}
     </tr>

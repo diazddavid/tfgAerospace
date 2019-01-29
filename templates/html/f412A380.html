@@ -14,17 +14,34 @@ tr:nth-child(even) {
 }
 </style> -->
 
+{% if mode == "Reparaciones" %}
+
 <form id="button1" method="get" style="display: inline-block;" action="/historial/{{f412.id}}"  >
-  <input class="boton" type="submit" value="Historial F412">
+  <input class="boton" type="submit" value="Historial">
 </form>
 
-{% if myUser.admin %}
-<form id="button3" method="get" style="display: inline-block;" action="/reset/{{f412.id}}"  >
-  <input class="boton" type="submit" value="Resetear F412">
-</form>
-{% endif %}
+  {% if myUser.typeUser.name == "ME" %}
+    <form id="button3" method="get" style="display: inline-block;" action="/reset/{{f412.id}}"  >
+      <input class="boton" type="submit" value="Resetear">
+    </form>
+
+    <form method="get" action="/f412edit/{{f412.id}}" style="display: inline-block;">
+      <input class="boton" type="submit" value="Editar F412">
+    </form>
+  {% endif %}
 
 <h1 style="color:{{f412.Estado.color}}; display:block">Este F412 está: {{f412.Estado.name}}</h1>
+
+{% else %}
+  {% if myUser.typeUser.name == "ME" %}
+    <form method="get" action="/repEdit/{{f412.id}}" style="display: inline-block;">
+      <input class="boton" type="submit" value="Editar Reparación">
+    </form>
+  {% endif %} 
+  
+<h1 style="display:block">Reparación</h1>
+                 
+{% endif %}
 
 <table style="background-color:#FFFFFF">
   <tr>
@@ -53,14 +70,25 @@ tr:nth-child(even) {
 
     <th>Horas</th>
     
+    <th>SGM</th>
+    
     {% if myUser.NA == "c17712" %}
       <th>Mes</th>
     {% endif %}
-    
-    <th>SGM</th>
     <th>Descripcion</th>
     <th>Nº F412</th>
-    <th>Operacion</th>
+
+    {% if mode == "Reparaciones" %}
+      <th>Operacion</th>      
+      
+      {% if f412.codigoCausa.name == "RL8" %}
+        <th>H.N.C.</th>
+      {% endif %}
+    
+    {% else %}
+      <th>H.N.C.</th>
+    {% endif %}
+
 </tr>
   <tr>
     <td>{{date}}</td>
@@ -92,20 +120,32 @@ tr:nth-child(even) {
         <td>{{f412.horas}}</td>
     {% endif %}
     
+    <td>{{f412.SGM.number}}</td>
+        
     {% if myUser.NA == "c17712" %}
       <td></td>
     {% endif %}
     
-    <td>{{f412.SGM.number}}</td>
-    
     <td>{{f412.Descripcion}}</td>
                  
-    <td>{{f412.myID}}</td>
-    {% if f412.operacion != 1 %}
-    <td>{{f412.operacion}}</td> 
+    <td>{{f412.myID}}</td>    
+    
+    {% if mode == "Reparaciones" %}
+      {% if f412.operacion != 1 %}
+        <td>{{f412.operacion}}</td> 
+          {% else %}
+        <td></td>
+      {% endif %}
+
+      {% if f412.codigoCausa.name == "RL8" %}
+        <td>{{f412.hnc}}</td>
+      {% endif %}
+
     {% else %}
-    <td></td>
+      <td>{{f412.hnc}}</td>
     {% endif %}
+    
+    
     <td>{{f412.id}}</td>
     <!--  <td>{{week}}</td>-->
         
@@ -124,7 +164,7 @@ tr:nth-child(even) {
   </tr>
 </table>
 
-
+{% if mode == "Reparaciones" %}
 <table style="background-color:#FFFFFF">
 {% if myUser.typeUser.name == "ME" %}
   {% if f412.Estado.name == "Activo" or f412.Estado.name == "Validado" or myUser.admin == True %}
@@ -133,11 +173,14 @@ tr:nth-child(even) {
         <th>Estado Actual</th>
         <th>Nuevo Estado</th>
         <th>CodCausa</th>
+        <th id="hnc" style="display:none">H.N.C.</th>
         <th id="titleStatus"> Motivo Rechazo/Comentario</th>
         <th>Enviar</th>
       </tr>
+      
       <tr>
         <td>{{f412.Estado.name}}</td>
+        
         <td><select name = "newStatusForm" id="newStatusForm" onchange="changeStatus()">
           {% for status in statusList %}
             {% if status.name != "Activo" %}
@@ -149,7 +192,9 @@ tr:nth-child(even) {
             {% endif %}
           {% endfor %}
         </select></td>
-        <td><select name="codCausSelect" id="codCausSelect">
+        
+        <td><select name="codCausSelect" id="codCausSelect" onchange="checkCodCaus()">
+          <option value="default" selected>***</option>
           {% for cod in codCausList %}
           {% if cod == f412.codCaus %}
             <option value="{{cod.name}}" selected>{{cod.name}}</option>
@@ -158,8 +203,12 @@ tr:nth-child(even) {
           {% endif %}
           {% endfor %}
         </select></td>
+        
+        <td style="display:none" id="hncInput"><input type = "text" name="inputHNC" ></td>
+        
         <td><input type = "text" style="width:800px;" name="action" ></td>
         <td><input type = "submit" value = "Submit"></td>
+        
         <input type="hidden" id="comment" name="comment" value="">
         <input type="hidden" id="newHh" name="newH">
         <input type="hidden" id="Level1hid" name="Level1hid">
@@ -212,6 +261,7 @@ tr:nth-child(even) {
   
 {% endif %}
 
+{% endif %}
 </table>
 {% if myUser.typeUser.name == "ME" %}
 <table style="background-color:#FFFFFF">
@@ -224,12 +274,40 @@ tr:nth-child(even) {
 
 <script>
 
+function checkCodCaus(){     
+    codCaus = document.forms["myForm"]["codCausSelect"].value;
+    
+    if (codCaus == "RL8"){
+      document.getElementById("hnc").style.display = ""
+      document.getElementById("hncInput").style.display = ""                             
+    }else{
+      document.getElementById("hnc").style.display = "none"
+      document.getElementById("hncInput").style.display = "none"   
+    }
+                            
+    maxLenght();    
+}
+    
 function validateForm() {
     var variable;    
     variable = document.forms["myForm"]["action"].value;
     var operation = document.forms["myForm"]["operacion"].value;   
     var newStatusVar = document.forms["myForm"]["newStatusForm"].value;  
     var newH = document.getElementById("newHID").value;
+    var codCaus =  document.forms["myForm"]["codCausSelect"].value;     
+    var hnc = document.forms["myForm"]["inputHNC"].value;  
+
+    if (codCaus == "default"){   
+      alert("Falta introducir Código Causa") 
+      return false;        
+    }            
+
+    if (codCaus == "RL8"){
+      if (hnc == ""){
+        alert("Si es RL8 ha de tener H.N.C");
+        return false;
+      }        
+    }                       
                                     
     if (variable == "") {      
         if (newStatusVar == "Rechazado"){

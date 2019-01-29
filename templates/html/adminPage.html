@@ -18,15 +18,34 @@
   {% endif %}
 
   <!-- Botones de actualizar base de datos y exportar e importar f412 a excel -->
-  <form id="button1" method="post" action="/updateDB">
-    <input class="boton" type="submit" value="Actualizar Base de Datos">
+
+  <form id="button2" method="get" action="/F412Avion">
+    <input class="boton" type="submit" value="F412 por avión">
+  </form>
+  <form id="button2" method="get" action="/topMV/MV">
+    <input class="boton" type="submit" value="Top MV">
   </form>
   <form id="button2" method="get" action="/grafico">
-    <input class="boton" type="submit" value="Graficos">
+    <input class="boton" type="submit" value="Gráficos">
+  </form>
+  <form id="button2" method="get" action="/paretos">
+    <input class="boton" type="submit" value="Paretos">
   </form>
   <form id="button2" method="get" action="/ExportarF412">
     <input class="boton" type="submit" value="Exportar F412s a CSV">
   </form>
+  <form id="button1" method="post" action="/updateDB">
+    <input class="boton" type="submit" value="Actualizar Base de Datos">
+  </form>
+  {% if myUser.isSuperUser %}
+  <form id="button1" method="post" action="/modifyPage">
+    <input class="boton" type="submit" value="Base de Datos">
+  </form>
+  
+  <form id="button1" method="post" action="/changeEmail">
+    <input class="boton" type="submit" value="{% if sendMail == True %}Desactivar {% else %}Activar {% endif %}Correos">
+  </form>
+  {% endif %}
 
   <!-- Formulario para crear usuarios -->
   <form id="adminFORM" action="/administrador" method="post" name="myForm" onsubmit="return validateForm()">
@@ -73,7 +92,6 @@
             <option value=default>Seleccione Seccion</option> 
         </select><br>
         
-        
         <input type="hidden" name="type" value="newUser" >
         <input type="submit" value="Crear Usuario">
        </div>
@@ -92,13 +110,15 @@
       <th>Secciones</th>
       <th>Tipo Usuario</th>
       <th>SGM</th>
-      {% if myUser.typeUser.name == "ME" %}
-      <th>Nuevo Programa</th>
-      <th>Nueva Seccion</th>
-      <th>Enviar Cambios</th>
-      <th>Cambiar Tipo</th>
-      <th>Enviar Cambios</th>
-      <th>Borrar Usuario</th>
+      {% if myUser.admin %}
+        <th>Nuevo Programa</th>
+        <th>Nueva Seccion</th>
+        <th>Enviar Cambios</th>
+        <th>Cambiar Tipo</th>
+        <th>Enviar Cambios</th>
+        <th>Borrar Usuario</th>
+        <th>Cambiar Contraseña</th>
+        <th>Quiere Correos</th>
       {% endif %}
     </tr>
     {% for user in userList %}
@@ -128,7 +148,7 @@
         {% endfor %}
         </select>
         </td>
-        {% if myUser.typeUser.name == "ME" %}
+        {% if myUser.admin %}
         <form action="/administrador" method= "POST" name=modifyUser>
         <td>
           <input type="hidden" name="type" value ="modifyUser">
@@ -179,6 +199,13 @@
           <input type="hidden" name="type" value="remove">
           <input type = "submit" value = "Eliminar">
         </form></td>
+        <td><form action="/changePsswd/{{user.id}}" method="get">
+          <input type = "submit" value = "Cambiar">
+        </form></td>
+        <td><form action="/changeEmail/{{user.id}}" method="get">
+          <input type = "submit" value = "{% if user.quiereCorreo %}Quiere{% else %}No quiere{% endif %}">
+        </form></td>
+        <td>{{user.id}}</td>
         {% endif %}
     </tr>
     {% endfor %}
@@ -261,6 +288,7 @@
           document.getElementById("sgmIDList{{user.id}}").innerHTML = "<option>Sin SGM</option>"
         }  
       {% endfor %}
+      
     }
 
   </script>

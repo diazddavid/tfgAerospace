@@ -1,0 +1,19 @@
+{% extends 'html/modify/modifyBase.html' %}
+
+{% block modifyBody %}
+
+<h1>{{modifyModel}} Código Causa {{codCausToModify.name}}</h1>
+<h1>{{statusModify}}</h1>
+    
+{% if modeModify != "new" %}<form style="text-align:center" action="/CodCaus/{{codCausToModify.id}}" method="post" >
+{% else %}<form style="text-align:center" action="/newCodCaus" method="post" >{% endif %}
+    
+    Nombre:</br>
+    <input name="codCausName" value="{{codCausToModify.name}}"></input>  </br>
+    
+    </br> 
+    <input id="submit" type = "submit" value = {% if modeModify == "new" %}"Crear"{% else %}"Cambiar"{% endif %}>
+    
+</form>    
+
+{% endblock modifyBody %}

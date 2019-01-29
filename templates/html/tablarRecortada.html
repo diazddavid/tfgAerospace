@@ -1,0 +1,68 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+{% if isMV %}
+
+<h1 style="text-align: center">TOP MV Semana: {{week}}</h1>
+
+<form style="display: inline-block;{% if week == currentWeek %}margin-right:100px{% endif %}" action="/topMV/{{typeMV}}" method="post">
+  <input type="hidden" name="week" value="{{week}}">
+  <input type="hidden" name="step" value="prev">                                            
+  <input class="boton" type="submit" value="Semana Anterior">
+</form>            
+
+{% if week != currentWeek %}
+<form style="display: inline-block; margin-right:100px" action="/topMV/{{typeMV}}" method="post">
+  <input type="hidden" name="week" value="{{week}}">
+  <input type="hidden" name="step" value="next">                                            
+  <input class="boton" type="submit" value="Semana Siguiente">
+</form>      
+{% endif %}
+
+{% for typeMVinFor in typeMVList %}
+
+<form style="display: inline-block" action="/topMV/{{typeMVinFor}}" method="post">
+  <input type="hidden" name="week" value="{{week}}">
+  <input type="hidden" name="step" value="same">                                            
+  <input class="boton" type="submit" value="Mostar {{typeMVinFor}}">
+</form>  
+
+{% endfor %}
+
+{% else %}
+
+<h1>TOP F412 MENOS HORAS</h1>
+
+{% endif %}
+
+</br>
+
+<!-- <div style="overflow:scroll; height: 110px">                   -->             
+<table id="myTable" style="border:black 2px solid; {% if isProgram %}background-color:#cccccc{% endif %}">
+  <thead class="fixedHeader">
+  <tr style="text-align:center">
+    <th>Fecha</th>
+    <th>Código <br>Causa</th>
+    <th>Horas</th>
+    <th>Estación</th>
+    <th>Descripción</th>
+    <th>Nº F412</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for f412 in f412List %}
+  <tr>
+    <td>{{f412.Fecha|date:"d/m/Y"}}</td> 
+    <td>{{f412.codigoCausa.name}}</td> 
+    <td>{{f412.horas}}</td> 
+    <td>{{f412.Area.name}}</td> 
+    <td>{{f412.Descripcion}}</td>   
+    <td><a href="/f412/{{f412.seccion.name}}/{{f412.myID}}">{{f412.myID}}</a></td>    
+  </tr>
+  {% endfor %}
+  <!--</form>  Valido si queremos permitid que se acepten varios a la vez-->
+  </tbody>
+</table>
+
+{% endblock body %}

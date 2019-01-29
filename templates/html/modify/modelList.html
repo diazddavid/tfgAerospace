@@ -1,0 +1,32 @@
+{% extends 'html/modify/modifyBase.html' %}
+
+{% block modifyBody %}
+
+<h1>{{modelName}}</h1>
+
+  <h1>
+  <form id="button2" method="get" action="/new{{model}}">                                          
+    <input class="boton" type="submit" value="Añadir {{modelName}}">
+  </form>
+  
+  </br>
+  </br>
+  
+  <ul style="display:table; margin:0 auto;">
+    {% for modelObj in modelList %}  
+      {% if modelName == "SGM" %}
+        <li style="text-align:center"><a href="/{{model}}/{{modelObj.id}}">{{modelObj.number}}</a></li>
+      {% elif model == "RT" %}
+        <li style="text-align:center"><a href="/{{model}}/{{modelObj.id}}">{{modelObj.nivel}}-{{modelObj.nombre}}</a></li>
+      {% elif model == "CostHour" %}
+        <li style="text-align:center"><a href="/{{model}}/{{modelObj.id}}">{{modelObj.year}}</a></li>
+      {% else %}
+        <li style="text-align:center"><a href="/{{model}}/{{modelObj.id}}">{{modelObj.name}}</a></li>
+      {% endif %}
+    {% endfor%}
+    
+  </ul>
+
+  </h1>
+
+{% endblock modifyBody %}

@@ -1,0 +1,22 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+  {% if isBase %}
+  {% else %}
+  <form id="button1" method="get" action="/modifyPage">
+    <input class="boton" type="submit" value="Base de Datos">
+  </form>
+  {% endif %}
+  
+  {% if hasLastPage %}
+  <form id="button1" method="get" action="/modify{{model}}Page">
+    <input class="boton" type="submit" value="Lista de {{modelName}}">
+  </form>
+  {% endif %}
+
+  {% block modifyBody %}
+    
+  {% endblock %}
+
+{% endblock body %}

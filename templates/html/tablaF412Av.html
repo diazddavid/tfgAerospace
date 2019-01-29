@@ -1,0 +1,169 @@
+{% extends 'html/base.html' %}
+
+{% block body %}
+
+<h1 style="text-align: center">F412 del Avión: {{currentPlane}}</h1>
+ 
+
+<h1>
+AVION NÚMERO:<br>
+<form style="display: inline-block;" id="button22" method="post" action="F412Avion">
+    <input type="text" name="planeF412">  
+    <input id="submit" type = "submit" value = "Enviar">
+</form>
+</h1>
+
+{% if findedPlane %}
+
+<h1>
+<form style="display: inline-block;" id="button22" method="POST" action="ExportarAvion">
+  <input type="hidden" name="planeCurrent" value={{currentPlane}}>
+  <input class="boton" type="submit" style="display: inline-block;" value="Exportar a CSV">
+</form>
+</h1>
+
+<h1>
+<form style="display: inline-block;" id="button22" method="get" action="F412Avion" onsubmit="return changeStatus('ALB')">
+  <input class="boton" type="submit" style="display: inline-block;" value="ALB">
+</form>
+<form style="display: inline-block;" id="button22" method="get" action="F412Avion" onsubmit="return changeStatus('RL8')">
+  <input class="boton" type="submit" style="display: inline-block;" value="RL8">
+</form>
+<form style="display: inline-block;" id="button22" method="get" action="F412Avion" onsubmit="return changeStatus('M60')">
+  <input class="boton" type="submit" style="display: inline-block;" value="M60">
+</form>
+<form style="display: inline-block;" id="button22" method="get" action="F412Avion" onsubmit="return changeStatus('V10')">
+  <input class="boton" type="submit" style="display: inline-block;" value="V10">
+</form>
+</h1>
+<!-- <div style="overflow:scroll; height: 110px">                   -->             
+<table id="myTable" style="border:black 2px solid; {% if isProgram %}background-color:#cccccc{% endif %}">
+  <thead class="fixedHeader">
+  <tr style="text-align:center">
+    <th>Fecha</th>
+    <th>Código <br>Causa</th>
+    <th>Horas</th>
+    <th>Estación</th>
+    <th>Descripción</th>
+    <th>Nº F412</th>
+  </tr>
+  </thead>
+  
+  <tbody id="tableALB">
+  {% for f412 in f412ListALB %}
+      <tr>
+        <td>{{f412.Fecha|date:"d/m/Y"}}</td>
+        <td>{{f412.codigoCausa.name}}</td>  
+        <td>{{f412.horas|slice:"0:6"}}</td>
+        <td>{{f412.Area.name}}</td>
+        <td>{{f412.Descripcion}}</td>
+        <td><a href='/f412/{{f412.seccion.name}}/{{f412.myID}}'>{{f412.myID}}</a></td>
+      </tr>
+  {% endfor %}
+  </tbody>
+  
+  <tbody id="tableM60">
+  {% for f412 in f412ListM60 %}
+      <tr>
+        <td>{{f412.Fecha|date:"d/m/Y"}}</td>
+        <td>{{f412.codigoCausa.name}}</td>  
+        <td>{{f412.horas|slice:"0:6"}}</td>
+        <td>{{f412.Area.name}}</td>
+        <td>{{f412.Descripcion}}</td>
+        <td><a href='/f412/{{f412.seccion.name}}/{{f412.myID}}'>{{f412.myID}}</a></td>
+      </tr>
+  {% endfor %}
+  </tbody>
+  
+  <tbody id="tableV10">
+  {% for f412 in f412ListV10 %}
+      <tr>
+        <td>{{f412.Fecha|date:"d/m/Y"}}</td>
+        <td>{{f412.codigoCausa.name}}</td>  
+        <td>{{f412.horas|slice:"0:6"}}</td>
+        <td>{{f412.Area.name}}</td>
+        <td>{{f412.Descripcion}}</td>
+        <td><a href='/f412/{{f412.seccion.name}}/{{f412.myID}}'>{{f412.myID}}</a></td>
+      </tr>
+  {% endfor %}
+  </tbody>
+  
+  <tbody id="tableRL8">
+  {% for f412 in f412ListRL8 %}
+      <tr>
+        <td>{{f412.Fecha|date:"d/m/Y"}}</td>
+        <td>{{f412.codigoCausa.name}}</td>  
+        <td>{{f412.horas|slice:"0:6"}}</td>
+        <td>{{f412.Area.name}}</td>
+        <td>{{f412.Descripcion}}</td>
+        <td><a href='/f412/{{f412.seccion.name}}/{{f412.myID}}'>{{f412.myID}}</a></td>
+      </tr>
+  {% endfor %}
+  
+  {% for f412 in f412ListRL82%}
+      <tr>
+        <td>{{f412.Fecha|date:"d/m/Y"}}</td>
+        <td>{{f412.codigoCausa.name}}</td>  
+        <td>{{f412.horas|slice:"0:6"}}</td>
+        <td>{{f412.Area.name}}</td>
+        <td>{{f412.Descripcion}}</td>
+        <td><a href='/f412/{{f412.seccion.name}}/{{f412.myID}}'>{{f412.myID}}</a></td>
+      </tr>
+  {% endfor %}
+  </tbody>
+  
+  <!--</form>  Valido si queremos permitid que se acepten varios a la vez-->
+  </tbody>
+</table>
+<h2 id="tableALBHours">{% if f412ListALB.count > 0 %}Horas totales: {{sumALB}}{% endif %}</h2>
+<h2 id="tableRL8Hours">{% if f412ListRL8.count > 0 %}Horas totales: {{sumRL8}}{% endif %}</h2>
+<h2 id="tableM60Hours">{% if f412ListM60.count > 0 %}Horas totales: {{sumM60}}{% endif %}</h2>
+<h2 id="tableV10Hours">{% if f412ListV10.count > 0 %}Horas totales: {{sumV10}}{% endif %}</h2>
+
+{% endif %}
+
+<script>
+
+function changeStatus(newName){
+  
+  document.getElementById("tableRL8").style.display = "none"
+  document.getElementById("tableALB").style.display = "none"
+  document.getElementById("tableV10").style.display = "none"
+  document.getElementById("tableM60").style.display = "none"
+  document.getElementById("tableRL8Hours").style.display = "none"
+  document.getElementById("tableALBHours").style.display = "none"
+  document.getElementById("tableV10Hours").style.display = "none"
+  document.getElementById("tableM60Hours").style.display = "none"
+                         
+  if (newName == "ALB"){
+    document.getElementById("tableALB").style.display = ""
+    document.getElementById("tableALBHours").style.display = ""           
+  }
+  else if(newName == "M60"){
+    document.getElementById("tableM60").style.display = ""  
+    document.getElementById("tableM60Hours").style.display = ""     
+  }
+  else if(newName == "V10"){
+    document.getElementById("tableV10").style.display = "" 
+    document.getElementById("tableV10Hours").style.display = ""        
+  }
+  else if(newName == "RL8"){
+    document.getElementById("tableRL8").style.display = ""  
+    document.getElementById("tableRL8Hours").style.display = ""    
+  }
+  return false         
+  
+}
+  
+window.onload = function(){
+  document.getElementById("tableRL8").style.display = "none"
+  document.getElementById("tableV10").style.display = "none"
+  document.getElementById("tableM60").style.display = "none"  
+  document.getElementById("tableRL8Hours").style.display = "none"
+  document.getElementById("tableV10Hours").style.display = "none"
+  document.getElementById("tableM60Hours").style.display = "none"      
+}
+
+</script>
+
+{% endblock body %}
