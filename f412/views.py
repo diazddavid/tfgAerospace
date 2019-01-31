@@ -332,7 +332,12 @@ def serveForm350(request):
         areaUser = Area.objects.filter(seccion = SECTION_APT1 )
 
     myContext['areaUserSection'] = areaUser
-    desvUser = Defecto.objects.filter(seccion__programa = PROGRAMA_350).filter(seccion = reqUser.seccion.all())
+
+    desvUser = Defecto.objects.filter(id = -3)
+    for section in reqUser.seccion.all():
+        desvUserAux = Defecto.objects.filter(seccion__programa = PROGRAMA_350)
+        desvUserAux = desvUserAux.filter(seccion = section)
+        desvUser = desvUser | desvUserAux
 
     if desvUser.count() == 0:
         desvUser = Defecto.objects.filter(seccion = SECTION_APT1 )
