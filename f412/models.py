@@ -12,29 +12,29 @@ class costeHora(models.Model):
     precio = models.FloatField(default = 1.0)
 
 class Seccion(models.Model):
-    name = models.CharField(max_length = 128)
+    name = models.CharField(max_length = 128, default = "")
     programa = models.ForeignKey(Programa, on_delete=models.PROTECT, default = 1)
 
 class Componente(models.Model):
-    name = models.CharField(max_length = 128)
+    name = models.CharField(max_length = 128, default = "")
     alias = models.CharField(max_length = 128, default = "")
     programa = models.ForeignKey(Programa, on_delete=models.PROTECT, default = 1)
     shouldShow = models.BooleanField(default = True)
 
 class Designacion(models.Model):
-    name = models.CharField(max_length = 128)
+    name = models.CharField(max_length = 128, default = "")
     alias = models.CharField(max_length = 128, default = "")
     Componente = models.ForeignKey(Componente, on_delete=models.PROTECT, default = 1)
 
 class PN(models.Model):
-    name = models.CharField(max_length = 128)
+    name = models.CharField(max_length = 128, default = "")
     programa = models.ForeignKey(Programa, on_delete=models.PROTECT, default = 1)
     Designacion = models.OneToOneField(Designacion, unique=True, on_delete=models.PROTECT, related_name="PN")
 
 class PNEvol(models.Model):
     pn = models.ForeignKey(PN, on_delete=models.PROTECT, default = 1)
     designation = models.ForeignKey(Designacion, on_delete=models.PROTECT, default = 1)
-    name = models.CharField(max_length = 128)
+    name = models.CharField(max_length = 128, default = "")
     shouldShow = models.BooleanField(default = True)
     currentPN = models.BooleanField(default = True)
 
@@ -45,31 +45,31 @@ class ComponenteAPT5(models.Model):
     parNumber = models.ManyToManyField(PN, default = 1)
 
 class Area(models.Model):
-    name = models.CharField(max_length = 128)
+    name = models.CharField(max_length = 128, default = "")
     seccion = models.ManyToManyField(Seccion, default = 1)
 
 class Defecto(models.Model):
-    name = models.CharField(max_length = 128)
+    name = models.CharField(max_length = 128, default = "")
     alias = models.CharField(max_length = 128, default = "")
     seccion = models.ManyToManyField(Seccion, default = 1)
 
 class Estado(models.Model):
-    name = models.CharField(max_length = 128)
+    name = models.CharField(max_length = 128, default = "")
     color = models.CharField(max_length = 128, default = 1)
 
 class Pieza(models.Model):
-    name = models.CharField(max_length = 128)
+    name = models.CharField(max_length = 128, default = "")
 
 class tipoUsuario(models.Model):
-    name = models.CharField(max_length = 128)
+    name = models.CharField(max_length = 128, default = "")
 
 class myUser(models.Model):
-    name = models.CharField(max_length = 256, default = 1)
-    email = models.CharField(max_length = 256)
+    name = models.CharField(max_length = 256, default = "")
+    email = models.CharField(max_length = 256, default = "")
     programa = models.ManyToManyField(Programa) #Many to many para poder tener un admin con acceso directo a todoS
     user = models.OneToOneField(modelsAuth.User, on_delete=models.PROTECT)
     typeUser = models.ForeignKey(tipoUsuario, on_delete=models.PROTECT, default = 1)
-    passwd = models.CharField(max_length = 128)
+    passwd = models.CharField(max_length = 128, default = "")
     admin = models.BooleanField(default = False)
     NA = models.CharField(max_length = 64, default = "")
     nombreCompleto = models.CharField(max_length = 128, default = "")
@@ -79,8 +79,8 @@ class myUser(models.Model):
     isSuperUser = models.BooleanField(default = False)
 
 class SGM(models.Model):
-    number = models.CharField(max_length = 128)
-    name = models.CharField(max_length = 128)
+    number = models.CharField(max_length = 128, default = "")
+    name = models.CharField(max_length = 128, default = "")
     seccion = models.ManyToManyField(Seccion, default = 1)
     user = models.ManyToManyField(myUser, default = 1)
 
@@ -104,11 +104,11 @@ class reasonTree(models.Model):
     currentlyInUse = models.BooleanField(default = False)
 
 class codCaus(models.Model):
-    name = models.CharField(max_length = 64)
+    name = models.CharField(max_length = 64, default = "")
 
 class areaCaus(models.Model):
-    name = models.CharField(max_length = 64)
-    code = models.CharField(max_length = 10)
+    name = models.CharField(max_length = 64, default = "")
+    code = models.CharField(max_length = 10, default = "")
 
 class Reparacion(models.Model):
     programa = models.ForeignKey(Programa, on_delete=models.PROTECT, default = 1)
@@ -118,7 +118,7 @@ class Reparacion(models.Model):
     pnEv = models.ForeignKey(PNEvol, on_delete=models.PROTECT, default = 1)
     Area = models.ForeignKey(Area, on_delete=models.PROTECT, default = 1)
     Defecto = models.ForeignKey(Defecto, on_delete=models.PROTECT, default = 1) #EN EL CASO DE LOS FORMULARIOS PARA 350 SERAN DESVIACIONES
-    Fecha = models.DateField()
+    Fecha = models.DateField(null = True)
     Designacion = models.ForeignKey(Designacion, on_delete=models.PROTECT, default = 1)
     reasonTree = models.ForeignKey(reasonTree, on_delete=models.PROTECT, default = 1)
     Usuario = models.ForeignKey(myUser, on_delete=models.PROTECT, default = 1)
@@ -151,8 +151,8 @@ class F412(models.Model):
     PN = models.ForeignKey(PN, on_delete=models.PROTECT, default = 1)
     pnEv = models.ForeignKey(PNEvol, on_delete=models.PROTECT, default = 1)
     Area = models.ForeignKey(Area, on_delete=models.PROTECT, default = 1)
-    Defecto = models.ForeignKey(Defecto, on_delete=models.PROTECT, default = 1) #EN EL CASO DE LOS FORMULARIOS PARA 350 SERAN DESVIACIONES
-    Fecha = models.DateField()
+    Defecto = models.ForeignKey(Defecto, on_delete=models.PROTECT, default = 1) 
+    Fecha = models.DateField(null = True)
     Designacion = models.ForeignKey(Designacion, on_delete=models.PROTECT, default = 1)
     Estado = models.ForeignKey(Estado, on_delete=models.PROTECT, default = 1)
     Usuario = models.ForeignKey(myUser, on_delete=models.PROTECT, default = 1)
@@ -203,7 +203,7 @@ class avion(models.Model):
 class modificaciones(models.Model):
     numero = models.IntegerField(default = 1)
     usuario = models.ForeignKey(myUser, on_delete=models.PROTECT, default = 1)
-    fecha = models.DateField()
+    fecha = models.DateField(null = True)
     f412 = models.ForeignKey(F412, on_delete=models.PROTECT, default = 1)
     estadoViejo = models.ForeignKey(Estado, related_name = 'estadoViejo', on_delete=models.PROTECT, default = 1)
     estadoNuevo = models.ForeignKey(Estado, related_name = 'estadoNuevo', on_delete=models.PROTECT, default = 1)
@@ -213,7 +213,7 @@ class f412Ant(models.Model):
     Componente = models.ForeignKey(Componente, on_delete=models.PROTECT, default = 1)
     Defecto = models.ForeignKey(Defecto, on_delete=models.PROTECT, default = 1)
     Area = models.ForeignKey(Area, on_delete=models.PROTECT, default = 1)
-    Fecha = models.DateField()
+    Fecha = models.DateField(null = True)
     horas = models.CharField(max_length = 128, default = "")
     myID = models.IntegerField(default = 1)
 

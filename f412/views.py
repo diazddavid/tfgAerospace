@@ -570,7 +570,12 @@ def newRep(request, program):
 
         sectionObj = Seccion.objects.get(name = section)
         compObj = Componente.objects.get(name = comp)
-        parNumberEvObj = PNEvol.objects.get(name = parNumber)
+        try:
+            parNumberEv = PNEvol.objects.get(name = request.POST["parNumber"])
+            parNumber = PN.objects.get(id = parNumberEv.pn.id)
+        except:
+            parNumber = PN.objects.get(name = request.POST["parNumber"])
+            parNumberEv = PNEvol.objects.filter(pn = parNumber).filter(currentPN = True)[0]
         areaObj = Area.objects.get(name = area)
         defectObj = Defecto.objects.get(name = defect)
         sgmObj = SGM.objects.get(number = sgm)
@@ -582,7 +587,6 @@ def newRep(request, program):
         else:
             myID = Reparacion.objects.filter(seccion = sectionObj).latest('id').myID + 1
 
-
         myContext['newID'] = True
         myContext["myID"] = myID
 
@@ -593,63 +597,56 @@ def newRep(request, program):
             hLT = "0"
             nOp = "1"
             rtObj = getRT(rt1, rt1, rt1, programObj)
-            rep = Reparacion(programa = programObj, seccion = sectionObj, Componente = compObj,
-                             PN = parNumberEvObj.pn, Area = areaObj, Defecto = defectObj,
-                             Fecha = dateRep, Designacion = designaObj, pnEv = parNumberEvObj,
-                             reasonTree = rtObj, Usuario = currentUser, LastChangeUser = currentUser,
-                             SGM = sgmObj, Referencia = ref, horas = horas, hnc = hnc,
-                             nOp = nOp, horasLeadTime = hLT, Descripcion = descp,
-                             nAV = nAV, codigoCausa = codCausa, myID = myID)
-            rep.save()
 
         else:
             nAV = request.POST["nAV"]
             nOp = request.POST["nOp"]
             hLT = request.POST["numH"]
             pieza = request.POST["Pieza"]
-            pnObj = parNumberEvObj.pn
             piezaObj = Pieza.objects.get(name = pieza)
             rt2 = request.POST["rt2"]
             rt3 = request.POST["rt3"]
-
+            designaObj = Designacion.objects.all()[0]
             rtObj = getRT(rt1, rt2, rt3, programObj)
-            rep = Reparacion(programa = programObj, seccion = sectionObj, Componente = compObj,
-                             PN = pnObj, Area = areaObj, Defecto = defectObj, hnc = hnc,
-                             Fecha = date.today(), reasonTree = rtObj, Usuario = currentUser,
-                             LastChangeUser = currentUser, SGM = sgmObj, Pieza = piezaObj, myID = myID,
-                             Referencia = ref, horas = horas, nOp = nOp, horasLeadTime = hLT,
-                             pnEv = parNumberEvObj, Descripcion = descp, nAV = nAV, codigoCausa = codCausa)
-            rep.save()
 
-            if request.POST["changeForm"] == "False":
-                myContext["nAVForm"] = nAV
-                myContext["sectionForm"] = section
-                myContext["piezaForm"] = pieza
-                myContext["componentForm"] = comp
-                myContext["pnForm"] = parNumber
-                myContext["desvForm"] = defect
-                myContext["areaForm"] = area
-                myContext["hncForm"] = hnc
-                myContext["rt1Form"] = rt1
-                myContext["rt2Form"] = rt2
-                myContext["rt3Form"] = rt3
-                myContext["refForm"] = ref
-                myContext["sgmForm"] = sgm
-                myContext["numHForm"] = hLT
-                myContext["descpForm"] = descp
+        rep = Reparacion(programa = programObj, seccion = sectionObj, Componente = compObj,
+                         PN = parNumber, pnEv = parNumberEv, Area = areaObj,
+                         Defecto = defectObj, hnc = hnc, Fecha = dateRep, rtMod = False,
+                         reasonTree = rtObj, Usuario = currentUser, Designacion = designaObj,
+                         LastChangeUser = currentUser, SGM = sgmObj, Pieza = piezaObj, myID = myID,
+                         Referencia = ref, horas = horas, nOp = nOp, horasLeadTime = hLT,
+                         Descripcion = descp, nAV = nAV, codigoCausa = codCausa)
+        rep.save()
 
-            if len(nAV) <= 4:
-                try:
-                    plane = avion.objects.get(numero = nAV)
-                except avion.DoesNotExist:
-                    if "V9" in rep.Pieza.name :
-                        v1000 = False
-                    else:
-                        v1000 = True
-                    plane = avion(numero = nAV, v1000 = v1000)
-                    plane.save()
+        if request.POST["changeForm"] == "False":
+            myContext["nAVForm"] = nAV
+            myContext["sectionForm"] = section
+            myContext["piezaForm"] = pieza
+            myContext["componentForm"] = comp
+            myContext["pnForm"] = parNumber
+            myContext["desvForm"] = defect
+            myContext["areaForm"] = area
+            myContext["hncForm"] = hnc
+            myContext["rt1Form"] = rt1
+            myContext["rt2Form"] = rt2
+            myContext["rt3Form"] = rt3
+            myContext["refForm"] = ref
+            myContext["sgmForm"] = sgm
+            myContext["numHForm"] = hLT
+            myContext["descpForm"] = descp
 
-                sumPlaneRepF412(rep, plane, False)
+        if len(nAV) <= 4:
+            try:
+                plane = avion.objects.get(numero = nAV)
+            except avion.DoesNotExist:
+                if "V9" in rep.Pieza.name :
+                    v1000 = False
+                else:
+                    v1000 = True
+                plane = avion(numero = nAV, v1000 = v1000)
+                plane.save()
+
+            sumPlaneRepF412(rep, plane, False)
 
         return HttpResponse(template.render(myContext))
 
@@ -675,8 +672,12 @@ def newF412(request, program):
         #Todos los ME UNIT podrán crear en todos y aceptar o rechazar
         if (section in currentUser.seccion.all() and currentUser.typeUser.name != "Subcontrata") or currentUser.typeUser.name == "ME":
             component = Componente.objects.get(name = request.POST["Component"])
-            parNumberEv = PNEvol.objects.get(name = request.POST["parNumber"])
-            parNumber = parNumberEv.pn
+            try:
+                parNumberEv = PNEvol.objects.get(name = request.POST["parNumber"])
+                parNumber = PN.objects.get(name = request.POST["parNumber"])
+            except:
+                parNumber = PN.objects.get(name = request.POST["parNumber"])
+                parNumberEv = PNEvol.objects.filter(pn = parNumber).filter(currentPN = True)[0]
             area = Area.objects.get(name = request.POST["Area"])
             f412date = date.today()
             defect = Defecto.objects.get(name = request.POST["Defect"])
@@ -706,16 +707,21 @@ def newF412(request, program):
                 myID = F412_VALID.filter(seccion =section).latest('id').myID + 1
             except F412.DoesNotExist:
                 myID = 1
+            if a380:
+                part = Pieza.objects.all()[0]
+            else:
+                designa = Designacion.objects.all()[0]
+            rt = reasonTree.objects.all()[0]
+            codCausObj = codCaus.objects.all()[0]
+            areaCausObj = areaCaus.objects.all()[0]
             F412toSave = F412(programa = program, Componente = component, PN = parNumber, Area = area,
                             Defecto = defect, Fecha = f412date, Estado = Status, horasRecurrentes = hRec,
                             nOp = nOp, Referencia = request.POST["Ref"], horas = numH, SGM = SGMf412,
                             Descripcion = descp, Usuario = currentUser, seccion =section, pnEv = parNumberEv,
-                            LastChangeUser = currentUser, myID = myID, nAV = nAV)
-            F412toSave.save()
-            if a380:
-                F412toSave.Designacion = designa
-            else:
-                F412toSave.Pieza = part
+                            LastChangeUser = currentUser, myID = myID, nAV = nAV, Designacion = designa,
+                            Pieza = part, horasAntiguas = numH, horasAntRec = hRec, accion = "",
+                            descripcionAcortada = "", reasonTree = rt, rtMod = False, operacion = "",
+                            codigoCausa = codCausObj, areaCaus = areaCausObj, hnc = "", nDefecto = "" )
             F412toSave.save()
 #            sendMail("f412", F412toSave.id, currentUser.email)
             Error = "None"

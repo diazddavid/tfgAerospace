@@ -2,7 +2,7 @@
 y unos bloques para las funciones especificas de ambos programas -->
 {% extends 'html/form.html' %}
 
-{% block form %}                        
+{% block form %}
   <!-- FuncionarĂĄ cuando enviemos un formulario y se cree un f412 -->
   {% if newID %}
     {% if error == "None" %}
@@ -11,7 +11,7 @@ y unos bloques para las funciones especificas de ambos programas -->
       <h2>{{error}}</h2>
     {% endif %}
   {% endif %}
- 
+
   <!-- Formulario para crear f412 del 350 -->
   <form action={% if mode == "Reparaciones" %}"/350/nuevoF412" {% else %}"/350/nuevaRep"{% endif %}
            method="post" name="myForm" onsubmit="return validateForm()">
@@ -27,7 +27,7 @@ y unos bloques para las funciones especificas de ambos programas -->
           {% for section in sectionList %}
             {% if section.name == sectionForm %}
               <option value = {{ section.name }} selected> {{ section.name }}</option>
-            {% else %}                  
+            {% else %}
               <option value = {{ section.name }}> {{ section.name }}</option>
             {% endif %}
           {% endfor %}
@@ -36,14 +36,14 @@ y unos bloques para las funciones especificas de ambos programas -->
             {% if section.name != "380" %}
               {% if section.name == sectionForm %}
                 <option value = {{ section.name }} selected> {{ section.name }}</option>
-              {% else %}                  
+              {% else %}
                 <option value = {{ section.name }}> {{ section.name }}</option>
               {% endif %}
-            {% endif %} 
+            {% endif %}
           {% endfor %}
         {% endif %}
         </select><br> </div>
-        
+
 
         <div id="piezaIDDiv">Pieza:
         <select name = "Pieza" id="piezaID" onchange="piezaFunction()" select>
@@ -51,8 +51,8 @@ y unos bloques para las funciones especificas de ambos programas -->
           {% for pieza in piezaList %}
             {% if pieza.name == piezaForm %}
               <option value = {{ pieza.name }} selected> {{ pieza.name }}</option>
-            {% else %}                     
-              <option value = {{ pieza.name }}> {{ pieza.name }}</option>         
+            {% else %}
+              <option value = {{ pieza.name }}> {{ pieza.name }}</option>
             {% endif %}
           {% endfor %}
         </select> </div><br>
@@ -60,43 +60,43 @@ y unos bloques para las funciones especificas de ambos programas -->
         <div>Componente:
         <select name = "Component" id="ComponentID" onchange="ComponentFunction()" select   >
           <option value = "default">Por Defecto</option>
-        </select> </div><br> 
-        
+        </select> </div><br>
+
         <div>P/N
           <select name = "parNumber" id="PNID"><br>
             <option value = "default">Seleccione Componente</option>
           </select> <br>
         </div>
 
-       
+
         <div>Area Causante
         <select name = "Area" id="AreaID">
           {% for area in areaUserSection %}
             {% if area.name == areaForm %}
               <option selected value = {{area.name}}>{{area.name}}</option>
-            {% else %}                              
+            {% else %}
               <option value = {{area.name}}>{{area.name}}</option>
-            {% endif %}      
+            {% endif %}
           {% endfor %}
         </select></div><br>
-        
+
         <div>Desviacion
         <select name = "Defect" id="desvID">
           {% for desv in desvUser %}
             {% if desv.name == desvForm %}
               <option selected value = {{desv.name}}>{{desv.name}}</option>
-            {% else %}                                       
+            {% else %}
               <option selected value = {{desv.name}}>{{desv.name}}</option>
-            {% endif %}                                       
+            {% endif %}
           {% endfor %}
         </select> </div><br>
 
     {% if mode == "Accidentales" %}
-    
+
         <div>H.N.C<br>
         <input type = "text" name = "hnc" value="{{hncForm}}"><br></div>
-     
-    
+
+
         <div> Nivel 1 Reason Tree
           <select name = "rt1" id = "rt1" onchange="rt2Function()">
             <option value="default">Por defecto</option>
@@ -105,35 +105,35 @@ y unos bloques para las funciones especificas de ambos programas -->
                 <option value="{{rt.codigo}}" selected>{{rt.codigo}} - {{rt.nombre}}</option>
               {% else %}
                 <option value="{{rt.codigo}}">{{rt.codigo}} - {{rt.nombre}}</option>
-              {% endif %}                               
-            {% endfor %}                           
+              {% endif %}
+            {% endfor %}
           </select>
         </div>
-        
+
     {% endif %}
 
     </div>
     <div class="column">
- 
+
         {% if mode == "Accidentales" %}
-    
+
           <div>Nivel 2 Reason Tree
             <select name = "rt2" id="rt2" onchange="rt3Function()">
               <option value="default">Seleccione primero nivel 1</option>
             </select>
-          </div>  
-          
+          </div>  </br>
+
           <div>Nivel 3 Reason Tree
             <select name = "rt3" id="rt3"">
               <option value="default">Seleccione primero nivel 2</option>
             </select>
-          </div>
-        
-        {% endif %}    
-    
+          </div></br>
+
+        {% endif %}
+
         <div>Fecha<br>
         <input type = "text" name = "date" value={{ date }} {% if mode == "Reparaciones" %}readonly{% endif %}></br></div>
-                                                   
+
         <div>Referencia<br>
         <input type = "number" name = "Ref" value="{{refForm}}"></br></div>
 
@@ -145,7 +145,7 @@ y unos bloques para las funciones especificas de ambos programas -->
                 <option selected value = {{sgm.number}}>{{sgm.number}}</option>
               {% else %}
                 <option value = {{sgm.number}}>{{sgm.number}}</option>
-              {% endif %}                                
+              {% endif %}
             {% endfor %}
           {%else%}
             {% for sgm in sgmUser %}
@@ -153,14 +153,14 @@ y unos bloques para las funciones especificas de ambos programas -->
                 <option selected value = {{sgm.number}}>{{sgm.number}}</option>
               {% else %}
                 <option value = {{sgm.number}}>{{sgm.number}}</option>
-              {% endif %}   
+              {% endif %}
             {% endfor %}
           {%endif%}
         </select></div><br>
 
         <div>Horas Por Operario (LT)<br>
         <input type = "number" name = "numH" value="{{numHform}}" onchange="calcHRec()"></br></div>
-        
+
         <div>Numero Operarios<br>
         <select name="nOp" onchange="calcHRec()">
           <option value="1">1</option>
@@ -175,19 +175,19 @@ y unos bloques para las funciones especificas de ambos programas -->
           <option value="10">10</option>
         </select>
         </br></div>
-        
+
         <div>Horas Recurrentes<br>
-        <input type = "text" name = {%if mode == "Reparaciones" %}"hRec"{% else %}"horas"{% endif %} 
+        <input type = "text" name = {%if mode == "Reparaciones" %}"hRec"{% else %}"horas"{% endif %}
         value="0" readonly></br></div>
-        
+
         <div>Descripcion<br>
         <textarea name="textDescp" id="textDescp" rows="5" cols="30">{{descpForm}}</textarea>
         <input type="text" hidden name = "Descp" id="descp"></br></div>
-        
+
         {% if mode == "Accidentales" %}
           <input type="text" hidden name = "changeForm" id="changeForm"></br>
-          <input class="boton"  type="submit" value="Enviar Mantener Campos" onclick="notChangeForm()"> 
-        {% endif %}                                                                           
+          <input class="boton"  type="submit" value="Enviar Mantener Campos" onclick="notChangeForm()">
+        {% endif %}
         <input id="submit" type = "submit" value="Enviar" {% if mode == "Accidentales" %} onclick="changeForm()"{% endif %}>
       </div>
     </div>
@@ -200,33 +200,33 @@ y unos bloques para las funciones especificas de ambos programas -->
 <!-- JAVASCRIPT -->
 
   <script>
-  
+
   function notChangeForm(){
-    document.forms["myForm"]["changeForm"].value = "False"      
+    document.forms["myForm"]["changeForm"].value = "False"
   }
-  
+
   function changeForm(){
-    document.forms["myForm"]["changeForm"].value = "True"      
+    document.forms["myForm"]["changeForm"].value = "True"
   }
-  
+
   function piezaFunction(){
       sectionFunction();
   }
-  
+
   function calcHRec(){
     var nOp = document.forms["myForm"]["nOp"].value;
     var numH = document.forms["myForm"]["numH"].value;
     numH = numH.replace(",",".");
     var HRec = String(nOp*numH);
-    document.forms["myForm"][{%if mode == "Reparaciones" %}"hRec"{% else %}"horas"{% endif %}].value = HRec.replace(".",",");                         
+    document.forms["myForm"][{%if mode == "Reparaciones" %}"hRec"{% else %}"horas"{% endif %}].value = HRec.replace(".",",");
   }
-  
+
   function componentAPT5(){
     document.getElementById("PNID").innerHTML = "";
     var comp = document.getElementById("ComponentID").value;
     var pieza = document.getElementById("piezaID").value;
-    pieza = pieza.substring(4,pieza.length)        
-                             
+    pieza = pieza.substring(4,pieza.length)
+
     {% for comp in compAPT5List %}
       if (comp == "{{comp.name}}"){
         {% for pn in comp.parNumber.all %}
@@ -234,84 +234,84 @@ y unos bloques para las funciones especificas de ambos programas -->
           if (designaName.indexOf(pieza) != -1){
             document.getElementById("PNID").innerHTML += "<option {% if pn.name == pnForm %}selected{% endif %} value ={{pn.name}}>{{pn.name}}</option>";
           }
-        {% endfor %}        
+        {% endfor %}
       }
-    {% endfor %}                                       
+    {% endfor %}
   }
-  
+
   function ComponentFunction(){
-    var section = document.getElementById("SectionID").value;   
-                                         
+    var section = document.getElementById("SectionID").value;
+
     if(section == "APT5"){
       componentAPT5();
       return;
-    }             
-                                
+    }
+
     document.getElementById("PNID").innerHTML = "";
     var comp = document.getElementById("ComponentID").value;
     var pieza = document.getElementById("piezaID").value;
-                                       
+
     if (pieza.indexOf("V900") != -1){
         var designation = "V900" + comp;
     }else{
         var designation = "V1000" + comp;
     }
-    
+
     {% for parNumber in PNList%}
     var name = "{{parNumber}}"
     if(name.startsWith(designation)){
       newName = name.substring(name.lastIndexOf(".") + 1, name.length);
       document.getElementById("PNID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
     }
-    {% endfor %}  
+    {% endfor %}
   }
-    
+
   function APT5Section(){
     var section = "APT5";
-    var pieza = document.getElementById("piezaID").value;                       
-    if(pieza != "default"){   
-        pieza = pieza.substring(4,pieza.length)         
-        document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>";        
-        {% for compAPT5 in compAPT5List %}  
-          var name = "{{compAPT5.pieza}}";      
+    var pieza = document.getElementById("piezaID").value;
+    if(pieza != "default"){
+        pieza = pieza.substring(4,pieza.length)
+        document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>";
+        {% for compAPT5 in compAPT5List %}
+          var name = "{{compAPT5.pieza}}";
           if(name.indexOf(pieza) != -1){
             document.getElementById("ComponentID").innerHTML += "<option value = {{ compAPT5.name }}> {{ compAPT5.name }}</option>";
           }
-        {% endfor %}       
+        {% endfor %}
     }else{
-        document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>";        
-        {% for compAPT5 in compAPT5List %}  
+        document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>";
+        {% for compAPT5 in compAPT5List %}
         document.getElementById("ComponentID").innerHTML += "<option value = {{ compAPT5.name }}> {{ compAPT5.name }}</option>";
-        {% endfor %}       
-    }              
-          
+        {% endfor %}
+    }
+
   }
-    
+
   // Funcion que modifica algunos select en funcion del apt
   function sectionFunction(){
     // Para cambiar area
     document.getElementById("AreaID").innerHTML = "<option value = default> Por Defecto </option>";
-    var section = document.getElementById("SectionID").value;                                         
+    var section = document.getElementById("SectionID").value;
     if (section == "APT5"){
       APT5Section();
-    }else{    
+    }else{
         document.getElementById("ComponentID").innerHTML = "<option value = 'default'>Por Defecto</option>"
         {% for component in componentList %}
           {% if component not in APT5CompList %}
             {% if component.shouldShow == True %}
               document.getElementById("ComponentID").innerHTML += "<option value = {{ component.name }}> {{ component.name }}</option>"
-            {% endif %}   
-          {% endif %}                          
-        {% endfor %}     
+            {% endif %}
+          {% endif %}
+        {% endfor %}
     }
-                                                                              
+
     {% for area in areaList %}
     var name = "{{area}}"
     if(name.startsWith(section)){
       newName = name.substring(name.lastIndexOf('.') + 1, name.length);
       document.getElementById("AreaID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
     }
-    {% endfor %}   
+    {% endfor %}
 
     // Para cambiar desviacion/defecto
     document.getElementById("desvID").innerHTML = "<option value = default> Por Defecto </option>";
@@ -322,7 +322,7 @@ y unos bloques para las funciones especificas de ambos programas -->
       document.getElementById("desvID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
     }
     {% endfor %}
-    
+
     // Para cambiar SGM
     document.getElementById("SGMID").innerHTML = "<option value = default> Por Defecto </option>";
     {% for sgm in SGMList%}
@@ -332,27 +332,27 @@ y unos bloques para las funciones especificas de ambos programas -->
       document.getElementById("SGMID").innerHTML += "<option value = " + newName + ">" + newName + "</option>";
     }
     {% endfor %}
-    
+
   }
 
 function validateForm() {
-    
+
     var variablesDef = [];
     var variablesWhite = [];
     variablesDef[0] = document.forms["myForm"]["Component"].value;
     variablesDef[1] = document.forms["myForm"]["Pieza"].value;
     variablesDef[2] = document.forms["myForm"]["parNumber"].value;
     variablesDef[3] = document.forms["myForm"]["Area"].value;
-    variablesDef[4] = document.forms["myForm"]["Defect"].value; 
+    variablesDef[4] = document.forms["myForm"]["Defect"].value;
     variablesDef[5] = document.forms["myForm"]["SGM"].value;
     variablesWhite[0] = document.forms["myForm"]["Ref"].value;
     variablesWhite[1] = document.forms["myForm"]["numH"].value;
-    document.forms["myForm"]["Descp"].value = document.getElementById("textDescp").value;            
+    document.forms["myForm"]["Descp"].value = document.getElementById("textDescp").value;
     variablesWhite[2] = document.forms["myForm"]["Descp"].value;
-    var repDate = document.forms["myForm"]["date"].value;               
-                  
+    var repDate = document.forms["myForm"]["date"].value;
+
     for (i = 0; i < variablesWhite.length; i++) {
-      if (variablesWhite[i] == "") { 
+      if (variablesWhite[i] == "") {
           alert("No se puede enviar un formulario con campos en blanco");
           return false;
       }
@@ -363,23 +363,23 @@ function validateForm() {
           return false;
       }
     }
-      
+
     if (validDate(repDate) == false){
-      return false;     
+      return false;
     }
-    
+
     {% if sendMail == True %}
       sendmail(document.forms["myForm"]["section"].value);
     {% endif %}
     return true;
-        
-  }  
-      
+
+  }
+
 function validDate(date){
   var year = date.substring(0, date.indexOf("/"));
-  var aux = date.substring(date.indexOf("/") + 1, date.length);         
+  var aux = date.substring(date.indexOf("/") + 1, date.length);
   var month = aux.substring(0, aux.indexOf("/"));
-  var day = aux.substring(aux.indexOf("/") + 1, aux.length);  
+  var day = aux.substring(aux.indexOf("/") + 1, aux.length);
   if(isNaN(year) || isNaN(month) || isNaN(day)){
     alert("El formato de la fecha no es adecuado")
     return false;
@@ -410,50 +410,50 @@ function validDate(date){
   }
   return true;
 }
-      
+
 function rt2Function(){
-    document.getElementById("rt2").innerHTML = "<option value='default'>Por defecto</option>"    
-    var rt1Chosen = document.forms["myForm"]["rt1"].value;                                 
-    {% for rt in rt2 %} 
-      var rtName = "{{rt.shortName}}" 
+    document.getElementById("rt2").innerHTML = "<option value='default'>Por defecto</option>"
+    var rt1Chosen = document.forms["myForm"]["rt1"].value;
+    {% for rt in rt2 %}
+      var rtName = "{{rt.shortName}}"
       if (rtName.startsWith(rt1Chosen)){
         document.getElementById("rt2").innerHTML += "<option {% if rt.codigo == rt2Form %}selected{% endif %} value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
       }
-    {% endfor%}    
-         
+    {% endfor%}
+
 }
-      
+
 function rt3Function(){
-    document.getElementById("rt3").innerHTML = "<option value='default'>Por defecto</option>"       
-    var rt2Chosen = document.forms["myForm"]["rt2"].value;  
-    {% for rt in rt3 %} 
-      var rtName = "{{rt.shortName}}" 
+    document.getElementById("rt3").innerHTML = "<option value='default'>Por defecto</option>"
+    var rt2Chosen = document.forms["myForm"]["rt2"].value;
+    {% for rt in rt3 %}
+      var rtName = "{{rt.shortName}}"
       if (rtName.startsWith(rt2Chosen)){
         document.getElementById("rt3").innerHTML += "<option {% if rt.codigo == rt3Form %}selected{% endif %} value = '{{rt.codigo}}'> {{rt.codigo}} - {{rt.nombre}}</option>"
       }
-    {% endfor%}    
-         
-}      
-      
+    {% endfor%}
+
+}
+
 function sendmail(sectionName){
     body = "Nuevo F412 creado, para seccion " + sectionName
     subject = "Notificacion F412"
-    
+
     if("APT3" == sectionName){
         toSend = "{{mailListAPT3}}"
         mailTo = "mailto:" + toSend + "?subject=" + subject + "&amp;body=" + body + ""
         window.location.href(mailTo)
     }
-      
+
     if("APT4" == sectionName){
         toSend = "{{mailListAPT4}}"
         mailTo = "mailto:" + toSend + "?subject=" + subject + "&amp;body=" + body + ""
-        window.location.href(mailTo)       
+        window.location.href(mailTo)
     }
-   
-}   
-      
-window.onload = function(){  
+
+}
+
+window.onload = function(){
   sectionFunction();
 }
 

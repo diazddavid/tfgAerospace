@@ -12,5 +12,5 @@ if __name__ == "__main__":
     call_command('makemigrations')
     call_command('migrate')
     call_command('runserver', socket.gethostbyname(socket.gethostname()) + ":8080")
-    
+
   #   call_command('runserver', socket.gethostbyname(socket.gethostname()) + ":8080")
